@@ -200,6 +200,12 @@ struct InitControlsSetting
 	int AEPriority;
 	int ExposureTimeAbsolute;
 
+	int FocusMode;
+	int FocusTrk;
+	int FocusMode_bak;
+	int FocusTrk_bak;
+
+
 
 }initCtrlSetting;
 
@@ -2284,7 +2290,7 @@ void OnInitCameraControlDialog(HWND hwnd)
 	CString retValueStr;
 	int retValue = 0;
 	long currValue, lCaps;
-	long lMin, lMax, lStep, lDefault;
+	//long lMin, lMax, lStep, lDefault;
 
 	hr = getExtControlValue(1, &retValue);
 	hr = getExtControlValue(17, &retValue);
@@ -2418,13 +2424,47 @@ void OnInitCameraControlDialog(HWND hwnd)
 	ComboBox_AddString(hListMainFeq, L"60 Hz");
 	ComboBox_SetCurSel(hListMainFeq, getMainsFrequency());
 
+	/* check the res */
+	AM_MEDIA_TYPE *pmt;
+	gcap.pVSC->GetFormat(&pmt);
+	int setV = 0;
 	getStandardControlPropertyCurrentValue(KSPROPERTY_VIDEOPROCAMP_BACKLIGHT_COMPENSATION, &currValue, &lCaps);
 	HWND hListBackLight = GetDlgItem(hwnd, IDC_COMBO_BACK_LIGHT);
-	ComboBox_AddString(hListBackLight, L"blc off");
-	ComboBox_AddString(hListBackLight, L"blc on");
-	ComboBox_AddString(hListBackLight, L"HBLC");
-	ComboBox_AddString(hListBackLight, L"Wide Dyn Range");
-	ComboBox_SetCurSel(hListBackLight, currValue);
+	if ((pmt->lSampleSize == 4147200) || (pmt->lSampleSize == 1036800)){
+		ComboBox_AddString(hListBackLight, L"Wide Dyn Range");
+		switch (currValue)
+		{
+		case 0:
+			setV = 1;// 3;
+			break;
+		case 1:
+			setV = 3;// 0;
+			break;
+		case 2:
+			setV = 2;
+			break;
+		case 3:
+			setV = 0;// 1;
+			break;
+		}
+	}
+	else{
+		switch (currValue)
+		{
+		case 0:
+			setV = 0;
+			break;
+		case 1:
+			setV = 1;
+			break;
+		}
+	}
+	ComboBox_AddString(hListBackLight, L"BLC off");
+	if ((pmt->lSampleSize == 4147200) || (pmt->lSampleSize == 1036800)){
+		ComboBox_AddString(hListBackLight, L"HBLC");
+	}
+	ComboBox_AddString(hListBackLight, L"BLC on");
+	ComboBox_SetCurSel(hListBackLight, setV);
 
 	HWND hListCameraMode = GetDlgItem(hwnd, IDC_COMBO_CAM_MODE);
 	hr = getExtControlValue(13, &retValue);
@@ -2432,14 +2472,53 @@ void OnInitCameraControlDialog(HWND hwnd)
 	{
 		EnableWindow(hListCameraMode, FALSE);
 	}
+
+	// default capture format
+	
+		// DV capture does not use a VIDEOINFOHEADER
+	if (pmt->lSampleSize == 4147200) //1080p
+	{
+		ComboBox_AddString(hListCameraMode, L"1080P(25/30fps)");
+		//ComboBox_AddString(hListCameraMode, L"Linear 1080P(25/30fps),BLC OFF");
+		//ComboBox_AddString(hListCameraMode, L"Linear 1080P(25/30fps),BLC ON");
+		//ComboBox_AddString(hListCameraMode, L"Linear 1080P(25/30fps),HBLC OFF");
+		//ComboBox_AddString(hListCameraMode, L"WDR 1080P(25/30fps),BLC OFF");
+	}
+	if (pmt->lSampleSize == 1036800) //1080p/2
+	{
+		ComboBox_AddString(hListCameraMode, L"1080P(25/30fps) USB2");
+		//ComboBox_AddString(hListCameraMode, L"Linear 1080P(25/30fps),BLC OFF");
+		//ComboBox_AddString(hListCameraMode, L"Linear 1080P(25/30fps),BLC ON");
+		//ComboBox_AddString(hListCameraMode, L"Linear 1080P(25/30fps),HBLC OFF");
+		//ComboBox_AddString(hListCameraMode, L"WDR 1080P(25/30fps),BLC OFF");
+	}
+
+	if (pmt->lSampleSize == 1843200) //720p
+	{
+		ComboBox_AddString(hListCameraMode, L"720P(50/60fps)");
+		// This capture filter captures something other that pure video.
+		//ComboBox_AddString(hListCameraMode, L"Linear 720P(50 / 60fps), BLC OFF");
+		//ComboBox_AddString(hListCameraMode, L"Linear 720P(50/60fps), BLC ON");
+		//ComboBox_AddString(hListCameraMode, L"Linear 720P(50/60fps), HBLC ON");
+	}
+	if (pmt->lSampleSize == 460800) //720p/2
+	{
+		ComboBox_AddString(hListCameraMode, L"720P(50/60fps) USB2");
+		// This capture filter captures something other that pure video.
+		//ComboBox_AddString(hListCameraMode, L"Linear 720P(50 / 60fps), BLC OFF");
+		//ComboBox_AddString(hListCameraMode, L"Linear 720P(50/60fps), BLC ON");
+		//ComboBox_AddString(hListCameraMode, L"Linear 720P(50/60fps), HBLC ON");
+	}
+
+	/*
 	ComboBox_AddString(hListCameraMode, L"Linear 1080P(25/30fps),BLC OFF");
 	ComboBox_AddString(hListCameraMode, L"Linear 1080P(25/30fps),BLC ON");
 	ComboBox_AddString(hListCameraMode, L"Linear 1080P(25/30fps),HBLC OFF");
 	ComboBox_AddString(hListCameraMode, L"WDR 1080P(25/30fps),BLC OFF");
 	ComboBox_AddString(hListCameraMode, L"Linear 720P(50 / 60fps), BLC OFF");
 	ComboBox_AddString(hListCameraMode, L"Linear 720P(50/60fps), BLC ON");
-	ComboBox_AddString(hListCameraMode, L"Linear 720P(50/60fps), HBLC ON");
-	ComboBox_SetCurSel(hListCameraMode, retValue);
+	ComboBox_AddString(hListCameraMode, L"Linear 720P(50/60fps), HBLC ON");*/
+	ComboBox_SetCurSel(hListCameraMode, 0/*retValue*/);
 
 	HWND hListBLCGrid = GetDlgItem(hwnd, IDC_COMBO_BLC_GRID);
 	hr = getExtControlValue(19, &retValue);
@@ -2523,6 +2602,7 @@ void OnInitCameraControlDialog(HWND hwnd)
 void saveCameraControlInitSetting(HWND hwnd)
 {
 	long currValue, lCaps;
+	int setV = 0;
 
 	// reset global struct
 	initCtrlSetting.ShutterControl = 0;
@@ -2533,6 +2613,7 @@ void saveCameraControlInitSetting(HWND hwnd)
 	initCtrlSetting.MirrorMode = 0;
 	initCtrlSetting.MainsFrequency = 0;
 	initCtrlSetting.BacklightCompensation = 0;
+	initCtrlSetting.CameraMode = 0;
 
 	// get current Value
 	getExtControlValue(1, &initCtrlSetting.ShutterControl);
@@ -2542,7 +2623,8 @@ void saveCameraControlInitSetting(HWND hwnd)
 	getExposureAGCLvlValue(10, &initCtrlSetting.ExposureMode, &initCtrlSetting.AGCLevel);
 
 	getExtControlValue(3, &initCtrlSetting.MirrorMode);
-	getExtControlValue(13, &initCtrlSetting.CameraMode);
+	//getExtControlValue(13, &initCtrlSetting.CameraMode);
+	//initCtrlSetting.CameraMode = 0;
 	getExtControlValue(18, &initCtrlSetting.BLCWeightFactor);
 	getExtControlValue(19, &initCtrlSetting.BLCGrid);
 
@@ -2550,6 +2632,43 @@ void saveCameraControlInitSetting(HWND hwnd)
 	initCtrlSetting.MainsFrequency = currValue;
 	currValue = 0;
 	getStandardControlPropertyCurrentValue(KSPROPERTY_VIDEOPROCAMP_BACKLIGHT_COMPENSATION, &currValue, &lCaps);
+#if 0	
+	/* check the res */
+	AM_MEDIA_TYPE *pmt;
+	gcap.pVSC->GetFormat(&pmt);
+
+	if ((pmt->lSampleSize == 4147200) || (pmt->lSampleSize == 1036800)) //1080p
+	{
+		switch (currValue)
+		{
+		case 0:
+			setV = 1;
+			break;
+		case 1:
+			setV = 3;
+			break;
+		case 2:
+			setV = 2;
+			break;
+		case 3:
+			setV = 0;
+			break;
+		}
+	}
+	else{ //720p
+		switch (currValue)
+		{
+		case 0:
+			setV = 0;
+			break;
+		case 1:
+			setV = 1;
+			break;
+		}
+
+	}
+
+#endif	
 	initCtrlSetting.BacklightCompensation = currValue;
 
 }
@@ -2558,6 +2677,7 @@ void resetCameraControlInitSetting(HWND hwnd)
 {
 	HWND hListComboShutCtrl = GetDlgItem(hwnd, IDC_COMBO_SHUT_CONTL);
 	int sel = ComboBox_GetCurSel(hListComboShutCtrl);
+	int setV = 0;
 	if (sel != initCtrlSetting.ShutterControl)
 		setExtControls(1, initCtrlSetting.ShutterControl);
 
@@ -2612,7 +2732,44 @@ void resetCameraControlInitSetting(HWND hwnd)
 
 		HWND hListBackLight = GetDlgItem(hwnd, IDC_COMBO_BACK_LIGHT);
 		sel = ComboBox_GetCurSel(hListBackLight);
-		if (sel != initCtrlSetting.BacklightCompensation)
+
+		/* check the res */
+		AM_MEDIA_TYPE *pmt;
+		gcap.pVSC->GetFormat(&pmt);
+
+			if ((pmt->lSampleSize == 4147200) || (pmt->lSampleSize == 1036800)) //1080p
+			{
+				switch (sel)
+				{
+				case 0:
+					setV = 3;
+					break;
+				case 1:
+					setV = 0;
+					break;
+				case 2:
+					setV = 2;
+					break;
+				case 3:
+					setV = 1;
+					break;
+				}
+			}
+			else{ //720p
+				switch (sel)
+				{
+				case 0:
+					setV = 0;
+					break;
+				case 1:
+					setV = 1;
+					break;
+				}
+
+			}
+
+
+		if (setV != initCtrlSetting.BacklightCompensation)
 			ksNodeTree.pProcAmp->Set(KSPROPERTY_VIDEOPROCAMP_BACKLIGHT_COMPENSATION, (long)initCtrlSetting.BacklightCompensation, VideoProcAmp_Flags_Manual);
 
 	}
@@ -3316,7 +3473,7 @@ HRESULT OnCameraModeChange(HWND hwnd)
 				memcpy(pbPropertyValue, (char*)&sel, ulSize);
 				hr = setExtionControlProperty(PropertId, ulSize, pbPropertyValue);
 
-				if (SUCCEEDED(hr))
+				if (0&&SUCCEEDED(hr))
 				{
 					long currValue, lCaps;
 					getStandardControlPropertyCurrentValue(KSPROPERTY_VIDEOPROCAMP_BACKLIGHT_COMPENSATION, &currValue, &lCaps);
@@ -3534,8 +3691,13 @@ HRESULT	onBacklightCompensationChange(HWND hwnd)
 {
 	HRESULT hr = S_OK;
 	HWND hListBackLight = GetDlgItem(hwnd, IDC_COMBO_BACK_LIGHT);
+	int setV = 0;
 
 	int sel = ComboBox_GetCurSel(hListBackLight);
+
+	/* check the res */
+	AM_MEDIA_TYPE *pmt;
+	gcap.pVSC->GetFormat(&pmt);
 
 	if (sel != LB_ERR && ksNodeTree.isOKpProcAmp)
 	{
@@ -3543,7 +3705,38 @@ HRESULT	onBacklightCompensationChange(HWND hwnd)
 		sprintf(logMessage, "\nbmRequestType:SET \t bRequest:SET_CUR \t wValue:BacklightCompensation \t wIndex:0x02\t PutValue:%d", sel);
 		printLogMessage(logMessage);
 #endif
-		hr = ksNodeTree.pProcAmp->Set(KSPROPERTY_VIDEOPROCAMP_BACKLIGHT_COMPENSATION, (long)sel, VideoProcAmp_Flags_Manual);
+		if ((pmt->lSampleSize == 4147200) || (pmt->lSampleSize == 1036800)) //1080p
+		{
+			switch (sel)
+			{
+			case 0:
+				setV = 3;
+				break;
+			case 1:
+				setV = 0;
+				break;
+			case 2:
+				setV = 2;
+				break;
+			case 3:
+				setV = 1;
+				break;
+			}
+		}
+		else{ //720p
+			switch (sel)
+			{
+			case 0:
+				setV = 0;
+				break;
+			case 1:
+				setV = 1;
+				break;
+			}
+
+		}
+
+		hr = ksNodeTree.pProcAmp->Set(KSPROPERTY_VIDEOPROCAMP_BACKLIGHT_COMPENSATION, (long)setV, VideoProcAmp_Flags_Manual);
 
 		if (SUCCEEDED(hr))
 		{
@@ -5517,6 +5710,52 @@ HRESULT writeI2cCommand(HWND hwnd)
 
 }
 
+HRESULT I2cCommandInt(BYTE *pwritedata)
+{
+	HRESULT hr = S_OK;
+	ULONG ulSize;
+	BYTE *pbPropertyValue;
+
+	int PropertyId = 16;
+
+	hr = getExtionControlPropertySize(PropertyId, &ulSize);
+	if (FAILED(hr))
+	{
+#ifdef DEBUG
+		sprintf(logMessage, " \nERROR \t Function : writeI2cCommandInt \t Msg : Unable to find property[%d] size : %x", PropertyId, hr);
+		printLogMessage(logMessage);
+#endif
+	}
+	else
+	{
+		pbPropertyValue = new BYTE[ulSize];
+		if (!pbPropertyValue)
+		{
+#ifdef DEBUG
+			sprintf(logMessage, " \nERROR \t Function : writeI2cCommandInt \t Msg : Unable to allocate memory for property[%d] value", PropertyId);
+			printLogMessage(logMessage);
+#endif
+		}
+
+		pbPropertyValue[0] = *(pwritedata + 0); // I2C write comman first byte 1
+		pbPropertyValue[1] = *(pwritedata + 1); // 1 byte: for number of addr byte
+		pbPropertyValue[2] = *(pwritedata + 2); // 6 bytes: for addrs
+		pbPropertyValue[3] = *(pwritedata + 3);
+		pbPropertyValue[4] = *(pwritedata + 4);
+		pbPropertyValue[5] = *(pwritedata + 5);
+		pbPropertyValue[6] = *(pwritedata + 6);
+		pbPropertyValue[7] = *(pwritedata + 7);
+		pbPropertyValue[8] = *(pwritedata + 8); // 1 byte: for number of data
+		pbPropertyValue[9] = *(pwritedata + 9); // 2 bytes: for data
+		pbPropertyValue[10] = *(pwritedata + 10);
+
+		hr = setExtionControlProperty(PropertyId, ulSize, pbPropertyValue);
+
+	}
+
+	return hr;
+
+}
 
 /////////////////////////////////////////////////////////////////////
 
@@ -5531,6 +5770,11 @@ void	saveZoomControlInitSetting(HWND hwnd);
 void	opticalZoomIn();
 void	opticalZoomOut();
 void	opticalZoomStop();
+void    focusMode(HWND hwnd);
+void    focusZoomTrk(HWND hwnd);
+void    startFocusOne();
+void    manuFocusNear();
+void    manuFocusFar();
 
 //-------------------------------------------------------------------
 //  DayNightSettingsDlgProc
@@ -5550,6 +5794,11 @@ INT_PTR CALLBACK ZoomControlDlgProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM l
 #endif
 		SetWindowLong(GetDlgItem(hwnd, IDC_BTN_ZOOM_IN), GWL_EXSTYLE, GetWindowLong(hwnd, GWL_EXSTYLE) & ~WS_EX_NOPARENTNOTIFY);
 		SetWindowLong(GetDlgItem(hwnd, IDC_BTN_ZOOM_OUT), GWL_EXSTYLE, GetWindowLong(hwnd, GWL_EXSTYLE) & ~WS_EX_NOPARENTNOTIFY);
+		SetWindowLong(GetDlgItem(hwnd, IDC_BTN_FOCUS_START), GWL_EXSTYLE, GetWindowLong(hwnd, GWL_EXSTYLE) & ~WS_EX_NOPARENTNOTIFY);
+		SetWindowLong(GetDlgItem(hwnd, IDC_BTN_FOCUS_NEAR), GWL_EXSTYLE, GetWindowLong(hwnd, GWL_EXSTYLE) & ~WS_EX_NOPARENTNOTIFY);
+		//GetDlgItem(IDC_BTN_FOCUS_START);
+
+		SetWindowLong(GetDlgItem(hwnd, IDC_BTN_FOCUS_FAR), GWL_EXSTYLE, GetWindowLong(hwnd, GWL_EXSTYLE) & ~WS_EX_NOPARENTNOTIFY);
 		saveZoomControlInitSetting(hwnd);
 		OnInitZoomControlDialog(hwnd);
 		return TRUE;
@@ -5579,6 +5828,33 @@ INT_PTR CALLBACK ZoomControlDlgProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM l
 				printLogMessage(logMessage);
 #endif
 				opticalZoomOut();
+				//MessageBox(hwnd, L"Zoom out command", WINDOW_NAME, MB_OK);
+			}
+			else if (pointHwnd == GetDlgItem(hwnd, IDC_BTN_FOCUS_START))
+			{
+#ifdef DEBUG
+				sprintf(logMessage, " \nCommand Fired : IDC_BTN_FOCUS_START Event : button pressed");
+				printLogMessage(logMessage);
+#endif
+				startFocusOne();
+				//MessageBox(hwnd, L"Zoom in command", WINDOW_NAME, MB_OK);
+			}
+			else if (pointHwnd == GetDlgItem(hwnd, IDC_BTN_FOCUS_NEAR))
+			{
+#ifdef DEBUG
+				sprintf(logMessage, " \nCommand Fired : IDC_BTN_FOCUS_NEAR Event : button pressed");
+				printLogMessage(logMessage);
+#endif
+				manuFocusNear();
+				//MessageBox(hwnd, L"Zoom out command", WINDOW_NAME, MB_OK);
+			}
+			else if (pointHwnd == GetDlgItem(hwnd, IDC_BTN_FOCUS_FAR))
+			{
+#ifdef DEBUG
+				sprintf(logMessage, " \nCommand Fired : IDC_BTN_FOCUS_FAR Event : button pressed");
+				printLogMessage(logMessage);
+#endif
+				manuFocusFar();
 				//MessageBox(hwnd, L"Zoom out command", WINDOW_NAME, MB_OK);
 			}
 
@@ -5622,6 +5898,64 @@ INT_PTR CALLBACK ZoomControlDlgProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM l
 				break;
 			}
 			return TRUE;
+
+		case IDC_BTN_FOCUS_NEAR:
+			switch (HIWORD(wParam)) // Find out what message it was
+			{
+			case BN_CLICKED:
+#ifdef DEBUG
+				sprintf(logMessage, " \nCommand Fired : IDC_BTN_FOCUS_NEAR Event : button released");
+				printLogMessage(logMessage);
+#endif
+				opticalZoomStop();
+				//MessageBox(hwnd, L"Zoom stop command", WINDOW_NAME, MB_OK);
+				break;
+			}
+			return TRUE;
+
+		case IDC_BTN_FOCUS_FAR:
+			switch (HIWORD(wParam)) // Find out what message it was
+			{
+			case BN_CLICKED:
+#ifdef DEBUG
+				sprintf(logMessage, " \nCommand Fired : IDC_BTN_FOCUS_FAR Event : button released");
+				printLogMessage(logMessage);
+#endif
+				opticalZoomStop();
+				//MessageBox(hwnd, L"Zoom stop command", WINDOW_NAME, MB_OK);
+				break;
+			}
+			return TRUE;
+
+
+		case IDC_COMBO_FOCUS_MODE:
+			switch (HIWORD(wParam)) // Find out what message it was
+			{
+			case CBN_SELCHANGE:
+#ifdef DEBUG
+				sprintf(logMessage, " \nCommand Fired : IDC_COMBO_FOCUS_MODE Event : CBN_SELCHANGE");
+				printLogMessage(logMessage);
+#endif
+				//OnShutCtrlChange(hwnd);
+				focusMode(hwnd);
+				break;
+			}
+			return TRUE;
+
+		case IDC_COMBO_FOCUS_ZOOMTRC:
+			switch (HIWORD(wParam)) // Find out what message it was
+			{
+			case CBN_SELCHANGE:
+#ifdef DEBUG
+				sprintf(logMessage, " \nCommand Fired : IDC_COMBO_FOCUS_ZOOMTRC Event : CBN_SELCHANGE");
+				printLogMessage(logMessage);
+#endif
+				//OnShutCtrlChange(hwnd);
+				focusZoomTrk(hwnd);
+				break;
+			}
+			return TRUE;
+
 
 		case IDCANCEL:
 			resetZoomControlInitSetting(hwnd);
@@ -5776,6 +6110,267 @@ void opticalZoomStop()
 
 }
 
+void    focusMode(HWND hwnd)
+{
+
+	BYTE *pbPropertyValue;
+	HRESULT hr = S_OK;
+	ULONG ulSize = 11;
+	int PropertyId = 16;
+	//HRESULT hr = S_OK;
+	pbPropertyValue = new BYTE[ulSize];
+	HWND hListFocusMode = GetDlgItem(hwnd, IDC_COMBO_FOCUS_MODE);
+
+
+	int sel = ComboBox_GetCurSel(hListFocusMode);
+
+	//HWND hNearBNT = GetDlgItem(hwnd, IDC_BTN_FOCUS_FAR);
+	//Button_Enable(hNearBNT, TRUE);
+	if (sel == 1){
+		BOOL flag = EnableWindow(GetDlgItem(hwnd, IDC_BTN_FOCUS_FAR), TRUE);
+		flag = EnableWindow(GetDlgItem(hwnd, IDC_BTN_FOCUS_NEAR), TRUE);
+		flag = EnableWindow(GetDlgItem(hwnd, IDC_BTN_FOCUS_START), FALSE);
+
+	}
+	else if(sel ==2){
+		BOOL flag = EnableWindow(GetDlgItem(hwnd, IDC_BTN_FOCUS_FAR), FALSE);
+		flag = EnableWindow(GetDlgItem(hwnd, IDC_BTN_FOCUS_NEAR), FALSE);
+		flag = EnableWindow(GetDlgItem(hwnd, IDC_BTN_FOCUS_START), TRUE);
+	}
+	else {
+		BOOL flag = EnableWindow(GetDlgItem(hwnd, IDC_BTN_FOCUS_FAR), FALSE);
+		flag = EnableWindow(GetDlgItem(hwnd, IDC_BTN_FOCUS_NEAR), FALSE);
+		flag = EnableWindow(GetDlgItem(hwnd, IDC_BTN_FOCUS_START), FALSE);
+	}
+
+	//ON_UPDATE_COMMAND_UI();
+
+	pbPropertyValue[0] = 0x01; // I2C write comman first byte 1
+	pbPropertyValue[1] = 0x04;
+	pbPropertyValue[2] = 0x70;
+	pbPropertyValue[3] = 0x82;
+	pbPropertyValue[4] = 0x30;
+	pbPropertyValue[5] = 0x40;
+	pbPropertyValue[6] = 0x00;
+	pbPropertyValue[7] = 0x00;
+	pbPropertyValue[8] = 0x01;
+	switch (sel)
+	{
+	case 0:
+		pbPropertyValue[9] = 1; //auto
+		break;
+	case 3:
+		pbPropertyValue[9] = 3; //focus when zoom comp
+		break;
+	case 1:
+		pbPropertyValue[9] = 0; //manual
+		break;
+	case 2:
+		pbPropertyValue[9] = 2; //auto one time
+		break;
+	}
+	pbPropertyValue[10] = 0x00;
+	if (sel != initCtrlSetting.FocusMode){
+		//initCtrlSetting.FocusMode_bak = initCtrlSetting.FocusMode;
+		initCtrlSetting.FocusMode = sel;
+		I2cCommandInt(pbPropertyValue);
+	}
+	 
+}
+
+void    focusZoomTrk(HWND hwnd)
+{
+
+	BYTE *pbPropertyValue;
+	HRESULT hr = S_OK;
+	ULONG ulSize = 11;
+	int PropertyId = 16;
+	//HRESULT hr = S_OK;
+	pbPropertyValue = new BYTE[ulSize];
+	HWND hListFocusTrack = GetDlgItem(hwnd, IDC_COMBO_FOCUS_ZOOMTRC);
+
+	int sel = ComboBox_GetCurSel(hListFocusTrack);
+
+	pbPropertyValue[0] = 0x01; // I2C write comman first byte 1
+	pbPropertyValue[1] = 0x04;
+	pbPropertyValue[2] = 0x70;
+	pbPropertyValue[3] = 0x82;
+	pbPropertyValue[4] = 0x30;
+	pbPropertyValue[5] = 0x48;
+	pbPropertyValue[6] = 0x00;
+	pbPropertyValue[7] = 0x00;
+	pbPropertyValue[8] = 0x01;
+	pbPropertyValue[9] = (sel+0x1)&0x1;// 0x00;
+	pbPropertyValue[10] = 0x00;
+
+	if (sel != initCtrlSetting.FocusTrk){
+		//initCtrlSetting.FocusTrk_bak = initCtrlSetting.FocusTrk;
+		initCtrlSetting.FocusTrk = sel;
+
+		I2cCommandInt(pbPropertyValue);
+	}
+}
+
+void    refocusMode(HWND hwnd, int sel)
+{
+
+	BYTE *pbPropertyValue;
+	HRESULT hr = S_OK;
+	ULONG ulSize = 11;
+	int PropertyId = 16;
+	//HRESULT hr = S_OK;
+	pbPropertyValue = new BYTE[ulSize];
+
+	if (sel == 1){
+		BOOL flag = EnableWindow(GetDlgItem(hwnd, IDC_BTN_FOCUS_FAR), TRUE);
+		flag = EnableWindow(GetDlgItem(hwnd, IDC_BTN_FOCUS_NEAR), TRUE);
+		flag = EnableWindow(GetDlgItem(hwnd, IDC_BTN_FOCUS_START), FALSE);
+
+	}
+	else if (sel == 2){
+		BOOL flag = EnableWindow(GetDlgItem(hwnd, IDC_BTN_FOCUS_FAR), FALSE);
+		flag = EnableWindow(GetDlgItem(hwnd, IDC_BTN_FOCUS_NEAR), FALSE);
+		flag = EnableWindow(GetDlgItem(hwnd, IDC_BTN_FOCUS_START), TRUE);
+	}
+	else {
+		BOOL flag = EnableWindow(GetDlgItem(hwnd, IDC_BTN_FOCUS_FAR), FALSE);
+		flag = EnableWindow(GetDlgItem(hwnd, IDC_BTN_FOCUS_NEAR), FALSE);
+		flag = EnableWindow(GetDlgItem(hwnd, IDC_BTN_FOCUS_START), FALSE);
+	}
+	//ON_UPDATE_COMMAND_UI();
+
+	pbPropertyValue[0] = 0x01; // I2C write comman first byte 1
+	pbPropertyValue[1] = 0x04;
+	pbPropertyValue[2] = 0x70;
+	pbPropertyValue[3] = 0x82;
+	pbPropertyValue[4] = 0x30;
+	pbPropertyValue[5] = 0x40;
+	pbPropertyValue[6] = 0x00;
+	pbPropertyValue[7] = 0x00;
+	pbPropertyValue[8] = 0x01;
+	switch (sel)
+	{
+	case 0:
+		pbPropertyValue[9] = 1; //auto
+		break;
+	case 3:
+		pbPropertyValue[9] = 3; //focus when zoom comp
+		break;
+	case 1:
+		pbPropertyValue[9] = 0; //manual
+		break;
+	case 2:
+		pbPropertyValue[9] = 2; //auto one time
+		break;
+	}
+	pbPropertyValue[10] = 0x00;
+	//if (sel != initCtrlSetting.FocusMode){
+		//initCtrlSetting.FocusMode_bak = initCtrlSetting.FocusMode;
+		//initCtrlSetting.FocusMode = sel;
+		I2cCommandInt(pbPropertyValue);
+	//}
+
+}
+
+void    refocusZoomTrk(HWND hwnd, int sel)
+{
+
+	BYTE *pbPropertyValue;
+	HRESULT hr = S_OK;
+	ULONG ulSize = 11;
+	int PropertyId = 16;
+	//HRESULT hr = S_OK;
+	pbPropertyValue = new BYTE[ulSize];
+
+	pbPropertyValue[0] = 0x01; // I2C write comman first byte 1
+	pbPropertyValue[1] = 0x04;
+	pbPropertyValue[2] = 0x70;
+	pbPropertyValue[3] = 0x82;
+	pbPropertyValue[4] = 0x30;
+	pbPropertyValue[5] = 0x48;
+	pbPropertyValue[6] = 0x00;
+	pbPropertyValue[7] = 0x00;
+	pbPropertyValue[8] = 0x01;
+	pbPropertyValue[9] = (sel+0x1)&0x1;// 0x00;
+	pbPropertyValue[10] = 0x00;
+
+	if (1||sel != initCtrlSetting.FocusTrk){
+		//initCtrlSetting.FocusTrk_bak = initCtrlSetting.FocusTrk;
+		//initCtrlSetting.FocusTrk = pbPropertyValue[9];
+
+		I2cCommandInt(pbPropertyValue);
+	}
+}
+
+void    startFocusOne()
+{
+
+	BYTE *pbPropertyValue;
+	HRESULT hr = S_OK;
+	ULONG ulSize = 11;
+	int PropertyId = 16;
+	pbPropertyValue = new BYTE[ulSize];
+	pbPropertyValue[0] = 0x01; // I2C write comman first byte 1
+	pbPropertyValue[1] = 0x04;
+	pbPropertyValue[2] = 0x70;
+	pbPropertyValue[3] = 0x82;
+	pbPropertyValue[4] = 0x30;
+	pbPropertyValue[5] = 0x42;
+	pbPropertyValue[6] = 0x00;
+	pbPropertyValue[7] = 0x00;
+	pbPropertyValue[8] = 0x01;
+	pbPropertyValue[9] = 0x01;
+	pbPropertyValue[10] = 0x00;
+
+	I2cCommandInt(pbPropertyValue);
+}
+
+void    manuFocusNear()
+{
+
+	BYTE *pbPropertyValue;
+	HRESULT hr = S_OK;
+	ULONG ulSize = 11;
+	int PropertyId = 16;
+	pbPropertyValue = new BYTE[ulSize];
+	pbPropertyValue[0] = 0x01; // I2C write comman first byte 1
+	pbPropertyValue[1] = 0x04;
+	pbPropertyValue[2] = 0x70;
+	pbPropertyValue[3] = 0x82;
+	pbPropertyValue[4] = 0x30;
+	pbPropertyValue[5] = 0x10;
+	pbPropertyValue[6] = 0x00;
+	pbPropertyValue[7] = 0x00;
+	pbPropertyValue[8] = 0x01;
+	pbPropertyValue[9] = 0x10;
+	pbPropertyValue[10] = 0x00;
+
+	I2cCommandInt(pbPropertyValue);
+}
+
+void    manuFocusFar()
+{
+
+	BYTE *pbPropertyValue;
+	HRESULT hr = S_OK;
+	ULONG ulSize = 11;
+	int PropertyId = 16;
+	pbPropertyValue = new BYTE[ulSize];
+	pbPropertyValue[0] = 0x01; // I2C write comman first byte 1
+	pbPropertyValue[1] = 0x04;
+	pbPropertyValue[2] = 0x70;
+	pbPropertyValue[3] = 0x82;
+	pbPropertyValue[4] = 0x30;
+	pbPropertyValue[5] = 0x10;
+	pbPropertyValue[6] = 0x00;
+	pbPropertyValue[7] = 0x00;
+	pbPropertyValue[8] = 0x01;
+	pbPropertyValue[9] = 0x20;
+	pbPropertyValue[10] = 0x00;
+
+	I2cCommandInt(pbPropertyValue);
+}
+
 
 void OnInitZoomControlDialog(HWND hwnd)
 {
@@ -5802,6 +6397,34 @@ void OnInitZoomControlDialog(HWND hwnd)
 	Edit_SetText(hListDigZoomPos, currValueStr);
 	EnableWindow(hListDigZoomPos, FALSE);
 
+	HWND hListFocusMode = GetDlgItem(hwnd, IDC_COMBO_FOCUS_MODE);
+	ComboBox_AddString(hListFocusMode, L"Continuous Auto Focus");
+	ComboBox_AddString(hListFocusMode, L"Manual Focus");
+	ComboBox_AddString(hListFocusMode, L"One Time Auto Focus");
+	//ComboBox_AddString(hListFocusMode, L"Focus Once Zoom Complete");
+	ComboBox_SetCurSel(hListFocusMode, initCtrlSetting.FocusMode);
+	if (initCtrlSetting.FocusMode == 1){//manu
+		BOOL flag = EnableWindow(GetDlgItem(hwnd, IDC_BTN_FOCUS_FAR), TRUE);
+		flag = EnableWindow(GetDlgItem(hwnd, IDC_BTN_FOCUS_NEAR), TRUE);
+		flag = EnableWindow(GetDlgItem(hwnd, IDC_BTN_FOCUS_START), FALSE);
+	}
+	else if (initCtrlSetting.FocusMode == 2){//one time
+		BOOL flag = EnableWindow(GetDlgItem(hwnd, IDC_BTN_FOCUS_FAR), FALSE);
+		flag = EnableWindow(GetDlgItem(hwnd, IDC_BTN_FOCUS_NEAR), FALSE);
+		flag = EnableWindow(GetDlgItem(hwnd, IDC_BTN_FOCUS_START), TRUE);
+	}
+	else {
+		BOOL flag = EnableWindow(GetDlgItem(hwnd, IDC_BTN_FOCUS_FAR), FALSE);
+		flag = EnableWindow(GetDlgItem(hwnd, IDC_BTN_FOCUS_NEAR), FALSE);
+		flag = EnableWindow(GetDlgItem(hwnd, IDC_BTN_FOCUS_START), FALSE);
+	}
+
+
+	HWND hListFocusTrack = GetDlgItem(hwnd, IDC_COMBO_FOCUS_ZOOMTRC);
+	ComboBox_AddString(hListFocusTrack, L"Enable");
+	ComboBox_AddString(hListFocusTrack, L"Disable");
+	ComboBox_SetCurSel(hListFocusTrack, initCtrlSetting.FocusTrk);
+
 }
 
 void saveZoomControlInitSetting(HWND hwnd)
@@ -5810,6 +6433,8 @@ void saveZoomControlInitSetting(HWND hwnd)
 
 	// reset global struct
 	initCtrlSetting.DigitalMultiplier = 0;
+	initCtrlSetting.FocusMode_bak = initCtrlSetting.FocusMode;
+	initCtrlSetting.FocusTrk_bak = initCtrlSetting.FocusTrk;
 
 	// get current Value
 	currValue = 0;
@@ -5826,6 +6451,16 @@ void resetZoomControlInitSetting(HWND hwnd)
 		long SldPos = (long)SendMessageA(hListSldDigZoomPos, TBM_GETPOS, TRUE, SldPos);
 		if (SldPos != initCtrlSetting.DigitalMultiplier)
 			ksNodeTree.pProcAmp->Set(KSPROPERTY_VIDEOPROCAMP_DIGITAL_MULTIPLIER, (long)initCtrlSetting.DigitalMultiplier, VideoProcAmp_Flags_Manual);
+		
+		if (initCtrlSetting.FocusMode != initCtrlSetting.FocusMode_bak){
+			initCtrlSetting.FocusMode = initCtrlSetting.FocusMode_bak;
+			refocusMode(hwnd, initCtrlSetting.FocusMode);
+		}
+		if (initCtrlSetting.FocusTrk != initCtrlSetting.FocusTrk_bak){
+			initCtrlSetting.FocusTrk = initCtrlSetting.FocusTrk_bak;
+			refocusZoomTrk(hwnd, initCtrlSetting.FocusTrk);
+		}
+
 	}
 }
 

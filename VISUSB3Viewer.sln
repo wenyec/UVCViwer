@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 2013
 VisualStudioVersion = 12.0.31101.0
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Videology USB 3.0 Custom Viewer 3.1.1", "Videology USB 3.0 Custom Viewer 3.1.1.vcxproj", "{42CC2BCD-AAD2-4C3C-87BB-0B42F2848E17}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "VISUSB3Viewer", "VISUSB3Viewer.vcxproj", "{42CC2BCD-AAD2-4C3C-87BB-0B42F2848E17}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
