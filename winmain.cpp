@@ -9,19 +9,21 @@
 #include <iomanip>
 #include <Dshow.h>
 #include <strmif.h>
-#include <ks.h>
-#include <ksproxy.h>
+//#include <ks.h>
+//#include <ksproxy.h>
 #include <vidcap.h>
 #include <ksmedia.h>
 
 #include <comdef.h>
 
 #include <objbase.h>
-#include "qedit.h"
+//#include "qedit.h"
 
+#include "winmain.h"
 #include "MFCaptureD3D.h"
 #include "resource.h"
-#include "SampleCGB.h"
+//#include "SampleCGB.h"
+#include "GetDevice.h"
 
 //------------------------------------------------------------------------------
 // Macros
@@ -48,6 +50,7 @@
 	"publicKeyToken='6595b64144ccf1df' "\
 	"language='*'\"")
 
+#if 0
 float aspRetio = 0;
 int image_w, image_h;
 
@@ -252,7 +255,7 @@ typedef enum{
 	MEDIA_MJPEG = 0,
 	MEDIA_YUY2 = 1
 }eMediaType;
-
+#endif
 //Videoloy Extension control
 //void	InitProcAmp(IMFActivate *pActivate);
 //void	InitCameraControl(IMFActivate *pActivate);
@@ -408,6 +411,12 @@ INT WINAPI wWinMain(HINSTANCE, HINSTANCE, LPWSTR, INT)
 
 	if (InitializeApplication() && InitializeWindow(&hwnd))
 	{
+//		if (!AfxWinInit(::GetModuleHandle(NULL), NULL, ::GetCommandLine(), 0))
+//		{
+//			;
+//		}
+//		AfxGetInstanceHandle();
+
 		MessageLoop(hwnd);
 	}
 
@@ -2340,8 +2349,6 @@ void OnChooseDevice(HWND hwnd, BOOL bPrompt)
 	UINT iDevice = 0;   // Index into the array of devices
 	BOOL bCancel = FALSE;
 
-	if (FAILED(hr)) { goto done; }
-
 	// Ask for source type = video capture devices.
 	gcap.fDeviceMenuPopulated = false;
 	AddDevicesToMenu(); // enumerate devide list for extended control.
@@ -2353,7 +2360,15 @@ void OnChooseDevice(HWND hwnd, BOOL bPrompt)
 	if (bPrompt)
 	{
 		// Ask the user to select a device.
-
+		if (!AfxWinInit(::GetModuleHandle(NULL), NULL, ::GetCommandLine(), 0))
+		{
+			;
+		}
+		AfxGetInstanceHandle();
+		GetDevice c_getDevice; // add the get device class --wcheng
+		c_getDevice.devCap = &gcap;
+		hr = c_getDevice.DoModal();
+/*
 		INT_PTR result = DialogBoxParam(
 			GetModuleHandle(NULL),
 			MAKEINTRESOURCE(IDD_CHOOSE_DEVICE),
@@ -2371,7 +2386,7 @@ void OnChooseDevice(HWND hwnd, BOOL bPrompt)
 		{
 			//bCancel = FALSE; // User cancelled
 		}
-	}
+*/	}
 	else
 	{
 		if (gcap.iNumVCapDevices > 0)
@@ -2445,7 +2460,7 @@ HRESULT OnOK(HWND hwnd);
 //
 //  Dialog procedure for the "Select Device" dialog.
 //-------------------------------------------------------------------
-
+/*
 INT_PTR CALLBACK DlgProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 {
 	switch (msg)
@@ -2518,7 +2533,7 @@ HRESULT OnOK(HWND hwnd)
 
 	return S_OK;
 }
-
+*/
 
 /////////////////////////////////////////////////////////////////////
 
