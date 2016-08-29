@@ -12,7 +12,7 @@
 //#include <ks.h>
 //#include <ksproxy.h>
 #include <vidcap.h>
-#include <ksmedia.h>
+//#include <ksmedia.h>
 
 #include <comdef.h>
 
@@ -24,6 +24,7 @@
 #include "resource.h"
 //#include "SampleCGB.h"
 #include "GetDevice.h"
+#include "VIS5mpBWExp.h"
 
 //------------------------------------------------------------------------------
 // Macros
@@ -1952,6 +1953,18 @@ EnumAudio:
 void OnCameraControlMenu(HWND hwnd)
 {
 
+	if (!AfxWinInit(::GetModuleHandle(NULL), NULL, ::GetCommandLine(), 0))
+	{
+		;
+	}
+	AfxGetInstanceHandle();
+	VIS5mpBWExp c_5mpBWExp; // add the get device class --wcheng
+	c_5mpBWExp.devCap = &gcap;
+	c_5mpBWExp.camNodeTree = &ksNodeTree;
+	c_5mpBWExp.saveCameraControlInitSetting();
+	c_5mpBWExp.DoModal();
+
+#if 0	
 	INT_PTR result = DialogBoxParam(
 		GetModuleHandle(NULL),
 		MAKEINTRESOURCE(IDD_CAM_CONTROL),
@@ -1965,7 +1978,7 @@ void OnCameraControlMenu(HWND hwnd)
 		//TODO : send extension cmd to camera
 		// int selIndex = param.selMirrorIndex;
 	}
-
+#endif
 }
 
 void OnDayNightMenu(HWND hwnd)

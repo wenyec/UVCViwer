@@ -27,6 +27,9 @@
     <ClCompile Include="GetDevice.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="VIS5mpBWExp.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="BufferLock.h">
@@ -60,6 +63,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="winmain.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="VIS5mpBWExp.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

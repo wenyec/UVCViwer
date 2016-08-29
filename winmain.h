@@ -7,6 +7,7 @@
 #pragma once
 #include <ks.h>
 #include <ksproxy.h>
+#include <ksmedia.h>
 #include "qedit.h"
 #include "SampleCGB.h"
 
@@ -214,3 +215,11 @@ typedef enum{
 	MEDIA_MJPEG = 0,
 	MEDIA_YUY2 = 1
 }eMediaType;
+
+extern HRESULT	getExtControlValue(int PropertyId, int *curValue);
+extern HRESULT  getExt2ControlValues(int PropertyId, int *ExpValue, int *AgcLvlValue);
+extern HRESULT  getBLCRangeValue(int PropertyId, int *hpos, int *hsize, int *vpos, int *vsize);
+extern HRESULT	getStandardControlPropertyCurrentValue(long PropertyID, long *currValue, long *lCaps);
+
+extern HRESULT  getExtionControlPropertySize(ULONG PropertyId, ULONG *pulSize);
+extern HRESULT setExtionControlProperty(ULONG PropertyId, ULONG ulSize, BYTE pValue[]);
