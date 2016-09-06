@@ -103,7 +103,9 @@ BOOL VIS5mpBWExp::OnInitDialog()
 	long lMin, lMax, lStep, lDefault;
 
 	int expMode = 0, AGCLvl = 0, isBLCon = 0;
-	hr = getExt2ControlValues(10, &expMode, &AGCLvl);
+	//hr = getExt2ControlValues(10, &expMode, &AGCLvl);//initCtrlSetting.ExposureMode, &initCtrlSetting.AGCLevel
+	expMode = initCtrlSetting.ExposureMode;
+	AGCLvl = initCtrlSetting.AGCLevel;
 #if 1 //disable the exposure mode menu
 	//HWND hListExpoMode = GetDlgItem(hwnd, IDC_COMBO_EXPOSURE_MODE);
 	if (FAILED(hr))
@@ -119,7 +121,8 @@ BOOL VIS5mpBWExp::OnInitDialog()
 #endif
 #if 1 // for debugging -wcheng
 
-	hr = getExtControlValue(12, &retValue);
+	//hr = getExtControlValue(12, &retValue); //&initCtrlSetting.SHUTLevel
+	retValue = initCtrlSetting.SHUTLevel;
 	//hr = getExtControlValue(17, &retValue);
 
 	//HWND hListShutCtrl = GetDlgItem(hwnd, IDC_COMBO_SHUT_CONTL);
@@ -141,7 +144,8 @@ BOOL VIS5mpBWExp::OnInitDialog()
 	else
 		c_FineShuChk.SetCheck(BST_UNCHECKED);// cleaning shutter enable checkbox.
 
-	hr = getExtControlValue(1, &retValue);
+	//hr = getExtControlValue(1, &retValue); // &initCtrlSetting.ShutterControl
+	retValue = initCtrlSetting.ShutterControl;
 	if (FAILED(hr) || expMode == 0 || expMode == 2)
 	{
 		c_ShutCtrl.EnableWindow(FALSE);
@@ -189,7 +193,8 @@ BOOL VIS5mpBWExp::OnInitDialog()
 	ComboBox_SetCurSel(hListSenseUpMode, retValue);
 #endif
 	//HWND hListSldAELVL = GetDlgItem(hwnd, IDC_SLD_AE_REF_LVL);
-	hr = getExtControlValue(11, &retValue);
+	//hr = getExtControlValue(11, &retValue); // &initCtrlSetting.AEReferenceLevel
+	retValue = initCtrlSetting.AEReferenceLevel;
 	if (FAILED(hr))
 	{
 		c_sldAERefLvl.EnableWindow(FALSE);
@@ -206,7 +211,8 @@ BOOL VIS5mpBWExp::OnInitDialog()
 	tx_edtAERefLvl.ReplaceSel(retValueStr, TRUE);
 
 	//HWND hListSldAEHysterLVL = GetDlgItem(hwnd, IDC_SLD_AE_HYSTER);
-	hr = getExtControlValue(20, &retValue);
+	//hr = getExtControlValue(20, &retValue); //&initCtrlSetting.AEHyster
+	retValue = initCtrlSetting.AEHyster;
 	if (FAILED(hr))
 	{
 		c_sldAEHystCtrl.EnableWindow(FALSE);
@@ -223,7 +229,8 @@ BOOL VIS5mpBWExp::OnInitDialog()
 	tx_edtAEHystCtrl.ReplaceSel(retValueStr, TRUE);
 
 	//HWND hListSldAECtrlLVL = GetDlgItem(hwnd, IDC_SLD_AE_CTRLSPEED);
-	hr = getExtControlValue(21, &retValue);
+	//hr = getExtControlValue(21, &retValue); // &initCtrlSetting.AECtrlSpeed
+	retValue = initCtrlSetting.AECtrlSpeed;
 	if (FAILED(hr))
 	{
 		c_sldSpedCtrl.EnableWindow(FALSE);
@@ -280,7 +287,8 @@ BOOL VIS5mpBWExp::OnInitDialog()
 //	AM_MEDIA_TYPE *pmt;  // -- wcheng debugging
 //	gcap.pVSC->GetFormat(&pmt);
 	int setV = 0;
-	getStandardControlPropertyCurrentValue(KSPROPERTY_VIDEOPROCAMP_BACKLIGHT_COMPENSATION, &currValue, &lCaps);
+	//getStandardControlPropertyCurrentValue(KSPROPERTY_VIDEOPROCAMP_BACKLIGHT_COMPENSATION, &currValue, &lCaps); //initCtrlSetting.BacklightCompensation
+	currValue = initCtrlSetting.BacklightCompensation;
 	//HWND hListBackLight = GetDlgItem(hwnd, IDC_COMBO_BACK_LIGHT);
 	if (expMode == 3){
 		c_BLKCompCtrl.EnableWindow(FALSE);
@@ -395,7 +403,12 @@ BOOL VIS5mpBWExp::OnInitDialog()
 #endif
 
 	//HWND hListBLCGrid = GetDlgItem(hwnd, IDC_COMBO_BLC_GRID);
-	hr = getExtControlValue(19, &retValue);
+	//hr = getExtControlValue(19, &retValue); // &initCtrlSetting.BLCGrid
+	retValue = initCtrlSetting.BLCGrid;
+	if (retValue == 0)
+		retValue = 0;
+	else
+		retValue = 1;
 	if (FAILED(hr) || !isBLCon)
 	{
 		c_BLKGrid.EnableWindow(FALSE);
@@ -417,7 +430,8 @@ BOOL VIS5mpBWExp::OnInitDialog()
 	*/
 	int hpos = 0, hsize = 0, vpos = 0, vsize = 0;
 	hr = getBLCRangeValue(17, &hpos, &hsize, &vpos, &vsize);
-	hr = getExtControlValue(18, &retValue);
+	//hr = getExtControlValue(18, &retValue); // &initCtrlSetting.BLCWeightFactor
+	retValue = initCtrlSetting.BLCWeightFactor;
 
 	//HWND hListSldBLCWLvl = GetDlgItem(hwnd, IDC_SLD_BLCWLvl);
 	//HWND hListSldHPos = GetDlgItem(hwnd, IDC_SLD_HPos);
@@ -489,7 +503,7 @@ BOOL VIS5mpBWExp::OnInitDialog()
 void VIS5mpBWExp::saveCameraControlInitSetting()
 {
 	long currValue, lCaps;
-	int setV = 0;
+//	int setV = 0;
 
 	// reset global struct
 	initCtrlSetting.ShutterControl = 0;
@@ -517,14 +531,13 @@ void VIS5mpBWExp::saveCameraControlInitSetting()
 	//initCtrlSetting.CameraMode = 0;
 	getExtControlValue(18, &initCtrlSetting.BLCWeightFactor);
 	getExtControlValue(19, &initCtrlSetting.BLCGrid);
-
 	getExtControlValue(20, &initCtrlSetting.AEHyster);
 	getExtControlValue(21, &initCtrlSetting.AECtrlSpeed);
 
 
 	//getStandardControlPropertyCurrentValue(KSPROPERTY_VIDEOPROCAMP_POWERLINE_FREQUENCY, &currValue, &lCaps); //move to gamma... menu
 	//initCtrlSetting.MainsFrequency = currValue;
-	currValue = 0;
+	//currValue = 0;
 	getStandardControlPropertyCurrentValue(KSPROPERTY_VIDEOPROCAMP_BACKLIGHT_COMPENSATION, &currValue, &lCaps);
 #if 0	
 	/* check the res */
@@ -563,7 +576,7 @@ void VIS5mpBWExp::saveCameraControlInitSetting()
 	}
 
 #endif	
-	initCtrlSetting.BacklightCompensation = currValue;
+	initCtrlSetting.BacklightCompensation = 0x01&currValue; // BLC Mode: 1-enable; 0-disable;
 
 	// TODO:  Add extra initialization here
 
