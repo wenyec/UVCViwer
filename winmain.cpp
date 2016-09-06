@@ -25,6 +25,7 @@
 //#include "SampleCGB.h"
 #include "GetDevice.h"
 #include "VIS5mpBWExp.h"
+#include "VIS5mpBWEdgeEn.h"
 
 //------------------------------------------------------------------------------
 // Macros
@@ -2070,6 +2071,19 @@ void On2DNoiseReduction(HWND hwnd)
 
 void OnEdgeEnhanment(HWND hwnd)
 {
+	if (!AfxWinInit(::GetModuleHandle(NULL), NULL, ::GetCommandLine(), 0))
+	{
+		;
+	}
+	AfxGetInstanceHandle();
+	VIS5mpBWEdgeEn c_5mpBWEdge; // add the get device class --wcheng
+	c_5mpBWEdge.devCap = &gcap;
+	c_5mpBWEdge.camNodeTree = &ksNodeTree;
+	c_5mpBWEdge.saveEnhanceInitSetting();
+	c_5mpBWEdge.DoModal();
+#if 0
+	saveEnhanceInitSetting(hwnd);
+	OnInitEdgeEnhanmentDialog(hwnd);
 
 	INT_PTR result = DialogBoxParam(
 		GetModuleHandle(NULL),
@@ -2087,7 +2101,7 @@ void OnEdgeEnhanment(HWND hwnd)
 
 	//CVideoQualityControl Dlg;
 	//Dlg.DoModal();
-
+#endif
 }
 
 void OnAboutMenu(HWND hwnd)
