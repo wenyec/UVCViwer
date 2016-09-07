@@ -26,6 +26,7 @@
 #include "GetDevice.h"
 #include "VIS5mpBWExp.h"
 #include "VIS5mpBWEdgeEn.h"
+#include "VIS5mpBWGam2DN.h"
 
 //------------------------------------------------------------------------------
 // Macros
@@ -2049,7 +2050,17 @@ void On3DNoiseReduction(HWND hwnd)
 
 void On2DNoiseReduction(HWND hwnd)
 {
-
+	if (!AfxWinInit(::GetModuleHandle(NULL), NULL, ::GetCommandLine(), 0))
+	{
+		;
+	}
+	AfxGetInstanceHandle();
+	VIS5mpBWGam2DN c_5mpBWGam2DNR; // add the get device class --wcheng
+	c_5mpBWGam2DNR.devCap = &gcap;
+	c_5mpBWGam2DNR.camNodeTree = &ksNodeTree;
+	c_5mpBWGam2DNR.saveGammaInitSetting();
+	c_5mpBWGam2DNR.DoModal();
+#if 0
 	INT_PTR result = DialogBoxParam(
 		GetModuleHandle(NULL),
 		MAKEINTRESOURCE(IDD_3D_NOISE_REDUCTION),
@@ -2066,7 +2077,7 @@ void On2DNoiseReduction(HWND hwnd)
 
 	//CVideoQualityControl Dlg;
 	//Dlg.DoModal();
-
+#endif
 }
 
 void OnEdgeEnhanment(HWND hwnd)

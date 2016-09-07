@@ -33,6 +33,9 @@
     <ClCompile Include="VIS5mpBWEdgeEn.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="VIS5mpBWGam2DN.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="BufferLock.h">
@@ -72,6 +75,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="VIS5mpBWEdgeEn.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="VIS5mpBWGam2DN.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
