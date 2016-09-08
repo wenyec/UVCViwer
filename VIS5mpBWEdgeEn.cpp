@@ -493,3 +493,57 @@ void VIS5mpBWEdgeEn::OnStartEndChange()
 //}
 
 
+
+
+void VIS5mpBWEdgeEn::OnCancel()
+{
+	// TODO: Add your specialized code here and/or call the base class
+	//HWND hListComboEdgeEnhanModeCtrl = GetDlgItem(hwnd, IDC_COMBO_EDGEENHN_CONTL);
+	int sel = c_EdgeEnhanceM.GetCurSel();
+
+	if (sel != initCtrlSetting.EGEEnhanceMode)
+		setExtControls(22, initCtrlSetting.EGEEnhanceMode);
+
+	//HWND hListComboMirror = GetDlgItem(hwnd, IDC_COMBO_MIRROR_MODE);
+	sel = c_MirrorCtrl.GetCurSel();
+	if (sel != initCtrlSetting.MirrorMode)
+		setExtControls(3, initCtrlSetting.MirrorMode);
+
+	//HWND hListSldEnhanceGainLVL = GetDlgItem(hwnd, IDC_EDIT_EDGEGAIN_LVL);
+	long arSldPos = (long)SendMessageA(c_sldEdgeLevel, TBM_GETPOS, TRUE, arSldPos);
+	if (arSldPos != initCtrlSetting.EGEEnhanceGain)
+		setExtControls(23, initCtrlSetting.EGEEnhanceGain);
+
+	//HWND hListSldEnhanStartLVL = GetDlgItem(hwnd, IDC_SLD_GAIN_START_LVL);
+	int enhanStartSldPos = (int)SendMessageA(c_sldEdgeGainStart, TBM_GETPOS, TRUE, enhanStartSldPos);
+
+	//HWND hListSldEnhanEndLVL = GetDlgItem(hwnd, IDC_SLD_GAIN_END_LVL);
+	int enhanEndSldPos = (int)SendMessageA(c_sldEdgeGainEnd, TBM_GETPOS, TRUE, enhanEndSldPos);
+
+	if ((enhanStartSldPos != initCtrlSetting.EGEEnhGainStart) || (enhanEndSldPos != initCtrlSetting.EGEEnhGainEnd))
+	{
+		setExt2ControlValues(24, initCtrlSetting.EGEEnhGainStart, initCtrlSetting.EGEEnhGainEnd);
+	}
+
+	if (camNodeTree->isOKpProcAmp)
+	{
+		//HWND hListMainFeq = GetDlgItem(hwnd, IDC_COMBO_MAIN_FEQ);
+		sel = c_MainFreq.GetCurSel();
+		if (sel != initCtrlSetting.MainsFrequency)
+			camNodeTree->pProcAmp->Set(KSPROPERTY_VIDEOPROCAMP_POWERLINE_FREQUENCY, (long)initCtrlSetting.MainsFrequency, VideoProcAmp_Flags_Manual);
+	}
+
+	if (initCtrlSetting.EGEEnhanceMode == 0)
+	{
+		c_sldEdgeLevel.EnableWindow(FALSE);
+		c_sldEdgeGainStart.EnableWindow(FALSE);
+		c_sldEdgeGainEnd.EnableWindow(FALSE);
+	}
+	else{
+		c_sldEdgeLevel.EnableWindow(TRUE);
+		c_sldEdgeGainStart.EnableWindow(TRUE);
+		c_sldEdgeGainEnd.EnableWindow(TRUE);
+	}
+
+	CDialog::OnCancel();
+}

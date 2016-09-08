@@ -27,6 +27,7 @@
 #include "VIS5mpBWExp.h"
 #include "VIS5mpBWEdgeEn.h"
 #include "VIS5mpBWGam2DN.h"
+#include "VISImageProc.h"
 
 //------------------------------------------------------------------------------
 // Macros
@@ -2004,8 +2005,17 @@ void OnDayNightMenu(HWND hwnd)
 
 void OnVideoQualityControlMenu(HWND hwnd)
 {
-
-
+	if (!AfxWinInit(::GetModuleHandle(NULL), NULL, ::GetCommandLine(), 0))
+	{
+		;
+	}
+	AfxGetInstanceHandle();
+	VISImageProc c_5mpBWImageCtrl; // add the get device class --wcheng
+	c_5mpBWImageCtrl.devCap = &gcap;
+	c_5mpBWImageCtrl.camNodeTree = &ksNodeTree;
+	c_5mpBWImageCtrl.saveImageInitSetting();
+	c_5mpBWImageCtrl.DoModal();
+#if 0
 	INT_PTR result = DialogBoxParam(
 		GetModuleHandle(NULL),
 		MAKEINTRESOURCE(IDD_VIDEO_QUALITY_CONTROL),
@@ -2022,7 +2032,7 @@ void OnVideoQualityControlMenu(HWND hwnd)
 
 	//CVideoQualityControl Dlg;
 	//Dlg.DoModal();
-
+#endif
 }
 #if 0 //keep for the 3D ND in futrue
 void On3DNoiseReduction(HWND hwnd)
@@ -2603,7 +2613,7 @@ HRESULT getBLCRangeValue(int PropertyId, int *hpos, int *hsize, int *vpos, int *
 //HRESULT getExposureAGCLvlValue(int PropertyId, int *ExpValue, int *AgcLvlValue);
 //HRESULT setExposureAGCLvlValue(HWND hwnd, int PropertyId, int ExpValue, int AgcLvlValue);
 HRESULT getExt2ControlValues(int PropertyId, int *ExpValue, int *AgcLvlValue);
-HRESULT setExt2ControlValues(HWND hwnd, int PropertyId, int ExpValue, int AgcLvlValue);
+HRESULT setExt2ControlValues(int PropertyId, int ExpValue, int AgcLvlValue);
 HRESULT setExtControls(int PropertyId, int PropertyValue);
 
 //-------------------------------------------------------------------
@@ -3454,7 +3464,7 @@ void resetCameraControlInitSetting(HWND hwnd)
 
 	if (sel != initCtrlSetting.ExposureMode || agcSldPos != initCtrlSetting.AGCLevel)
 	{
-		setExt2ControlValues(hwnd, 10, initCtrlSetting.ExposureMode, initCtrlSetting.AGCLevel);
+		setExt2ControlValues(10, initCtrlSetting.ExposureMode, initCtrlSetting.AGCLevel);
 		if (initCtrlSetting.ExposureMode == 3){
 			//HWND hListBackLight = GetDlgItem(hwnd, IDC_COMBO_BACK_LIGHT);
 			//ComboBox_SetCurSel(hListBackLight, 0);
@@ -3764,12 +3774,13 @@ HRESULT getExt2ControlValues(int PropertyId, int *ExpValue, int *AgcLvlValue)
 	return hr;
 }
 
-HRESULT setExt2ControlValues(HWND hwnd, int PropertyId, int ExpValue, int AgcLvlValue)
+HRESULT setExt2ControlValues(int PropertyId, int ExpValue, int AgcLvlValue)
 {
 	HRESULT hr = S_OK;
 
 	try
 	{
+#if 0
 		if (ExpValue == 0)
 		{
 			HWND hListSldAGCLVL = GetDlgItem(hwnd, IDC_SLD_AGC_LVL);
@@ -3780,7 +3791,7 @@ HRESULT setExt2ControlValues(HWND hwnd, int PropertyId, int ExpValue, int AgcLvl
 			HWND hListSldAGCLVL = GetDlgItem(hwnd, IDC_SLD_AGC_LVL);
 			EnableWindow(hListSldAGCLVL, TRUE);
 		}
-
+#endif
 		if (ExpValue != LB_ERR && ksNodeTree.isOK)
 		{
 
@@ -6399,7 +6410,7 @@ void reset2DNoiseReductionInitSetting(HWND hwnd)
 
 	if ((StartSldPos != initCtrlSetting.NR2DGainStart) || (EndSldPos != initCtrlSetting.NR2DGainEnd))
 	{
-		setExt2ControlValues(hwnd, 26, initCtrlSetting.NR2DGainStart, initCtrlSetting.NR2DGainEnd);
+		setExt2ControlValues(26, initCtrlSetting.NR2DGainStart, initCtrlSetting.NR2DGainEnd);
 	}
 
 	if (IsDlgButtonChecked(hwnd, IDC_2DNR_ENABL) == BST_CHECKED){
@@ -6991,7 +7002,7 @@ void resetEnhanceInitSetting(HWND hwnd)
 
 	if ((enhanStartSldPos != initCtrlSetting.EGEEnhGainStart) || (enhanEndSldPos != initCtrlSetting.EGEEnhGainEnd))
 	{
-		setExt2ControlValues(hwnd, 24, initCtrlSetting.EGEEnhGainStart, initCtrlSetting.EGEEnhGainEnd);
+		setExt2ControlValues(24, initCtrlSetting.EGEEnhGainStart, initCtrlSetting.EGEEnhGainEnd);
 	}
 
 	if (ksNodeTree.isOKpProcAmp)

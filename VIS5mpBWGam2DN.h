@@ -43,4 +43,5 @@ public:
 	afx_msg void OnCbnSelchangeComboGammaMode();
 	void GainStartnEndChange();
 	afx_msg void OnBnClicked2dnrEnabl();
+	virtual void OnCancel();
 };

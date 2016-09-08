@@ -662,7 +662,7 @@ void VIS5mpBWExp::OnCbnSelchangeComboExposureMode()
 
 			c_BLKCompCtrl.EnableWindow(FALSE);
 //			ksNodeTree.pProcAmp->Set(KSPROPERTY_VIDEOPROCAMP_BACKLIGHT_COMPENSATION, (long)0, VideoProcAmp_Flags_Manual); // TODO: need a helper function to call --wcheng
-			camNodeTree->pProcAmp->Set(KSPROPERTY_VIDEOPROCAMP_BACKLIGHT_COMPENSATION, (long)0, VideoProcAmp_Flags_Manual); // TODO: need a helper function to call --wcheng
+//			camNodeTree->pProcAmp->Set(KSPROPERTY_VIDEOPROCAMP_BACKLIGHT_COMPENSATION, (long)0, VideoProcAmp_Flags_Manual); // TODO: need a helper function to call --wcheng
 
 			/* check the res */
 			//AM_MEDIA_TYPE *pmt;
@@ -1559,4 +1559,198 @@ void VIS5mpBWExp::OnCbnSelchangeComboBlcGrid()
 //		printLogMessage(logMessage);
 #endif
 	}
+}
+
+
+void VIS5mpBWExp::OnCancel()
+{
+	// TODO: Add your specialized code here and/or call the base class
+	//HWND hListComboShutCtrl = GetDlgItem(hwnd, IDC_COMBO_SHUT_CONTL);
+	int sel = ComboBox_GetCurSel(c_ShutCtrl);
+	int setV = 0, isBLCon = 0;
+	if (sel != initCtrlSetting.ShutterControl)
+		setExtControls(1, initCtrlSetting.ShutterControl);
+
+	//HWND hListFineShutEnb = GetDlgItem(hwnd, IDC_FINE_SHUTTER_ENABLE);
+	if (initCtrlSetting.shutterEnable_bak != initCtrlSetting.shutterEnable){
+		initCtrlSetting.shutterEnable = initCtrlSetting.shutterEnable_bak;
+		//CheckDlgButton(hwnd, IDC_FINE_SHUTTER_ENABLE, initCtrlSetting.shutterEnable);// setting shutter enable checkbox as orginal.
+	}
+#if 0
+	HWND hListSenseUpMode = GetDlgItem(hwnd, IDC_COMBO_SEN_UP_MODE);
+	sel = ComboBox_GetCurSel(hListSenseUpMode);
+	if (sel != initCtrlSetting.SenseUpMode)
+		setExtControls(2, initCtrlSetting.SenseUpMode);
+
+	HWND hListComboMirror = GetDlgItem(hwnd, IDC_COMBO_MIRROR_MODE);
+	sel = c_Mirror.GetCurSel(hListComboMirror);
+	if (sel != initCtrlSetting.MirrorMode)
+		setExtControls(3, initCtrlSetting.MirrorMode);
+
+	HWND hListComboCameraMode = GetDlgItem(hwnd, IDC_COMBO_CAM_MODE);
+	sel = ComboBox_GetCurSel(hListComboCameraMode);
+	if (sel != initCtrlSetting.CameraMode)
+		setExtControls(13, initCtrlSetting.CameraMode);
+#endif
+	//HWND hListSldAELVL = GetDlgItem(hwnd, IDC_SLD_AE_REF_LVL);
+	long arSldPos = (long)SendMessageA(c_sldAERefLvl, TBM_GETPOS, TRUE, arSldPos);
+	if (arSldPos != initCtrlSetting.AEReferenceLevel)
+		setExtControls(11, initCtrlSetting.AEReferenceLevel);
+
+	//HWND hListComboBLCWF = GetDlgItem(hwnd, IDC_COMBO_BLC_WGHT_FACT);
+	sel = c_BLKCompCtrl.GetCurSel();
+	if (sel != initCtrlSetting.BLCWeightFactor)
+		setExtControls(18, initCtrlSetting.BLCWeightFactor);
+
+	//HWND hListComboBLCGrid = GetDlgItem(hwnd, IDC_COMBO_BLC_GRID);
+	sel = c_BLKGrid.GetCurSel();
+	if (sel != initCtrlSetting.BLCGrid)
+		setExtControls(19, initCtrlSetting.BLCGrid);
+
+
+	//HWND hListExpoMode = GetDlgItem(hwnd, IDC_COMBO_EXPOSURE_MODE);
+	sel = c_ExpMode.GetCurSel();
+	//HWND hListSldAGCLVL = GetDlgItem(hwnd, IDC_SLD_AGC_LVL);
+	int agcSldPos = (int)SendMessageA(c_sldGainCtrl, TBM_GETPOS, TRUE, agcSldPos);
+
+	if (sel != initCtrlSetting.ExposureMode || agcSldPos != initCtrlSetting.AGCLevel)
+	{
+		setExt2ControlValues(10, initCtrlSetting.ExposureMode, initCtrlSetting.AGCLevel);
+		if (initCtrlSetting.ExposureMode == 3){
+			//HWND hListBackLight = GetDlgItem(hwnd, IDC_COMBO_BACK_LIGHT);
+			//ComboBox_SetCurSel(hListBackLight, 0);
+			initCtrlSetting.BacklightCompensation = 0;
+		}
+
+	}
+
+	//HWND hListSldSHUTLVL = GetDlgItem(hwnd, IDC_SLD_SHUT_LVL);
+	int shutSldPos = (int)SendMessageA(c_sldShuLvl, TBM_GETPOS, TRUE, shutSldPos);
+
+	if (shutSldPos != initCtrlSetting.SHUTLevel)
+	{
+		setExtControls(12, initCtrlSetting.SHUTLevel);
+	}
+
+	//HWND hListSldHysteLVL = GetDlgItem(hwnd, IDC_SLD_AE_HYSTER);
+	int hysteSldPos = (int)SendMessageA(c_sldAEHystCtrl, TBM_GETPOS, TRUE, hysteSldPos);
+
+	if (hysteSldPos != initCtrlSetting.AEHyster)
+	{
+		setExtControls(20, initCtrlSetting.AEHyster);
+	}
+
+	//HWND hListSldCtrlSpdLVL = GetDlgItem(hwnd, IDC_SLD_AE_CTRLSPEED);
+	int ctrlspdSldPos = (int)SendMessageA(c_sldSpedCtrl, TBM_GETPOS, TRUE, ctrlspdSldPos);
+
+	if (ctrlspdSldPos != initCtrlSetting.AECtrlSpeed)
+	{
+		setExtControls(21, initCtrlSetting.AECtrlSpeed);
+	}
+
+
+	if (camNodeTree->isOKpProcAmp)
+	{
+#if 0		
+		HWND hListMainFeq = GetDlgItem(hwnd, IDC_COMBO_MAIN_FEQ);
+		sel = ComboBox_GetCurSel(hListMainFeq);
+		if (sel != initCtrlSetting.MainsFrequency)
+			ksNodeTree.pProcAmp->Set(KSPROPERTY_VIDEOPROCAMP_POWERLINE_FREQUENCY, (long)initCtrlSetting.MainsFrequency, VideoProcAmp_Flags_Manual);
+#endif
+		//HWND hListBackLight = GetDlgItem(hwnd, IDC_COMBO_BACK_LIGHT);
+		sel = c_BLKCompCtrl.GetCurSel();
+		/* check the res */
+		AM_MEDIA_TYPE *pmt;
+		devCap->pVSC->GetFormat(&pmt);
+
+		if (0 && ((pmt->lSampleSize == 4147200) || (pmt->lSampleSize == 1036800))) //1080p
+		{
+			switch (sel)
+			{
+			case 0:
+				setV = 3;
+				break;
+			case 1:
+				setV = 0;
+				break;
+			case 2:
+				setV = 2;
+				break;
+			case 3:
+				setV = 1;
+				break;
+			}
+		}
+		else{ //720p
+			switch (sel)
+			{
+			case 0:
+				setV = 0;
+				break;
+			case 1:
+				setV = 1;
+				break;
+			}
+
+		}
+		if (setV == 0){
+			isBLCon = 0;
+		}
+		else{
+			isBLCon = 1;
+		}
+		//HWND hListSldBLCWLvl = GetDlgItem(hwnd, IDC_SLD_BLCWLvl);
+		//HWND hListSldHPos = GetDlgItem(hwnd, IDC_SLD_HPos);
+		//HWND hListSldHSize = GetDlgItem(hwnd, IDC_SLD_HSize);
+		//HWND hListSldVPos = GetDlgItem(hwnd, IDC_SLD_VPos);
+		//HWND hListSldVSize = GetDlgItem(hwnd, IDC_SLD_VSize);
+		if (isBLCon == 0)
+		{
+			c_sldBLKWgtCtrl.EnableWindow(FALSE);
+			c_sldHPosCtrl.EnableWindow(FALSE);
+			c_sldHSizeCtrl.EnableWindow(FALSE);
+			c_sldVPosCtrl.EnableWindow(FALSE);
+			c_sldVSizeCtrl.EnableWindow(FALSE);
+		}
+		else{
+			c_sldBLKWgtCtrl.EnableWindow(TRUE);
+			c_sldHPosCtrl.EnableWindow(TRUE);
+			c_sldHSizeCtrl.EnableWindow(TRUE);
+			c_sldVPosCtrl.EnableWindow(TRUE);
+			c_sldVSizeCtrl.EnableWindow(TRUE);
+		}
+
+		if (setV != initCtrlSetting.BacklightCompensation){
+			camNodeTree->pProcAmp->Set(KSPROPERTY_VIDEOPROCAMP_BACKLIGHT_COMPENSATION, (long)initCtrlSetting.BacklightCompensation, VideoProcAmp_Flags_Manual);
+
+			/* check the res */
+			//AM_MEDIA_TYPE *pmt;
+			//gcap.pVSC->GetFormat(&pmt);
+			//HWND hListSldBLCWLvl = GetDlgItem(hwnd, IDC_SLD_BLCWLvl);
+			//HWND hListSldHPos = GetDlgItem(hwnd, IDC_SLD_HPos);
+			//HWND hListSldHSize = GetDlgItem(hwnd, IDC_SLD_HSize);
+			//HWND hListSldVPos = GetDlgItem(hwnd, IDC_SLD_VPos);
+			//HWND hListSldVSize = GetDlgItem(hwnd, IDC_SLD_VSize);
+			if (initCtrlSetting.BacklightCompensation == 0)
+			{
+				c_sldBLKWgtCtrl.EnableWindow(FALSE);
+				c_sldHPosCtrl.EnableWindow(FALSE);
+				c_sldHSizeCtrl.EnableWindow(FALSE);
+				c_sldVPosCtrl.EnableWindow(FALSE);
+				c_sldVSizeCtrl.EnableWindow(FALSE);
+			}
+			else{
+				c_sldBLKWgtCtrl.EnableWindow(TRUE);
+				c_sldHPosCtrl.EnableWindow(TRUE);
+				c_sldHSizeCtrl.EnableWindow(TRUE);
+				c_sldVPosCtrl.EnableWindow(TRUE);
+				c_sldVSizeCtrl.EnableWindow(TRUE);
+			}
+
+		}
+		//ksNodeTree.pProcAmp->Set(KSPROPERTY_VIDEOPROCAMP_BACKLIGHT_COMPENSATION, (long)initCtrlSetting.BacklightCompensation, VideoProcAmp_Flags_Manual);
+
+	}
+
+	CDialog::OnCancel();
 }

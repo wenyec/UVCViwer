@@ -411,3 +411,47 @@ void VIS5mpBWGam2DN::OnBnClicked2dnrEnabl()
 	}
 
 }
+
+
+void VIS5mpBWGam2DN::OnCancel()
+{
+	// TODO: Add your specialized code here and/or call the base class
+	//HWND hListCombGammaMode = GetDlgItem(hwnd, IDC_COMBO_GAMMA_MODE);
+	int checked;
+	int sel = c_GammaSet.GetCurSel();
+	if (sel != initCtrlSetting.GammaCorrect)
+		setExtControls(27, initCtrlSetting.GammaCorrect);
+#if 0  // for 2DNR enable
+	HWND hListWhiteBalanceMode = GetDlgItem(hwnd, IDC_COMBO_3D_NOISE_REDU_MODE);
+	int sel = ComboBox_GetCurSel(hListWhiteBalanceMode);
+	if (sel != initCtrlSetting.NoiseReductionMode)
+		setExtControls(4, initCtrlSetting.NoiseReductionMode);
+#endif
+
+	//HWND hListSld2DNoise = GetDlgItem(hwnd, IDC_SLD_2D_NOISE_REDU_VAL);
+	long arSldPos = (long)SendMessageA(c_sld2DNRLevel, TBM_GETPOS, TRUE, arSldPos);
+	if (arSldPos != initCtrlSetting.NoiseReductionControl)
+		setExtControls(5, initCtrlSetting.NoiseReductionControl);
+
+	//HWND hListSld2DNRStartLVL = GetDlgItem(hwnd, IDC_SLD_2D_NR_GAINSTR_VAL);
+	int StartSldPos = (int)SendMessageA(c_sld2DNRGainstart, TBM_GETPOS, TRUE, StartSldPos);
+
+	//HWND hListSld2DNREndLVL = GetDlgItem(hwnd, IDC_SLD_2D_NR_GAINEND_VAL);
+	int EndSldPos = (int)SendMessageA(c_sld2DNRGainend, TBM_GETPOS, TRUE, EndSldPos);
+
+	if ((StartSldPos != initCtrlSetting.NR2DGainStart) || (EndSldPos != initCtrlSetting.NR2DGainEnd))
+	{
+		setExt2ControlValues(26, initCtrlSetting.NR2DGainStart, initCtrlSetting.NR2DGainEnd);
+	}
+
+	if (c_2DNRenable.GetCheck() == BST_CHECKED){
+		checked = 1;
+	}
+	else{
+		checked = 0;
+	}
+	if (checked != initCtrlSetting.NoiseReductionMode)
+		setExtControls(4, initCtrlSetting.NoiseReductionMode);
+
+	CDialog::OnCancel();
+}

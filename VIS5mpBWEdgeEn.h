@@ -47,4 +47,5 @@ public:
 	afx_msg void OnNMReleasedcaptureSldGainStartLvl(NMHDR *pNMHDR, LRESULT *pResult);
 //	virtual void OnCancel();
 	afx_msg void OnNMReleasedcaptureSldGainEndLvl(NMHDR *pNMHDR, LRESULT *pResult);
+	virtual void OnCancel();
 };

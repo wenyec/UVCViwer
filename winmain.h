@@ -221,6 +221,13 @@ extern HRESULT	getExtControlValue(int PropertyId, int *curValue);
 extern HRESULT  getExt2ControlValues(int PropertyId, int *ExpValue, int *AgcLvlValue);
 extern HRESULT  getBLCRangeValue(int PropertyId, int *hpos, int *hsize, int *vpos, int *vsize);
 extern HRESULT	getStandardControlPropertyCurrentValue(long PropertyID, long *currValue, long *lCaps);
-
+extern HRESULT  setExtControls(int PropertyId, int PropertyValue);
+extern HRESULT  setExt2ControlValues(int PropertyId, int ExpValue, int AgcLvlValue);
 extern HRESULT  getExtionControlPropertySize(ULONG PropertyId, ULONG *pulSize);
-extern HRESULT setExtionControlProperty(ULONG PropertyId, ULONG ulSize, BYTE pValue[]);
+extern HRESULT  setExtionControlProperty(ULONG PropertyId, ULONG ulSize, BYTE pValue[]);
+
+extern HRESULT  getWhiteBalanceComponent(int *redValue, int *blueValue);
+extern HRESULT  setWhiteBalanceComponent(int redValue, int blueValue);
+extern HRESULT  getStandardControlPropertyRange(long PropertyID, long *lMin, long *lMax, long *lStep, long *lDefault, long *lCaps);
+
+

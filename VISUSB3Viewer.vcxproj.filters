@@ -36,6 +36,9 @@
     <ClCompile Include="VIS5mpBWGam2DN.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="VISImageProc.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="BufferLock.h">
@@ -78,6 +81,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="VIS5mpBWGam2DN.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="VISImageProc.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

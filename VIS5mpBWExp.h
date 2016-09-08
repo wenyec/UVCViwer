@@ -72,4 +72,5 @@ public:
 	afx_msg void OnNMReleasedcaptureSldVsize(NMHDR *pNMHDR, LRESULT *pResult);
 	afx_msg void OnCbnSelchangeComboBackLight();
 	afx_msg void OnCbnSelchangeComboBlcGrid();
+	virtual void OnCancel();
 };
