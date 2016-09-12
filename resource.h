@@ -121,8 +121,11 @@
 #define IDC_EDIT_WHTCOM_RED             1038
 #define IDC_EDIT_AE_CTRLSPEED           1038
 #define IDC_STR_BRIGHTNESS              1039
+#define IDC_STR_AE_MAX_LVL              1039
 #define IDC_STR_CONTRAST                1040
+#define IDC_SLD_AE_MAX_LVL              1040
 #define IDC_STR_HUE                     1041
+#define IDC_EDIT_AE_MAX_LVL             1041
 #define IDC_STR_SATURATION              1042
 #define IDC_STR_SHARPNESS               1043
 #define IDC_STR_WHTCOM                  1044
@@ -249,6 +252,9 @@
 #define ID_5MPCAMERASETTINGS_EDGEENHANCEMENT 40034
 #define ID_5MPCAMERASETTINGS_GAMMAAND2DNR 40035
 #define ID_5MPCAMERASETTINGS_SHUT       40036
+#define ID_VIDEOLOGYOPTION_CAMERAMANAGEMENT 40037
+#define ID_CAMERA_SAVEPARAMETERS        40038
+#define ID_CAMERA_RESETSETTINGS         40039
 #define IDC_STR_DAY_NIGHT_MODE          -1
 #define IDC_STR_BCKLGTCOMP              -1
 //#define IDC_STR_3D_NOISE_REDU_MODE      -1
@@ -267,7 +273,7 @@
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NEXT_RESOURCE_VALUE        124
-#define _APS_NEXT_COMMAND_VALUE         40037
+#define _APS_NEXT_COMMAND_VALUE         40040
 #define _APS_NEXT_CONTROL_VALUE         1095
 #define _APS_NEXT_SYMED_VALUE           101
 #endif

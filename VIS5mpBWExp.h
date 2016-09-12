@@ -73,4 +73,9 @@ public:
 	afx_msg void OnCbnSelchangeComboBackLight();
 	afx_msg void OnCbnSelchangeComboBlcGrid();
 	virtual void OnCancel();
+	CSliderCtrl c_sldAEMaxLvl;
+private:
+	CEdit tx_edtAEMaxLvl;
+public:
+	afx_msg void OnNMReleasedcaptureSldAeMaxLvl(NMHDR *pNMHDR, LRESULT *pResult);
 };

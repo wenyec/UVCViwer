@@ -66,6 +66,8 @@ void VIS5mpBWExp::DoDataExchange(CDataExchange* pDX)
 	DDX_Control(pDX, IDC_EDIT_HSize, tx_edtHSizeCtrl);
 	DDX_Control(pDX, IDC_SLD_VSize, c_sldVSizeCtrl);
 	DDX_Control(pDX, IDC_EDIT_VSize, tx_edtVSizeCtrl);
+	DDX_Control(pDX, IDC_SLD_AE_MAX_LVL, c_sldAEMaxLvl);
+	DDX_Control(pDX, IDC_EDIT_AE_MAX_LVL, tx_edtAEMaxLvl);
 }
 
 
@@ -86,6 +88,7 @@ BEGIN_MESSAGE_MAP(VIS5mpBWExp, CDialog)
 	ON_NOTIFY(NM_RELEASEDCAPTURE, IDC_SLD_VSize, &VIS5mpBWExp::OnNMReleasedcaptureSldVsize)
 	ON_CBN_SELCHANGE(IDC_COMBO_BACK_LIGHT, &VIS5mpBWExp::OnCbnSelchangeComboBackLight)
 	ON_CBN_SELCHANGE(IDC_COMBO_BLC_GRID, &VIS5mpBWExp::OnCbnSelchangeComboBlcGrid)
+	ON_NOTIFY(NM_RELEASEDCAPTURE, IDC_SLD_AE_MAX_LVL, &VIS5mpBWExp::OnNMReleasedcaptureSldAeMaxLvl)
 END_MESSAGE_MAP()
 
 
@@ -209,6 +212,23 @@ BOOL VIS5mpBWExp::OnInitDialog()
 	retValueStr.Format(L"%d", retValue);
 	tx_edtAERefLvl.EnableWindow(FALSE);
 	tx_edtAERefLvl.ReplaceSel(retValueStr, TRUE);
+
+	//HWND hListAgcMaxLVL = GetDlgItem(hwnd, IDC_SLD_AE_MAX_LVL);  // for AGC maximum limitation -wcheng
+	//hr = getExtControlValue(28, &retValue);
+	retValue = initCtrlSetting.AGCMaxLvl;
+	if (FAILED(hr))
+	{
+		c_sldAEMaxLvl.EnableWindow(FALSE);
+	}
+	SendMessageA(c_sldAEMaxLvl, TBM_SETRANGEMAX, TRUE, 0xB2);
+	SendMessageA(c_sldAEMaxLvl, TBM_SETRANGEMIN, TRUE, 0);
+	SendMessageA(c_sldAEMaxLvl, TBM_SETPAGESIZE, TRUE, 1);
+	SendMessageA(c_sldAEMaxLvl, TBM_SETPOS, TRUE, retValue);
+
+	//HWND hListEditAGCMaxLVL = GetDlgItem(hwnd, IDC_EDIT_AE_MAX_LVL);
+	retValueStr.Format(L"%d", retValue);
+	tx_edtAEMaxLvl.EnableWindow(FALSE);
+	tx_edtAEMaxLvl.ReplaceSel(retValueStr, TRUE);
 
 	//HWND hListSldAEHysterLVL = GetDlgItem(hwnd, IDC_SLD_AE_HYSTER);
 	//hr = getExtControlValue(20, &retValue); //&initCtrlSetting.AEHyster
@@ -533,7 +553,7 @@ void VIS5mpBWExp::saveCameraControlInitSetting()
 	getExtControlValue(19, &initCtrlSetting.BLCGrid);
 	getExtControlValue(20, &initCtrlSetting.AEHyster);
 	getExtControlValue(21, &initCtrlSetting.AECtrlSpeed);
-
+	getExtControlValue(28, &initCtrlSetting.AGCMaxLvl);
 
 	//getStandardControlPropertyCurrentValue(KSPROPERTY_VIDEOPROCAMP_POWERLINE_FREQUENCY, &currValue, &lCaps); //move to gamma... menu
 	//initCtrlSetting.MainsFrequency = currValue;
@@ -1632,6 +1652,14 @@ void VIS5mpBWExp::OnCancel()
 		setExtControls(12, initCtrlSetting.SHUTLevel);
 	}
 
+	//HWND hListAGCMaxLVL = GetDlgItem(hwnd, IDC_SLD_AE_MAX_LVL); // for AGC maximum limitation - wcheng
+	int gacmaxSldPos = (int)SendMessageA(c_sldAEMaxLvl, TBM_GETPOS, TRUE, gacmaxSldPos);
+
+	if (gacmaxSldPos != initCtrlSetting.AGCMaxLvl)
+	{
+		setExtControls(28, initCtrlSetting.AGCMaxLvl);
+	}
+
 	//HWND hListSldHysteLVL = GetDlgItem(hwnd, IDC_SLD_AE_HYSTER);
 	int hysteSldPos = (int)SendMessageA(c_sldAEHystCtrl, TBM_GETPOS, TRUE, hysteSldPos);
 
@@ -1753,4 +1781,68 @@ void VIS5mpBWExp::OnCancel()
 	}
 
 	CDialog::OnCancel();
+}
+
+
+void VIS5mpBWExp::OnNMReleasedcaptureSldAeMaxLvl(NMHDR *pNMHDR, LRESULT *pResult)
+{
+	// TODO: Add your control notification handler code here
+	HRESULT hr = S_OK;
+	long AGCMaxSldPos = 0;
+	CString strPos;
+	//HWND hSLDHystLvl = GetDlgItem(hwnd, IDC_SLD_AE_MAX_LVL);
+	AGCMaxSldPos = (long)SendMessageA(c_sldAEMaxLvl, TBM_GETPOS, TRUE, AGCMaxSldPos);
+
+	//HWND hListExpoMode = GetDlgItem(hwnd, IDC_COMBO_EXPOSURE_MODE);
+	//int sel = ComboBox_GetCurSel(hListExpoMode);
+
+	//HWND hEditGACMaxLVL = GetDlgItem(hwnd, IDC_EDIT_AE_MAX_LVL);
+	strPos.Format(L"%ld", AGCMaxSldPos);
+	tx_edtAEMaxLvl.SetSel(0, -1);
+	tx_edtAEMaxLvl.Clear();
+	tx_edtAEMaxLvl.ReplaceSel(strPos, TRUE);
+
+	if (camNodeTree->isOK)
+	{
+		ULONG ulSize;
+		BYTE *pbPropertyValue;
+		int PropertId = 28;
+
+		hr = getExtionControlPropertySize(PropertId, &ulSize);
+		if (FAILED(hr) || (ulSize != 2)) // 2 bytes value
+		{
+#ifdef DEBUG
+//			sprintf(logMessage, "\nERROR \t Function : OnhAgcMaxChangeSLD \t Msg : Unable to find property size : %x", hr);
+//			printLogMessage(logMessage);
+#endif
+		}
+		else
+		{
+			pbPropertyValue = new BYTE[ulSize];
+			if (!pbPropertyValue)
+			{
+#ifdef DEBUG
+//				sprintf(logMessage, "\nERROR \t Function : OnhAgcMaxChangeSLD \t Msg : Unable to allocate memory for property value");
+//				printLogMessage(logMessage);
+#endif
+			}
+			else
+			{
+				//int ExposureByte = 2;
+				int AGCMaxLvlByte = 2;
+				//memcpy(&pbPropertyValue[0], (char*)&sel, ExposureByte); // first two byte Exposure Mode & last two byte AGC level
+				memcpy(&pbPropertyValue[0], (char*)&AGCMaxSldPos, AGCMaxLvlByte); //
+
+				hr = setExtionControlProperty(PropertId, ulSize, pbPropertyValue);
+			}
+			delete[] pbPropertyValue;
+		}
+
+#ifdef DEBUG
+//		sprintf(logMessage, "\nFunction : onAgcLvlChange \t Msg : Return Value:%ld", hr);
+//		printLogMessage(logMessage);
+#endif
+	}
+
+	*pResult = 0;
 }

@@ -162,6 +162,7 @@ static struct InitControlsSetting
 	int BLCGrid;
 	int BLCMode;
 	int SHUTLevel;
+	int AGCMaxLvl;
 	int AEHyster;
 	int AECtrlSpeed;
 	int shutterEnable;

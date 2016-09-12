@@ -205,6 +205,7 @@ static struct InitControlsSetting
 	int BLCWeightFactor;
 	int BLCGrid;
 	int SHUTLevel;
+	int AGCMaxLvl;
 	int AEHyster;
 	int AECtrlSpeed;
 	int shutterEnable;
@@ -344,6 +345,8 @@ void	OnCameraRecoveryParamMenu(HWND hwnd);
 void	OnVideoStreamingSetting(HWND hwnd);
 void    OnROISetting(HWND hwnd);
 void	OnImageResSetMenu(HWND hwnd);
+HRESULT saveParamClicked(HWND hwnd);
+HRESULT	resetParamClicked(HWND hwnd);
 
 void    OnInitImageCaptureDialog(HWND hwnd);
 BOOL	GetFolderSelection(HWND hWnd);
@@ -1541,13 +1544,29 @@ void OnSize(/*HWND hwnd,*/ WPARAM wParam, LPARAM lParam/*, UINT state*/)
 		wWid = ((int)lParam & 0xffff);
 		wHig = ((int)lParam >> 16);
 #if 1
-		if (aspRetio <= (wWid / wHig/*rc.right / rc.bottom*/)){//the heigh is used
-			left = (rc.right - rc.bottom*aspRetio) / 2;
-			rc.right = rc.bottom*aspRetio;
+		if (initCtrlSetting.isFull){
+			if (aspRetio <= (wWid / wHig/*rc.right / rc.bottom*/)){//the heigh is used
+				left = (rc.right - rc.bottom*aspRetio) / 2;
+				rc.right = rc.bottom*aspRetio;
+			}
+			else{ //the bottom is used
+				top = (rc.bottom - rc.right / aspRetio) / 2;
+				rc.bottom = rc.right / aspRetio;
+			}
+
 		}
-		else{ //the bottom is used
-			top = (rc.bottom - rc.right / aspRetio) / 2;
-			rc.bottom = rc.right / aspRetio;
+		else{
+			GetClientRect(ghwndApp, &rc);
+			lWidth = rc.right - rc.left;
+			lHeight = rc.bottom - rc.top;
+
+//			pBV->GetSourcePosition(&lLeft, &lTop, &lSrWidth, &lSrHeight);// for checking
+			pBV->SetSourcePosition(0, 0, lWidth, lHeight);
+#ifdef DEBUG
+			sprintf(logMessage, " \nERROR \t onsize: SIZE_RESTORED Event(org pixel) : set window pos Lef %d Top %d srWid %d srHei %d lWid %d lHei %d",
+				lLeft, lTop, lSrWidth, lSrHeight, lWidth, lHeight);
+			printLogMessage(logMessage);
+#endif
 		}
 #endif
 #ifdef DEBUG
@@ -1771,11 +1790,19 @@ void OnCommand(HWND hwnd, int id, HWND /*hwndCtl*/, UINT /*codeNotify*/)
 		break;
 
 	case ID_5MPCAMERASETTINGS_EDGEENHANCEMENT:
-		OnEdgeEnhanment(hwnd);;
+		OnEdgeEnhanment(hwnd);
 		break;
 
 	case ID_5MPCAMERASETTINGS_GAMMAAND2DNR:
 		On2DNoiseReduction(hwnd);
+		break;
+	case ID_CAMERA_SAVEPARAMETERS:
+		saveParamClicked(hwnd);
+		//OnEdgeEnhanment(hwnd);
+		break;
+	case ID_CAMERA_RESETSETTINGS:
+		resetParamClicked(hwnd);
+		//On2DNoiseReduction(hwnd);
 		break;
 
 		/*
@@ -2606,6 +2633,7 @@ HRESULT OnBLCWeightFactorChange(HWND hwnd);
 HRESULT OnBLCWeightFactorChangeSLD(HWND hwnd);
 HRESULT OnBLCGridChange(HWND hwnd);
 HRESULT onAEShutLevelChange(HWND hwnd);
+HRESULT OnhAgcMaxChangeSLD(HWND hwnd);
 HRESULT OnhExHystLvlChangeSLD(HWND hwnd);
 HRESULT OnhExCtrlSpeedLvlChangeSLD(HWND hwnd);
 
@@ -9751,8 +9779,8 @@ HRESULT saveParamClicked(HWND hwnd)
 		int PropertId = 15;
 		int save = 1;
 
-		INT_PTR result = MessageBox(hwnd, L"Are you sure to save camera param ?", WINDOW_NAME, MB_YESNO);
-		if (result == IDYES)
+		//INT_PTR result = MessageBox(hwnd, L"Are you sure to save camera param ?", WINDOW_NAME, MB_YESNO);
+		if (1/*result == IDYES*/)
 		{
 			hr = getExtionControlPropertySize(PropertId, &ulSize);
 			if (FAILED(hr))
@@ -9810,10 +9838,10 @@ HRESULT	resetParamClicked(HWND hwnd)
 		ULONG ulSize;
 		BYTE *pbPropertyValue;
 		int PropertId = 15;
-		int reset = 0;
+		int reset = 2;
 
-		INT_PTR result = MessageBox(hwnd, L"Are you sure to reset camera param ?", WINDOW_NAME, MB_YESNO);
-		if (result == IDYES)
+		//INT_PTR result = MessageBox(hwnd, L"Are you sure to reset camera param ?", WINDOW_NAME, MB_YESNO);
+		if (1/*result == IDYES*/)
 		{
 			hr = getExtionControlPropertySize(PropertId, &ulSize);
 			if (FAILED(hr))
