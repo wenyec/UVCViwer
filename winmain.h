@@ -160,6 +160,8 @@ static struct InitControlsSetting
 	int I2Ccommand;
 	int BLCWeightFactor;
 	int BLCGrid;
+	int HPos; int VPos;
+	int HSize; int VSize;
 	int BLCMode;
 	int SHUTLevel;
 	int AGCMaxLvl;

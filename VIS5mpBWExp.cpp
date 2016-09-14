@@ -256,7 +256,7 @@ BOOL VIS5mpBWExp::OnInitDialog()
 		c_sldSpedCtrl.EnableWindow(FALSE);
 	}
 
-	SendMessageA(c_sldSpedCtrl, TBM_SETRANGEMAX, TRUE, 0xff);
+	SendMessageA(c_sldSpedCtrl, TBM_SETRANGEMAX, TRUE, 0x7);
 	SendMessageA(c_sldSpedCtrl, TBM_SETRANGEMIN, TRUE, 0);
 	SendMessageA(c_sldSpedCtrl, TBM_SETPAGESIZE, TRUE, 1);
 	SendMessageA(c_sldSpedCtrl, TBM_SETPOS, TRUE, retValue);
@@ -450,6 +450,9 @@ BOOL VIS5mpBWExp::OnInitDialog()
 	*/
 	int hpos = 0, hsize = 0, vpos = 0, vsize = 0;
 	hr = getBLCRangeValue(17, &hpos, &hsize, &vpos, &vsize);
+	initCtrlSetting.HPos = hpos; initCtrlSetting.VPos = vpos;
+	initCtrlSetting.HSize = hsize; initCtrlSetting.VSize = vsize;
+
 	//hr = getExtControlValue(18, &retValue); // &initCtrlSetting.BLCWeightFactor
 	retValue = initCtrlSetting.BLCWeightFactor;
 
@@ -536,16 +539,16 @@ void VIS5mpBWExp::saveCameraControlInitSetting()
 	initCtrlSetting.BacklightCompensation = 0;
 	initCtrlSetting.CameraMode = 0;
 	initCtrlSetting.SHUTLevel = 0;
-	initCtrlSetting.shutterEnable_bak = initCtrlSetting.shutterEnable;
+	//initCtrlSetting.shutterEnable_bak = initCtrlSetting.shutterEnable;
 
 	// get current Value
 	getExtControlValue(1, &initCtrlSetting.ShutterControl);
+	initCtrlSetting.ShutterControl = (initCtrlSetting.ShutterControl & 0x70) >> 4;
 	//getExtControlValue(2, &initCtrlSetting.SenseUpMode); //not be used in 5MP
 	getExtControlValue(11, &initCtrlSetting.AEReferenceLevel);
 	getExtControlValue(12, &initCtrlSetting.SHUTLevel);
 
 	getExt2ControlValues(10, &initCtrlSetting.ExposureMode, &initCtrlSetting.AGCLevel);
-
 	//getExtControlValue(3, &initCtrlSetting.MirrorMode); //move to gamma... menu
 	//getExtControlValue(13, &initCtrlSetting.CameraMode);
 	//initCtrlSetting.CameraMode = 0;
@@ -553,6 +556,9 @@ void VIS5mpBWExp::saveCameraControlInitSetting()
 	getExtControlValue(19, &initCtrlSetting.BLCGrid);
 	getExtControlValue(20, &initCtrlSetting.AEHyster);
 	getExtControlValue(21, &initCtrlSetting.AECtrlSpeed);
+	initCtrlSetting.shutterEnable = initCtrlSetting.AECtrlSpeed & 0x08;
+	initCtrlSetting.AECtrlSpeed &= 0x07;
+
 	getExtControlValue(28, &initCtrlSetting.AGCMaxLvl);
 
 	//getStandardControlPropertyCurrentValue(KSPROPERTY_VIDEOPROCAMP_POWERLINE_FREQUENCY, &currValue, &lCaps); //move to gamma... menu
@@ -751,6 +757,9 @@ void VIS5mpBWExp::OnCbnSelchangeComboExposureMode()
 
 					int ExposureByte = 2;
 					int AgcLvlByte = 2;
+					//if (c_FineShuChk.GetCheck() == BST_CHECKED){
+						//sel |= 0x80;
+					//}
 					memcpy(&pbPropertyValue[0], (char*)&sel, ExposureByte); // first two byte Exposure Mode & last two byte AGC level
 					memcpy(&pbPropertyValue[ExposureByte], (char*)&agcSldPos, AgcLvlByte); // first two byte Exposure Mode & last two byte AGC level
 
@@ -829,7 +838,64 @@ void VIS5mpBWExp::OnCbnSelchangeComboShutContl()
 void VIS5mpBWExp::OnBnClickedFineShutterEnable()
 {
 	// TODO: Add your control notification handler code here
-	OnCbnSelchangeComboExposureMode();
+	HRESULT hr = S_OK;
+	long ExCtrlSpdSldPos = 0;
+	CString strPos;
+
+	if (c_FineShuChk.GetCheck() == BST_CHECKED){
+		c_ShutCtrl.EnableWindow(FALSE);
+		c_sldShuLvl.EnableWindow(TRUE);
+		initCtrlSetting.shutterEnable = 8;
+	}
+	else{
+		c_ShutCtrl.EnableWindow(TRUE);
+		c_sldShuLvl.EnableWindow(FALSE);
+		initCtrlSetting.shutterEnable = 0;
+	}
+	ExCtrlSpdSldPos = initCtrlSetting.shutterEnable | initCtrlSetting.AECtrlSpeed;
+	if (camNodeTree->isOK)
+	{
+		ULONG ulSize;
+		BYTE *pbPropertyValue;
+		int PropertId = 21;
+
+		hr = getExtionControlPropertySize(PropertId, &ulSize);
+		if (FAILED(hr) || (ulSize != 2)) // first two byte Exposure Mode & last two byte AGC level mast be 4 byte
+		{
+#ifdef DEBUG
+			//			sprintf(logMessage, "\nERROR \t Function : onAgcLvlChange \t Msg : Unable to find property size : %x", hr);
+			//			printLogMessage(logMessage);
+#endif
+		}
+		else
+		{
+			pbPropertyValue = new BYTE[ulSize];
+			if (!pbPropertyValue)
+			{
+#ifdef DEBUG
+				//				sprintf(logMessage, "\nERROR \t Function : onAgcLvlChange \t Msg : Unable to allocate memory for property value");
+				//				printLogMessage(logMessage);
+#endif
+			}
+			else
+			{
+				//int ExposureByte = 2;
+				int ShutLvlByte = 2;
+				//memcpy(&pbPropertyValue[0], (char*)&sel, ExposureByte); // first two byte Exposure Mode & last two byte AGC level
+				memcpy(&pbPropertyValue[0], (char*)&ExCtrlSpdSldPos, ShutLvlByte); // two byte SHUT level
+
+				hr = setExtionControlProperty(PropertId, ulSize, pbPropertyValue);
+			}
+			delete[] pbPropertyValue;
+		}
+
+#ifdef DEBUG
+		//		sprintf(logMessage, "\nFunction : onAgcLvlChange \t Msg : Return Value:%ld", hr);
+		//		printLogMessage(logMessage);
+#endif
+	}
+
+	//OnCbnSelchangeComboExposureMode();
 }
 
 
@@ -1777,6 +1843,67 @@ void VIS5mpBWExp::OnCancel()
 
 		}
 		//ksNodeTree.pProcAmp->Set(KSPROPERTY_VIDEOPROCAMP_BACKLIGHT_COMPENSATION, (long)initCtrlSetting.BacklightCompensation, VideoProcAmp_Flags_Manual);
+
+	}
+	int hposSldPos = (int)SendMessageA(c_sldHPosCtrl, TBM_GETPOS, TRUE, hposSldPos);
+	int vposSldPos = (int)SendMessageA(c_sldVPosCtrl, TBM_GETPOS, TRUE, vposSldPos);
+	int hsizeSldPos = (int)SendMessageA(c_sldHSizeCtrl, TBM_GETPOS, TRUE, hsizeSldPos);
+	int vizeSldPos = (int)SendMessageA(c_sldVSizeCtrl, TBM_GETPOS, TRUE, vizeSldPos);
+	if (hposSldPos != initCtrlSetting.HPos || vposSldPos != initCtrlSetting.VPos ||
+		hsizeSldPos != initCtrlSetting.HSize || vizeSldPos != initCtrlSetting.VSize){
+		if (camNodeTree->isOK)
+		{
+			ULONG ulSize;
+			BYTE *pbPropertyValue;
+			int PropertId = 17;
+
+			HRESULT hr = getExtionControlPropertySize(PropertId, &ulSize);
+			//ulSize = 2;
+			if (FAILED(hr) || (ulSize != 2))
+			{
+#ifdef DEBUG
+				//			sprintf(logMessage, "\nERROR \t Function : onBLCRangeChange \t Msg : Unable to find property size : %x", hr);
+				//			printLogMessage(logMessage);
+#endif
+			}
+			else
+			{
+				pbPropertyValue = new BYTE[ulSize];
+				if (!pbPropertyValue)
+				{
+#ifdef DEBUG
+					//				sprintf(logMessage, "\nERROR \t Function : onBLCRangeChange \t Msg : Unable to allocate memory for property value");
+					//				printLogMessage(logMessage);
+#endif
+				}
+				else
+				{
+					/*
+					*vpos = ((*pbPropertyValue) & 0x0F);
+					*vsize = ((*pbPropertyValue) >> 4 & 0x0F);
+					*hpos = ((*(pbPropertyValue + 1)) & 0x0F);
+					*hsize = ((*(pbPropertyValue + 1) >> 4) & 0x0F);
+					*/
+					/*
+					*pbPropertyValue = (*pbPropertyValue & 0x00) | ((vsize & 0x000F) << 4) | (hsize & 0x000F);
+					*(pbPropertyValue+1) = (*(pbPropertyValue+1) & 0x00) | ((vpos & 0x000F) << 4) | (hpos & 0x000F);
+					*/
+					hposSldPos = initCtrlSetting.HPos;
+					vposSldPos = initCtrlSetting.VPos;
+					hsizeSldPos = initCtrlSetting.HSize;
+					vizeSldPos = initCtrlSetting.VSize;
+					*pbPropertyValue = (*pbPropertyValue & 0x00) | ((vposSldPos & 0x000F) << 4) | (hposSldPos & 0x000F);
+					*(pbPropertyValue + 1) = (*(pbPropertyValue + 1) & 0x00) | ((vizeSldPos & 0x000F) << 4) | (hsizeSldPos & 0x000F);
+					hr = setExtionControlProperty(PropertId, ulSize, pbPropertyValue);
+				}
+				delete[] pbPropertyValue;
+			}
+
+#ifdef DEBUG
+			//		sprintf(logMessage, "\nFunction : onBLCRangeChange \t Msg : Return Value:%ld", hr);
+			//		printLogMessage(logMessage);
+#endif
+		}
 
 	}
 

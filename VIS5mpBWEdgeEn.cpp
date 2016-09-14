@@ -110,7 +110,7 @@ BOOL VIS5mpBWEdgeEn::OnInitDialog()
 	endLvl = initCtrlSetting.EGEEnhGainEnd;
 	//HWND hListSldEnhanStartVL = GetDlgItem(hwnd, IDC_SLD_GAIN_START_LVL);
 
-	SendMessageA(c_sldEdgeGainStart, TBM_SETRANGEMAX, TRUE, 0xb1);
+	SendMessageA(c_sldEdgeGainStart, TBM_SETRANGEMAX, TRUE, 0xFF);
 	SendMessageA(c_sldEdgeGainStart, TBM_SETRANGEMIN, TRUE, 0);
 	SendMessageA(c_sldEdgeGainStart, TBM_SETPAGESIZE, TRUE, 32);
 	SendMessageA(c_sldEdgeGainStart, TBM_SETPOS, TRUE, startLvl);
@@ -123,8 +123,8 @@ BOOL VIS5mpBWEdgeEn::OnInitDialog()
 
 	//HWND hListSldEnhanEndVL = GetDlgItem(hwnd, IDC_SLD_GAIN_END_LVL);
 
-	SendMessageA(c_sldEdgeGainEnd, TBM_SETRANGEMAX, TRUE, 0xb2);
-	SendMessageA(c_sldEdgeGainEnd, TBM_SETRANGEMIN, TRUE, 1);
+	SendMessageA(c_sldEdgeGainEnd, TBM_SETRANGEMAX, TRUE, 0xFF);
+	SendMessageA(c_sldEdgeGainEnd, TBM_SETRANGEMIN, TRUE, 0);
 	SendMessageA(c_sldEdgeGainEnd, TBM_SETPAGESIZE, TRUE, 32);
 	SendMessageA(c_sldEdgeGainEnd, TBM_SETPOS, TRUE, endLvl);
 
