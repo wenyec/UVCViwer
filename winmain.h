@@ -212,6 +212,9 @@ static struct InitControlsSetting
 	// playback style
 	int isFull = 1;
 
+	// some share control should be records the current value
+	int CurspeedCtrl = 0;
+
 }initCtrlSetting;
 
 // for stream type

@@ -539,7 +539,6 @@ void VIS5mpBWExp::saveCameraControlInitSetting()
 	initCtrlSetting.BacklightCompensation = 0;
 	initCtrlSetting.CameraMode = 0;
 	initCtrlSetting.SHUTLevel = 0;
-	//initCtrlSetting.shutterEnable_bak = initCtrlSetting.shutterEnable;
 
 	// get current Value
 	getExtControlValue(1, &initCtrlSetting.ShutterControl);
@@ -556,7 +555,8 @@ void VIS5mpBWExp::saveCameraControlInitSetting()
 	getExtControlValue(19, &initCtrlSetting.BLCGrid);
 	getExtControlValue(20, &initCtrlSetting.AEHyster);
 	getExtControlValue(21, &initCtrlSetting.AECtrlSpeed);
-	initCtrlSetting.shutterEnable = initCtrlSetting.AECtrlSpeed & 0x08;
+	initCtrlSetting.shutterEnable = initCtrlSetting.AECtrlSpeed & 0x08; //the input has 4-bit available: bit3:0. the bit3 is for shutter enable.
+	initCtrlSetting.shutterEnable_bak = initCtrlSetting.shutterEnable;
 	initCtrlSetting.AECtrlSpeed &= 0x07;
 
 	getExtControlValue(28, &initCtrlSetting.AGCMaxLvl);
@@ -852,7 +852,7 @@ void VIS5mpBWExp::OnBnClickedFineShutterEnable()
 		c_sldShuLvl.EnableWindow(FALSE);
 		initCtrlSetting.shutterEnable = 0;
 	}
-	ExCtrlSpdSldPos = initCtrlSetting.shutterEnable | initCtrlSetting.AECtrlSpeed;
+	ExCtrlSpdSldPos = initCtrlSetting.shutterEnable | initCtrlSetting.CurspeedCtrl;
 	if (camNodeTree->isOK)
 	{
 		ULONG ulSize;
@@ -1062,6 +1062,8 @@ void VIS5mpBWExp::OnNMReleasedcaptureSldAeCtrlspeed(NMHDR *pNMHDR, LRESULT *pRes
 	CString strPos;
 	//HWND hSLDAeCtrlspdLVL = GetDlgItem(hwnd, IDC_SLD_AE_CTRLSPEED);
 	ExCtrlSpdSldPos = (long)SendMessageA(c_sldSpedCtrl, TBM_GETPOS, TRUE, ExCtrlSpdSldPos);
+	initCtrlSetting.CurspeedCtrl = (int)ExCtrlSpdSldPos;
+	ExCtrlSpdSldPos |= initCtrlSetting.shutterEnable;
 
 	//HWND hListExpoMode = GetDlgItem(hwnd, IDC_COMBO_EXPOSURE_MODE);
 	//int sel = ComboBox_GetCurSel(hListExpoMode);
@@ -1578,6 +1580,8 @@ void VIS5mpBWExp::OnCbnSelchangeComboBackLight()
 			c_sldVSizeCtrl.EnableWindow(TRUE);
 		}
 
+		int l_BLCGrid = initCtrlSetting.BLCGrid;
+		//setV |= l_BLCGrid << 7;
 
 //		hr = ksNodeTree.pProcAmp->Set(KSPROPERTY_VIDEOPROCAMP_BACKLIGHT_COMPENSATION, (long)setV, VideoProcAmp_Flags_Manual); // TODO: need a helper function -- wcheng
 		hr = camNodeTree->pProcAmp->Set(KSPROPERTY_VIDEOPROCAMP_BACKLIGHT_COMPENSATION, (long)setV, VideoProcAmp_Flags_Manual); // TODO: need a helper function -- wcheng
@@ -1657,11 +1661,6 @@ void VIS5mpBWExp::OnCancel()
 	if (sel != initCtrlSetting.ShutterControl)
 		setExtControls(1, initCtrlSetting.ShutterControl);
 
-	//HWND hListFineShutEnb = GetDlgItem(hwnd, IDC_FINE_SHUTTER_ENABLE);
-	if (initCtrlSetting.shutterEnable_bak != initCtrlSetting.shutterEnable){
-		initCtrlSetting.shutterEnable = initCtrlSetting.shutterEnable_bak;
-		//CheckDlgButton(hwnd, IDC_FINE_SHUTTER_ENABLE, initCtrlSetting.shutterEnable);// setting shutter enable checkbox as orginal.
-	}
 #if 0
 	HWND hListSenseUpMode = GetDlgItem(hwnd, IDC_COMBO_SEN_UP_MODE);
 	sel = ComboBox_GetCurSel(hListSenseUpMode);
@@ -1737,9 +1736,9 @@ void VIS5mpBWExp::OnCancel()
 	//HWND hListSldCtrlSpdLVL = GetDlgItem(hwnd, IDC_SLD_AE_CTRLSPEED);
 	int ctrlspdSldPos = (int)SendMessageA(c_sldSpedCtrl, TBM_GETPOS, TRUE, ctrlspdSldPos);
 
-	if (ctrlspdSldPos != initCtrlSetting.AECtrlSpeed)
+	if (ctrlspdSldPos != initCtrlSetting.AECtrlSpeed || initCtrlSetting.shutterEnable_bak != initCtrlSetting.shutterEnable)
 	{
-		setExtControls(21, initCtrlSetting.AECtrlSpeed);
+		setExtControls(21, initCtrlSetting.AECtrlSpeed | initCtrlSetting.shutterEnable_bak);
 	}
 
 

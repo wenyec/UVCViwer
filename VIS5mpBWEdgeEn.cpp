@@ -164,8 +164,8 @@ BOOL VIS5mpBWEdgeEn::OnInitDialog()
 #if 1 ///move to edge enhancement menu
 	//HWND hListMainFeq = GetDlgItem(hwnd, IDC_COMBO_MAIN_FEQ);
 	retValue = initCtrlSetting.MainsFrequency;
-	c_MainFreq.AddString(L"50 Hz");
 	c_MainFreq.AddString(L"60 Hz");
+	c_MainFreq.AddString(L"50 Hz");
 	c_MainFreq.SetCurSel(retValue);
 #endif
 
