@@ -255,10 +255,9 @@
 #define ID_VIDEOLOGYOPTION_CAMERAMANAGEMENT 40037
 #define ID_CAMERA_SAVEPARAMETERS        40038
 #define ID_CAMERA_RESETSETTINGS         40039
+#define VIS_CAMERA_MENU                 40040
 #define IDC_STR_DAY_NIGHT_MODE          -1
 #define IDC_STR_BCKLGTCOMP              -1
-//#define IDC_STR_3D_NOISE_REDU_MODE      -1
-//#define IDC_STATIC                      -1
 #define IDC_STATIC_WH_COMP_BLUE         -1
 #define IDC_STR_DEV_MAIN_ADDR           -1
 #define IDC_STR_DIG_ZOOM                -1
@@ -273,7 +272,7 @@
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NEXT_RESOURCE_VALUE        124
-#define _APS_NEXT_COMMAND_VALUE         40040
+#define _APS_NEXT_COMMAND_VALUE         40041
 #define _APS_NEXT_CONTROL_VALUE         1095
 #define _APS_NEXT_SYMED_VALUE           101
 #endif

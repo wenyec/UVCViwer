@@ -24,6 +24,7 @@ public:
 	CListBox m_DevNameList;
 	virtual BOOL OnInitDialog();
 	_capstuff *devCap;
+	VIS_CameraID *visCamID;
 private:
 	void DeviceNameToMenu();
 	virtual void OnOK();

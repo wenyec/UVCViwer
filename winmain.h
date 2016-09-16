@@ -53,6 +53,11 @@ typedef struct StillFormats{
 	int height;
 };
 
+typedef struct CameraInfo{
+	WCHAR rgpmVideoFriendlyName[120];
+	ULONG VidPid;
+};
+
 static struct _capstuff
 {
 	WCHAR wszCaptureFile[_MAX_PATH];
@@ -87,7 +92,7 @@ static struct _capstuff
 	bool fDeviceMenuPopulated;
 	int defaultVideoLogyCamID;
 	IMoniker *rgpmVideoMenu[10];
-	WCHAR rgpmVideoFriendlyName[10][120];
+	CameraInfo vis_camID[10];
 	IMoniker *rgpmAudioMenu[10];
 	WCHAR rgpmAudioFriendlyName[10][120];
 	IMoniker *pmVideo;
@@ -135,8 +140,24 @@ static struct _capstuff
 	DWORD stillWidth;
 	DWORD stillHeight;
 	StillFormats stillFmts[5];
+	int CamIndex = 0xff; //keep the activity camera index.
 
 } gcap;
+
+static struct VIS_CameraID
+{
+	ULONG VidPid;
+	//ULONG Pid;
+};
+
+static VIS_CameraID visID[16] = {	//available VIS camera ID
+	{ 0x1bbdff50 },				// 5MP B/W
+	{ 0x1bbdff50 },				// 5MP Color
+	{ 0x1bbd3061 },				// 2MP Color
+	{ 0x1bbd3062 },				// 1.2MP Color
+	{ 0x1bbdff62 },				// Invendo
+	{ 0x1bbdfff0 }				// Unknow
+};
 
 //static StillFormats stillFmts[5];
 

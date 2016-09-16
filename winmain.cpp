@@ -1889,9 +1889,21 @@ void AddDevicesToMenu()
 		hr = pM->BindToStorage(0, 0, IID_IPropertyBag, (void **)&pBag);
 		if (SUCCEEDED(hr))
 		{
-			VARIANT var;
+			VARIANT var;	//what the different VAEIANR & CComVariant?
+			//CComVariant var;
 			var.vt = VT_BSTR;
 			hr = pBag->Read(L"DevicePath", &var, NULL);
+
+			CStringW visName = var.bstrVal;
+			visName = visName.MakeLower();
+			if (visName.Find(L"usb#") < 0)
+				continue;
+			int i = visName.Find(L"vid_");
+			ULONG vid = wcstol(visName.Mid(i + 4, 4), NULL, 16);
+			i = visName.Find(L"pid_");
+
+			ULONG pid = wcstol(visName.Mid(i + 4, 4), NULL, 16);
+			ULONG vidpid = (vid<<16) | pid;
 
 			wchar_t *ptr = wcsstr(var.bstrVal, L"vid_1bbd");
 
@@ -1901,6 +1913,11 @@ void AddDevicesToMenu()
 			}
 			//hr = pBag->Read(L"Description", &var, NULL);
 			hr = pBag->Read(L"FriendlyName", &var, NULL);
+
+			// we have a usb camera, then extract teh VID and PID.
+			// \\?\usb#vid_xxxx&pid_xxxx
+			// technically, the format of the device path is undocumented.
+			// however, this format has remained stable since Win95 OSR2 and is unlikely to change in our lifetime.
 
 #ifdef DEBUG
 			sprintf(logMessage, " \nFunction : AddDevicesToMenu \t Msg : FriendlyName  %ls", var.bstrVal);
@@ -1913,7 +1930,8 @@ void AddDevicesToMenu()
 					gcap.defaultVideoLogyCamID = uIndex;
 				ASSERT(gcap.rgpmVideoMenu[uIndex] == 0);
 				gcap.rgpmVideoMenu[uIndex] = pM;
-				wcscpy(gcap.rgpmVideoFriendlyName[uIndex], var.bstrVal);
+				wcscpy(gcap.vis_camID[uIndex].rgpmVideoFriendlyName, var.bstrVal);
+				gcap.vis_camID[uIndex].VidPid = vidpid;
 
 				SysFreeString(var.bstrVal);
 
@@ -2442,6 +2460,7 @@ void OnChooseDevice(HWND hwnd, BOOL bPrompt)
 		AfxGetInstanceHandle();
 		GetDevice c_getDevice; // add the get device class --wcheng
 		c_getDevice.devCap = &gcap;
+		c_getDevice.visCamID = visID;
 		hr = c_getDevice.DoModal();
 /*
 		INT_PTR result = DialogBoxParam(
@@ -2464,11 +2483,27 @@ void OnChooseDevice(HWND hwnd, BOOL bPrompt)
 */	}
 	else
 	{
-		if (gcap.iNumVCapDevices > 0)
-			gcap.iSelectedDeviceIndex = 0;
+		if (gcap.iNumVCapDevices > 0){
+			int i,j;
+			for ( i = 0; i < gcap.iNumVCapDevices; i++){
+				for (j = 0; j < 5; j++){
+					if (gcap.vis_camID[i].VidPid == visID[j].VidPid){
+						gcap.iSelectedDeviceIndex = i;
+						gcap.CamIndex = j;
+						i = 0xf; //jump out of the i-for loop
+						break;
+					}
+				}
+			}
+			//gcap.iSelectedDeviceIndex = 0;
+		}
+		else{
+			if (gcap.defaultVideoLogyCamID >= 0){
+				gcap.iSelectedDeviceIndex = gcap.defaultVideoLogyCamID;
+			}
+			else ;// show no device message and close the application.
+		}
 
-		if (gcap.defaultVideoLogyCamID >= 0)
-			gcap.iSelectedDeviceIndex = gcap.defaultVideoLogyCamID;
 	}
 
 	if (gcap.iNumVCapDevices > 0)

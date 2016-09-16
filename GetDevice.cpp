@@ -109,6 +109,17 @@ void GetDevice::DeviceNameToMenu()
 			var.vt = VT_BSTR;
 			hr = pBag->Read(L"DevicePath", &var, NULL);
 
+			CStringW visName = var.bstrVal;
+			visName = visName.MakeLower();
+			if (visName.Find(L"usb#") < 0)
+				continue;
+			int i = visName.Find(L"vid_");
+			ULONG vid = wcstol(visName.Mid(i + 4, 4), NULL, 16);
+			i = visName.Find(L"pid_");
+
+			ULONG pid = wcstol(visName.Mid(i + 4, 4), NULL, 16);
+			ULONG vidpid = (vid<<16) | pid;
+
 			wchar_t *ptr = wcsstr(var.bstrVal, L"vid_1bbd");
 
 			if (ptr != nullptr && devCap->defaultVideoLogyCamID == -2)
@@ -129,7 +140,8 @@ void GetDevice::DeviceNameToMenu()
 					devCap->defaultVideoLogyCamID = uIndex;
 				ASSERT(devCap->rgpmVideoMenu[uIndex] == 0);
 				devCap->rgpmVideoMenu[uIndex] = pM;
-				wcscpy(devCap->rgpmVideoFriendlyName[uIndex], var.bstrVal);
+				wcscpy(devCap->vis_camID[uIndex].rgpmVideoFriendlyName, var.bstrVal);//gcap.vis_camID[uIndex].
+				devCap->vis_camID[uIndex].VidPid = vidpid;
 
 				SysFreeString(var.bstrVal);
 
@@ -204,12 +216,12 @@ BOOL GetDevice::OnInitDialog()
 	// TODO:  Add extra initialization here
 	for (int i = 0; i < devCap->iNumVCapDevices; i++)
 	{
-		m_DevNameList.AddString(devCap->rgpmVideoFriendlyName[i]);
+		m_DevNameList.AddString(devCap->vis_camID[i].rgpmVideoFriendlyName);
 	}
 	//m_DevNameList.UpdateData();
 	for (int i = 0; i < devCap->iNumVCapDevices; i++)
 	{
-		int index = m_DevNameList.FindString(-1, devCap->rgpmVideoFriendlyName[i]);
+		int index = m_DevNameList.FindString(-1, devCap->vis_camID[i].rgpmVideoFriendlyName);
 		m_DevNameList.SetItemData(index, i);
 	}
 
@@ -238,7 +250,16 @@ void GetDevice::OnOK()
 	if (sel != LB_ERR)
 	{
 		devCap->iSelectedDeviceIndex = (UINT32)m_DevNameList.GetItemData(sel);
-
+		int j;
+		for (j = 0; j < 5; j++){
+			if (devCap->vis_camID[devCap->iSelectedDeviceIndex].VidPid == visCamID[j].VidPid){
+				devCap->CamIndex = j;
+				break;
+			}
+		}
+		if (j >= 5){
+			devCap->CamIndex = 0xff; //it's not VIS camera.
+		}
 	}
 }
 
