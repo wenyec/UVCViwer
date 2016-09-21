@@ -899,7 +899,27 @@ void ChooseDevices(IMoniker *pmVideo, IMoniker *pmAudio)
 
 		FreeCapFilters();
 		InitCapFilters();
-
+#if 1 //for implement dynamic menu
+		/* change menu format based on the CamIndex */
+		HINSTANCE hInstance = GetModuleHandle(NULL);
+		LoadMenu(hInstance, 0);
+		HMENU Menu = GetMenu(ghwndApp);
+		
+		//CWnd *pMain = AfxGetMainWnd();
+//		if (Menu == NULL)
+			//Menu GetMenu();
+		//int menuNum = Menu;
+//		if (Menu != NULL && menuNum > 0)
+//		{
+//			if (gcap.CamIndex != 2)//disable VIS option menu
+//			{
+//				Menu.DeleteMenu(menuNum - 1, MF_BYPOSITION);
+//			}
+//			else{
+//				Menu->EnableMenuItem(menuNum - 1, MF_BYPOSITION);
+//			}
+//		}
+#endif
 		gcap.fWantPreview = TRUE;
 		if (gcap.fWantPreview)   // were we previewing?
 		{
@@ -2368,7 +2388,7 @@ void OnVideoStreamingSetting(HWND hwnd)
 
 	hr = gcap.pFg->AddFilter(gcap.pSampleGrabberFilter, L"SampleGrab");
 	hr = gcap.pFg->AddFilter(gcap.pNullRenderer, L"NullRender");
-	hr = gcap.pFg->AddFilter(gcap.VideoRenderer, L"VideoRenderer");
+	//hr = gcap.pFg->AddFilter(gcap.VideoRenderer, L"VideoRenderer");
 
 	BuildPreviewGraph();
 	StartPreview();
@@ -9262,7 +9282,7 @@ INT_PTR CALLBACK ImageResSetDlgProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM l
 
 			gcap.pFg->AddFilter(gcap.pSampleGrabberFilter, L"SampleGrab");
 			gcap.pFg->AddFilter(gcap.pNullRenderer, L"NullRender");
-			gcap.pFg->AddFilter(gcap.VideoRenderer, L"VideoRenderer");
+			//gcap.pFg->AddFilter(gcap.VideoRenderer, L"VideoRenderer");
 
 			BuildPreviewGraph();
 			StartPreview();
@@ -9289,7 +9309,7 @@ INT_PTR CALLBACK ImageResSetDlgProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM l
 			
 			gcap.pFg->AddFilter(gcap.pSampleGrabberFilter, L"SampleGrab");
 			gcap.pFg->AddFilter(gcap.pNullRenderer, L"NullRender");
-			gcap.pFg->AddFilter(gcap.VideoRenderer, L"VideoRenderer");
+			//gcap.pFg->AddFilter(gcap.VideoRenderer, L"VideoRenderer");
 			BuildPreviewGraph();
 			StartPreview();
 
@@ -10332,7 +10352,7 @@ BOOL InitCapFilters()
 	// Add Null Renderer filter to filter graph
 	hr = gcap.pFg->AddFilter(gcap.pNullRenderer, L"NullRender");
 	hr = gcap.pFg->AddFilter(gcap.pNullRendererStill, L"NullRenderStill");
-	hr = gcap.pFg->AddFilter(gcap.VideoRenderer, L"VideoRenderer");
+	//hr = gcap.pFg->AddFilter(gcap.VideoRenderer, L"VideoRenderer");
 	//if (hr != S_OK)
 	//exit_message("Could not add Null Renderer to filter graph", 1);
 
@@ -10835,12 +10855,15 @@ BOOL BuildPreviewGraph()
 		//	&MEDIATYPE_Video, gcap.pVCap, NULL, NULL);
 
 		hr = gcap.pBuilder->RenderStream(&PIN_CATEGORY_PREVIEW,
-			&MEDIATYPE_Video, gcap.pVCap, NULL, gcap.VideoRenderer);
+			&MEDIATYPE_Video, gcap.pVCap, NULL, NULL/*gcap.VideoRenderer*/);// using the gcap.VideoRenderer causes the out of video memory issue.
 		//ErrMsg(TEXT("This graph preview test!"));
 		if (hr == VFW_S_NOPREVIEWPIN)
 		{
 			// preview was faked up for us using the (only) capture pin
 			gcap.fPreviewFaked = TRUE;
+		}
+		else if (hr == VFW_E_OUT_OF_VIDEO_MEMORY){
+			ErrMsg(TEXT("Out of video memory!"));
 		}
 		else if (hr != S_OK)
 		{

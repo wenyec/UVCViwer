@@ -152,7 +152,7 @@ static struct VIS_CameraID
 
 static VIS_CameraID visID[16] = {	//available VIS camera ID
 	{ 0x1bbdff50 },				// 5MP B/W
-	{ 0x1bbdff50 },				// 5MP Color
+	{ 0x1bbdff51 },				// 5MP Color
 	{ 0x1bbd3061 },				// 2MP Color
 	{ 0x1bbd3062 },				// 1.2MP Color
 	{ 0x1bbdff62 },				// Invendo
@@ -243,6 +243,10 @@ typedef enum{
 	MEDIA_MJPEG = 0,
 	MEDIA_YUY2 = 1
 }eMediaType;
+
+/* for menu operation */
+static CWnd *pMain;
+//static CMenu Menu;
 
 extern HRESULT	getExtControlValue(int PropertyId, int *curValue);
 extern HRESULT  getExt2ControlValues(int PropertyId, int *ExpValue, int *AgcLvlValue);
