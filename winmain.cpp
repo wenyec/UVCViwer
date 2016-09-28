@@ -899,7 +899,7 @@ void ChooseDevices(IMoniker *pmVideo, IMoniker *pmAudio)
 
 		FreeCapFilters();
 		InitCapFilters();
-#if 1 //for implement dynamic menu
+#if 0 //for implement dynamic menu
 		/* change menu format based on the CamIndex */
 		HINSTANCE hInstance = GetModuleHandle(NULL);
 		LoadMenu(hInstance, 0);
@@ -3201,7 +3201,7 @@ void OnInitCameraControlDialog(HWND hwnd)
 	ComboBox_AddString(hListMirrorMode, L"ROTATE ");
 	ComboBox_SetCurSel(hListMirrorMode, retValue);
 	*/
-#if 0 ///move to gamma menu
+#if 0 ///move to edge enhance menu
 	HWND hListMainFeq = GetDlgItem(hwnd, IDC_COMBO_MAIN_FEQ);
 	ComboBox_AddString(hListMainFeq, L"Disabled");
 	ComboBox_AddString(hListMainFeq, L"50 Hz");
@@ -10865,21 +10865,25 @@ BOOL BuildPreviewGraph()
 		else if (hr == VFW_E_OUT_OF_VIDEO_MEMORY){
 			ErrMsg(TEXT("Out of video memory!"));
 		}
+//		else if (hr == VFW_E_CANNOT_CONNECT){
+//			hr = gcap.pBuilder->RenderStream(&PIN_CATEGORY_PREVIEW,
+//				&MEDIATYPE_Video, gcap.pVCap, NULL, gcap.VideoRenderer);// the issue running on the misumi camera.
+//		}
 		else if (hr != S_OK)
 		{
 			// maybe it's DV?
 			hr = gcap.pBuilder->RenderStream(&PIN_CATEGORY_PREVIEW,
 				&MEDIATYPE_Video, gcap.pVCap, NULL, NULL);
-			ErrMsg(TEXT("This graph cannot preview2!"));
+//			ErrMsg(TEXT("This graph cannot preview2!"));
 			if (hr == VFW_S_NOPREVIEWPIN)
 			{
 				// preview was faked up for us using the (only) capture pin
-				ErrMsg(TEXT("This graph cannot preview1!"));
+//				ErrMsg(TEXT("This graph cannot preview1!"));
 				gcap.fPreviewFaked = TRUE;
 			}
 			else if (hr != S_OK)
 			{
-				ErrMsg(TEXT("This graph cannot preview!"));
+//				ErrMsg(TEXT("This graph cannot preview!"));
 				gcap.fPreviewGraphBuilt = FALSE;
 				return FALSE;
 			}
