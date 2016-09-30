@@ -648,7 +648,7 @@ void VIS5mpBWExp::OnCbnSelchangeComboExposureMode()
 			if (c_FineShuChk.GetCheck() == BST_CHECKED){
 				c_ShutCtrl.EnableWindow(FALSE);
 				c_sldShuLvl.EnableWindow(TRUE);
-				initCtrlSetting.shutterEnable = 1;
+				initCtrlSetting.shutterEnable = 8;
 			}
 			else{
 				c_ShutCtrl.EnableWindow(TRUE);
@@ -675,7 +675,7 @@ void VIS5mpBWExp::OnCbnSelchangeComboExposureMode()
 			if (c_FineShuChk.GetCheck() == BST_CHECKED){
 				c_ShutCtrl.EnableWindow(FALSE);
 				c_sldShuLvl.EnableWindow(TRUE);
-				initCtrlSetting.shutterEnable = 1;
+				initCtrlSetting.shutterEnable = 8;
 			}
 			else{
 				c_ShutCtrl.EnableWindow(TRUE);
@@ -852,7 +852,7 @@ void VIS5mpBWExp::OnBnClickedFineShutterEnable()
 		c_sldShuLvl.EnableWindow(FALSE);
 		initCtrlSetting.shutterEnable = 0;
 	}
-	ExCtrlSpdSldPos = initCtrlSetting.shutterEnable | initCtrlSetting.CurspeedCtrl;
+	ExCtrlSpdSldPos = initCtrlSetting.shutterEnable | (initCtrlSetting.AECtrlSpeed);
 	if (camNodeTree->isOK)
 	{
 		ULONG ulSize;
@@ -1060,10 +1060,10 @@ void VIS5mpBWExp::OnNMReleasedcaptureSldAeCtrlspeed(NMHDR *pNMHDR, LRESULT *pRes
 	HRESULT hr = S_OK;
 	long ExCtrlSpdSldPos = 0;
 	CString strPos;
+	int currValue;
 	//HWND hSLDAeCtrlspdLVL = GetDlgItem(hwnd, IDC_SLD_AE_CTRLSPEED);
 	ExCtrlSpdSldPos = (long)SendMessageA(c_sldSpedCtrl, TBM_GETPOS, TRUE, ExCtrlSpdSldPos);
-	initCtrlSetting.CurspeedCtrl = (int)ExCtrlSpdSldPos;
-	ExCtrlSpdSldPos |= initCtrlSetting.shutterEnable;
+	initCtrlSetting.AECtrlSpeed = (int)ExCtrlSpdSldPos;
 
 	//HWND hListExpoMode = GetDlgItem(hwnd, IDC_COMBO_EXPOSURE_MODE);
 	//int sel = ComboBox_GetCurSel(hListExpoMode);
@@ -1073,6 +1073,7 @@ void VIS5mpBWExp::OnNMReleasedcaptureSldAeCtrlspeed(NMHDR *pNMHDR, LRESULT *pRes
 	tx_edtSpedCtrl.SetSel(0, -1);
 	tx_edtSpedCtrl.Clear();
 	tx_edtSpedCtrl.ReplaceSel(strPos, TRUE);
+	ExCtrlSpdSldPos |= initCtrlSetting.shutterEnable;
 
 	if (camNodeTree->isOK)
 	{
