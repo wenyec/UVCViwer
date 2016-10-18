@@ -242,9 +242,6 @@ BOOL GetDevice::OnInitDialog()
 void GetDevice::OnOK()
 {
 	// TODO: Add your specialized code here and/or call the base class
-
-	CDialog::OnOK();
-	
 	int sel = m_DevNameList.GetCurSel();
 	
 	if (sel != LB_ERR)
@@ -261,6 +258,8 @@ void GetDevice::OnOK()
 			devCap->CamIndex = 0xff; //it's not VIS camera.
 		}
 	}
+
+	CDialog::OnOK();
 }
 
 
