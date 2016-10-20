@@ -9445,6 +9445,7 @@ HRESULT setStilFmat(HWND hwnd, DWORD Width, DWORD Height)
 HRESULT StillPinCapture() // add the still pin find routine --wenye
 {
 	HRESULT hr = NULL;
+#if 0 // remove the redundant code that is implemented in the StartPreview().
 	if (gcap.pFg != NULL){
 		hr = gcap.pFg->QueryInterface(IID_IMediaControl, (void **)&gcap.pMediaCtrl);
 	}
@@ -9457,6 +9458,7 @@ HRESULT StillPinCapture() // add the still pin find routine --wenye
 			gcap.pMediaCtrl->Release();
 		}
 	}
+#endif
 	hr = gcap.pVCap->QueryInterface(IID_IAMVideoControl, (void **)&gcap.pAMVideoCtrl);
 	if (SUCCEEDED(hr))
 	{
