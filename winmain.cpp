@@ -6206,7 +6206,7 @@ void OnInitNoiseReductionDialog(HWND hwnd)
 
 	SendMessageA(hListSld2DNRStartLVL, TBM_SETRANGEMAX, TRUE, 0xb1);
 	SendMessageA(hListSld2DNRStartLVL, TBM_SETRANGEMIN, TRUE, 0);
-	SendMessageA(hListSld2DNRStartLVL, TBM_SETPAGESIZE, TRUE, 32);
+	SendMessageA(hListSld2DNRStartLVL, TBM_SETPAGESIZE, TRUE, 1);
 	SendMessageA(hListSld2DNRStartLVL, TBM_SETPOS, TRUE, startLvl);
 
 	HWND hListEdit2DNRStartLVL = GetDlgItem(hwnd, IDC_EDIT_2D_NR_GAINSTR_VAL);
@@ -6219,7 +6219,7 @@ void OnInitNoiseReductionDialog(HWND hwnd)
 
 	SendMessageA(hListSld2DNREndLVL, TBM_SETRANGEMAX, TRUE, 0xb2);
 	SendMessageA(hListSld2DNREndLVL, TBM_SETRANGEMIN, TRUE, 1);
-	SendMessageA(hListSld2DNREndLVL, TBM_SETPAGESIZE, TRUE, 32);
+	SendMessageA(hListSld2DNREndLVL, TBM_SETPAGESIZE, TRUE, 1);
 	SendMessageA(hListSld2DNREndLVL, TBM_SETPOS, TRUE, endLvl);
 
 	HWND hListEdit2DNREndLVL = GetDlgItem(hwnd, IDC_EDIT_2D_NR_GAINEND_VAL);
@@ -6771,7 +6771,7 @@ void OnInitEdgeEnhanmentDialog(HWND hwnd)
 
 	SendMessageA(hListSldEnhanStartVL, TBM_SETRANGEMAX, TRUE, 0xb1);
 	SendMessageA(hListSldEnhanStartVL, TBM_SETRANGEMIN, TRUE, 0);
-	SendMessageA(hListSldEnhanStartVL, TBM_SETPAGESIZE, TRUE, 32);
+	SendMessageA(hListSldEnhanStartVL, TBM_SETPAGESIZE, TRUE, 1);
 	SendMessageA(hListSldEnhanStartVL, TBM_SETPOS, TRUE, startLvl);
 
 	HWND hListEditEnhaStartVL = GetDlgItem(hwnd, IDC_EDIT_GAIN_START_LVL);
@@ -6784,7 +6784,7 @@ void OnInitEdgeEnhanmentDialog(HWND hwnd)
 
 	SendMessageA(hListSldEnhanEndVL, TBM_SETRANGEMAX, TRUE, 0xb2);
 	SendMessageA(hListSldEnhanEndVL, TBM_SETRANGEMIN, TRUE, 1);
-	SendMessageA(hListSldEnhanEndVL, TBM_SETPAGESIZE, TRUE, 32);
+	SendMessageA(hListSldEnhanEndVL, TBM_SETPAGESIZE, TRUE, 1);
 	SendMessageA(hListSldEnhanEndVL, TBM_SETPOS, TRUE, endLvl);
 
 	HWND hListEditEnhaEndVL = GetDlgItem(hwnd, IDC_EDIT_GAIN_END_LVL);

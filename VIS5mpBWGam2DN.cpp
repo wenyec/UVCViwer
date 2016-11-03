@@ -103,7 +103,7 @@ BOOL VIS5mpBWGam2DN::OnInitDialog()
 
 	SendMessageA(c_sld2DNRGainstart, TBM_SETRANGEMAX, TRUE, 0xb1);
 	SendMessageA(c_sld2DNRGainstart, TBM_SETRANGEMIN, TRUE, 0);
-	SendMessageA(c_sld2DNRGainstart, TBM_SETPAGESIZE, TRUE, 32);
+	SendMessageA(c_sld2DNRGainstart, TBM_SETPAGESIZE, TRUE, 1);
 	SendMessageA(c_sld2DNRGainstart, TBM_SETPOS, TRUE, startLvl);
 
 	//HWND hListEdit2DNRStartLVL = GetDlgItem(hwnd, IDC_EDIT_2D_NR_GAINSTR_VAL);
@@ -114,10 +114,10 @@ BOOL VIS5mpBWGam2DN::OnInitDialog()
 
 	//HWND hListSld2DNREndLVL = GetDlgItem(hwnd, IDC_SLD_2D_NR_GAINEND_VAL);
 
-	SendMessageA(txt_edt2DNRGainEnd, TBM_SETRANGEMAX, TRUE, 0xb2);
-	SendMessageA(txt_edt2DNRGainEnd, TBM_SETRANGEMIN, TRUE, 1);
-	SendMessageA(txt_edt2DNRGainEnd, TBM_SETPAGESIZE, TRUE, 32);
-	SendMessageA(txt_edt2DNRGainEnd, TBM_SETPOS, TRUE, endLvl);
+	SendMessageA(c_sld2DNRGainend, TBM_SETRANGEMAX, TRUE, 0xb2);
+	SendMessageA(c_sld2DNRGainend, TBM_SETRANGEMIN, TRUE, 1);
+	SendMessageA(c_sld2DNRGainend, TBM_SETPAGESIZE, TRUE, 1);
+	SendMessageA(c_sld2DNRGainend, TBM_SETPOS, TRUE, endLvl);
 
 	//HWND hListEdit2DNREndLVL = GetDlgItem(hwnd, IDC_EDIT_2D_NR_GAINEND_VAL);
 	//Edit_SetText(hListAGCLVL, L"0");
@@ -154,7 +154,7 @@ void VIS5mpBWGam2DN::saveGammaInitSetting()
 	getExtControlValue(27, &initCtrlSetting.GammaCorrect);
 	getExtControlValue(4, &initCtrlSetting.NoiseReductionMode);
 	getExtControlValue(5, &initCtrlSetting.NoiseReductionControl);
-	getExt2ControlValues(26, &initCtrlSetting.NR2DGainStart, &initCtrlSetting.NR2DGainEnd);
+	getExt2ControlValues(26, &initCtrlSetting.NR2DGainEnd, &initCtrlSetting.NR2DGainStart);
 }
 
 void VIS5mpBWGam2DN::OnNMReleasedcaptureSld2dNoiseReduVal(NMHDR *pNMHDR, LRESULT *pResult)
