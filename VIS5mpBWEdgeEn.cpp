@@ -93,7 +93,7 @@ BOOL VIS5mpBWEdgeEn::OnInitDialog()
 
 	//HWND hListSldEnhanGainVL = GetDlgItem(hwnd, IDC_SLD_EDGEGAIN_LVL);
 
-	SendMessageA(c_sldEdgeLevel, TBM_SETRANGEMAX, TRUE, 255);
+	SendMessageA(c_sldEdgeLevel, TBM_SETRANGEMAX, TRUE, 0x7F);
 	SendMessageA(c_sldEdgeLevel, TBM_SETRANGEMIN, TRUE, 0);
 	SendMessageA(c_sldEdgeLevel, TBM_SETPAGESIZE, TRUE, 1);
 	SendMessageA(c_sldEdgeLevel, TBM_SETPOS, TRUE, retValue);
@@ -110,9 +110,9 @@ BOOL VIS5mpBWEdgeEn::OnInitDialog()
 	endLvl = initCtrlSetting.EGEEnhGainEnd;
 	//HWND hListSldEnhanStartVL = GetDlgItem(hwnd, IDC_SLD_GAIN_START_LVL);
 
-	SendMessageA(c_sldEdgeGainStart, TBM_SETRANGEMAX, TRUE, 0xFF);
+	SendMessageA(c_sldEdgeGainStart, TBM_SETRANGEMAX, TRUE, 0xB1);
 	SendMessageA(c_sldEdgeGainStart, TBM_SETRANGEMIN, TRUE, 0);
-	SendMessageA(c_sldEdgeGainStart, TBM_SETPAGESIZE, TRUE, 32);
+	SendMessageA(c_sldEdgeGainStart, TBM_SETPAGESIZE, TRUE, 1);
 	SendMessageA(c_sldEdgeGainStart, TBM_SETPOS, TRUE, startLvl);
 
 	//HWND hListEditEnhaStartVL = GetDlgItem(hwnd, IDC_EDIT_GAIN_START_LVL);
@@ -123,9 +123,9 @@ BOOL VIS5mpBWEdgeEn::OnInitDialog()
 
 	//HWND hListSldEnhanEndVL = GetDlgItem(hwnd, IDC_SLD_GAIN_END_LVL);
 
-	SendMessageA(c_sldEdgeGainEnd, TBM_SETRANGEMAX, TRUE, 0xFF);
-	SendMessageA(c_sldEdgeGainEnd, TBM_SETRANGEMIN, TRUE, 0);
-	SendMessageA(c_sldEdgeGainEnd, TBM_SETPAGESIZE, TRUE, 32);
+	SendMessageA(c_sldEdgeGainEnd, TBM_SETRANGEMAX, TRUE, 0xB2);
+	SendMessageA(c_sldEdgeGainEnd, TBM_SETRANGEMIN, TRUE, 1);
+	SendMessageA(c_sldEdgeGainEnd, TBM_SETPAGESIZE, TRUE, 1);
 	SendMessageA(c_sldEdgeGainEnd, TBM_SETPOS, TRUE, endLvl);
 
 	//HWND hListEditEnhaEndVL = GetDlgItem(hwnd, IDC_EDIT_GAIN_END_LVL);
@@ -177,15 +177,23 @@ void VIS5mpBWEdgeEn::saveEnhanceInitSetting()
 {
 	long currValue, lCaps;
 	int setV = 0;
+	int value;
 
 	// reset global struct
 	initCtrlSetting.MirrorMode = 0;
 	initCtrlSetting.MainsFrequency = 0;
 
 	// get current Value
-	getExtControlValue(22, &initCtrlSetting.EGEEnhanceMode);
+	getExtControlValue(22, &value); // the enhancement mode is indicated by bit[3:2] when it's on.
+	if (value & 0x1)
+	{
+		value = (value & 0xC) >> 2;
+		initCtrlSetting.EGEEnhanceMode = value + 1;
+		}
+	else
+		initCtrlSetting.EGEEnhanceMode = 0; // the enhancement off.
 	getExtControlValue(23, &initCtrlSetting.EGEEnhanceGain);
-	getExt2ControlValues(24, &initCtrlSetting.EGEEnhGainStart, &initCtrlSetting.EGEEnhGainEnd);
+	getExt2ControlValues(24, &initCtrlSetting.EGEEnhGainEnd, &initCtrlSetting.EGEEnhGainStart);
 
 	//getExposureAGCLvlValue(10, &initCtrlSetting.ExposureMode, &initCtrlSetting.AGCLevel);
 
