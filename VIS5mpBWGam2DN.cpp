@@ -101,7 +101,7 @@ BOOL VIS5mpBWGam2DN::OnInitDialog()
 
 	//HWND hListSld2DNRStartLVL = GetDlgItem(hwnd, IDC_SLD_2D_NR_GAINSTR_VAL);
 
-	SendMessageA(c_sld2DNRGainstart, TBM_SETRANGEMAX, TRUE, 0xb1);
+	SendMessageA(c_sld2DNRGainstart, TBM_SETRANGEMAX, TRUE, 0xB1);
 	SendMessageA(c_sld2DNRGainstart, TBM_SETRANGEMIN, TRUE, 0);
 	SendMessageA(c_sld2DNRGainstart, TBM_SETPAGESIZE, TRUE, 1);
 	SendMessageA(c_sld2DNRGainstart, TBM_SETPOS, TRUE, startLvl);
@@ -114,7 +114,7 @@ BOOL VIS5mpBWGam2DN::OnInitDialog()
 
 	//HWND hListSld2DNREndLVL = GetDlgItem(hwnd, IDC_SLD_2D_NR_GAINEND_VAL);
 
-	SendMessageA(c_sld2DNRGainend, TBM_SETRANGEMAX, TRUE, 0xb2);
+	SendMessageA(c_sld2DNRGainend, TBM_SETRANGEMAX, TRUE, 0xB2);
 	SendMessageA(c_sld2DNRGainend, TBM_SETRANGEMIN, TRUE, 1);
 	SendMessageA(c_sld2DNRGainend, TBM_SETPAGESIZE, TRUE, 1);
 	SendMessageA(c_sld2DNRGainend, TBM_SETPOS, TRUE, endLvl);
