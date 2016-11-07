@@ -1526,6 +1526,7 @@ void OnSize(/*HWND hwnd,*/ WPARAM wParam, LPARAM lParam/*, UINT state*/)
 
 void OnCommand(HWND hwnd, int id, HWND /*hwndCtl*/, UINT /*codeNotify*/)
 {
+	HMENU hMenu;
 	switch (id)
 	{
 	case ID_FILE_CHOOSEDEVICE:
@@ -1589,11 +1590,17 @@ void OnCommand(HWND hwnd, int id, HWND /*hwndCtl*/, UINT /*codeNotify*/)
 
 	case ID_PLAYBACKSTYLE_FULLIMAGE:
 		initCtrlSetting.isFull = 1;
+		hMenu = GetMenu(hwnd);
+		CheckMenuItem(hMenu, ID_PLAYBACKSTYLE_FULLIMAGE, MF_CHECKED | MF_BYCOMMAND);
+		CheckMenuItem(hMenu, ID_PLAYBACKSTYLE_ORIGINALPIXELS, MF_UNCHECKED | MF_BYCOMMAND);
 		SendMessage(ghwndApp, WM_SIZE, SIZE_RESTORED, 0);// force a WM_SIZE message
 		break;
 
 	case ID_PLAYBACKSTYLE_ORIGINALPIXELS:
 		initCtrlSetting.isFull = 0;
+		hMenu = GetMenu(hwnd);
+		CheckMenuItem(hMenu, ID_PLAYBACKSTYLE_FULLIMAGE, MF_UNCHECKED | MF_BYCOMMAND);
+		CheckMenuItem(hMenu, ID_PLAYBACKSTYLE_ORIGINALPIXELS, MF_CHECKED | MF_BYCOMMAND);
 		SendMessage(ghwndApp, WM_SIZE, SIZE_RESTORED, 0);// force a WM_SIZE message
 		break;
 

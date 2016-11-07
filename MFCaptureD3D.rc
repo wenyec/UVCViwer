@@ -67,7 +67,7 @@ BEGIN
         END
         POPUP "Playback Style"
         BEGIN
-            MENUITEM "Full Image",                  ID_PLAYBACKSTYLE_FULLIMAGE
+            MENUITEM "Full Image",                  ID_PLAYBACKSTYLE_FULLIMAGE, CHECKED
             MENUITEM "Original Pixels",             ID_PLAYBACKSTYLE_ORIGINALPIXELS
         END
     END

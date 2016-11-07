@@ -852,7 +852,7 @@ void VIS5mpBWExp::OnBnClickedFineShutterEnable()
 		c_sldShuLvl.EnableWindow(FALSE);
 		initCtrlSetting.shutterEnable = 0;
 	}
-	ExCtrlSpdSldPos = initCtrlSetting.shutterEnable | (initCtrlSetting.AECtrlSpeed);
+	ExCtrlSpdSldPos = initCtrlSetting.shutterEnable | initCtrlSetting.AECtrlSpeed;
 	if (camNodeTree->isOK)
 	{
 		ULONG ulSize;
@@ -1060,7 +1060,6 @@ void VIS5mpBWExp::OnNMReleasedcaptureSldAeCtrlspeed(NMHDR *pNMHDR, LRESULT *pRes
 	HRESULT hr = S_OK;
 	long ExCtrlSpdSldPos = 0;
 	CString strPos;
-	int currValue;
 	//HWND hSLDAeCtrlspdLVL = GetDlgItem(hwnd, IDC_SLD_AE_CTRLSPEED);
 	ExCtrlSpdSldPos = (long)SendMessageA(c_sldSpedCtrl, TBM_GETPOS, TRUE, ExCtrlSpdSldPos);
 	initCtrlSetting.AECtrlSpeed = (int)ExCtrlSpdSldPos;
