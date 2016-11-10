@@ -65,11 +65,12 @@ BEGIN
             MENUITEM "Video Resolution",            ID_FORMAT_VIDEORESOLUTION
             MENUITEM "Region of Interest (720 and VGA)", ID_FORMAT_REGIONOFINTREST
         END
-        POPUP "Playback Style"
-        BEGIN
-            MENUITEM "Full Image",                  ID_PLAYBACKSTYLE_FULLIMAGE, CHECKED
-            MENUITEM "Original Pixels",             ID_PLAYBACKSTYLE_ORIGINALPIXELS
-        END
+		/* the playback style has been removed from the publish version. but it's remained the version for internal debugging. */
+//       POPUP "Playback Style"
+//       BEGIN
+//            MENUITEM "Full Image",                  ID_PLAYBACKSTYLE_FULLIMAGE, CHECKED
+//           MENUITEM "Original Pixels",             ID_PLAYBACKSTYLE_ORIGINALPIXELS
+//        END
     END
     POPUP "Image Capture"
     BEGIN
