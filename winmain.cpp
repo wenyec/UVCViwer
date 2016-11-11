@@ -186,11 +186,14 @@ INT WINAPI wWinMain(HINSTANCE, HINSTANCE, LPWSTR, INT)
 	// get Exe Directory path
 	HMODULE hModule = GetModuleHandleW(NULL);
 	WCHAR path[MAX_PATH];
-	GetModuleFileNameW(hModule, path, MAX_PATH);
+	WCHAR snapPath[32];
+	DWORD size = 32;
+	char bstr[32];
+	char DefChar = ' ';
 
+	GetModuleFileNameW(hModule, path, MAX_PATH);
 	//convert from wide char to narrow char array
 	//char pathStr[MAX_PATH];
-	char DefChar = ' ';
 	WideCharToMultiByte(CP_ACP, 0, path, -1, pathStr, MAX_PATH, &DefChar, NULL);
 
 	// change .exe to .log
@@ -205,7 +208,13 @@ INT WINAPI wWinMain(HINSTANCE, HINSTANCE, LPWSTR, INT)
 		pathExe[lastIndex + 1] = '\0';
 	}
 
-	readSnapPath();
+	SHGetSpecialFolderPath(HWND_DESKTOP, snapPath, CSIDL_DESKTOP, FALSE);
+	WideCharToMultiByte(CP_ACP, 0, snapPath, -1, bstr, size, &DefChar, NULL);
+
+	strcpy(pathSnapImg, bstr);
+	strncpy(&pathSnapImg[lastIndexOf(pathSnapImg, "\0")], "\\\0", sizeof("\\\0"));
+	//readSnapPath();
+	writeSnapPath();
 
 	(void)HeapSetInformation(NULL, HeapEnableTerminationOnCorruption, NULL, 0);
 

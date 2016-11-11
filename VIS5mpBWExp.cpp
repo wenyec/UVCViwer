@@ -558,6 +558,7 @@ void VIS5mpBWExp::saveCameraControlInitSetting()
 	initCtrlSetting.shutterEnable = initCtrlSetting.AECtrlSpeed & 0x08; //the input has 4-bit available: bit3:0. the bit3 is for shutter enable.
 	initCtrlSetting.shutterEnable_bak = initCtrlSetting.shutterEnable;
 	initCtrlSetting.AECtrlSpeed &= 0x07;
+	initCtrlSetting.AECtrlSpeed_bak = initCtrlSetting.AECtrlSpeed;
 
 	getExtControlValue(28, &initCtrlSetting.AGCMaxLvl);
 
@@ -1683,8 +1684,9 @@ void VIS5mpBWExp::OnCancel()
 		setExtControls(11, initCtrlSetting.AEReferenceLevel);
 
 	//HWND hListComboBLCWF = GetDlgItem(hwnd, IDC_COMBO_BLC_WGHT_FACT);
-	sel = c_BLKCompCtrl.GetCurSel();
-	if (sel != initCtrlSetting.BLCWeightFactor)
+	//sel = c_BLKCompCtrl.GetCurSel();
+	int BLKWgCtrlSldPos = (int)SendMessageA(c_sldBLKWgtCtrl, TBM_GETPOS, TRUE, BLKWgCtrlSldPos);
+	if (BLKWgCtrlSldPos != initCtrlSetting.BLCWeightFactor)
 		setExtControls(18, initCtrlSetting.BLCWeightFactor);
 
 	//HWND hListComboBLCGrid = GetDlgItem(hwnd, IDC_COMBO_BLC_GRID);
@@ -1734,11 +1736,11 @@ void VIS5mpBWExp::OnCancel()
 	}
 
 	//HWND hListSldCtrlSpdLVL = GetDlgItem(hwnd, IDC_SLD_AE_CTRLSPEED);
-	int ctrlspdSldPos = (int)SendMessageA(c_sldSpedCtrl, TBM_GETPOS, TRUE, ctrlspdSldPos);
+	//int ctrlspdSldPos = (int)SendMessageA(c_sldSpedCtrl, TBM_GETPOS, TRUE, ctrlspdSldPos); //the record is initCtrlSetting.AECtrlSpeed at the moment of changed
 
-	if (ctrlspdSldPos != initCtrlSetting.AECtrlSpeed || initCtrlSetting.shutterEnable_bak != initCtrlSetting.shutterEnable)
+	if (initCtrlSetting.AECtrlSpeed != initCtrlSetting.AECtrlSpeed_bak || initCtrlSetting.shutterEnable_bak != initCtrlSetting.shutterEnable)
 	{
-		setExtControls(21, initCtrlSetting.AECtrlSpeed | initCtrlSetting.shutterEnable_bak);
+		setExtControls(21, initCtrlSetting.AECtrlSpeed_bak | initCtrlSetting.shutterEnable_bak);
 	}
 
 

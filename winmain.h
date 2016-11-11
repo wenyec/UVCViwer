@@ -188,6 +188,7 @@ static struct InitControlsSetting
 	int AGCMaxLvl;
 	int AEHyster;
 	int AECtrlSpeed;
+	int AECtrlSpeed_bak;
 	int shutterEnable;
 	int shutterEnable_bak;
 
