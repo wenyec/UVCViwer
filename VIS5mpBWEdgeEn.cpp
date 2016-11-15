@@ -93,7 +93,7 @@ BOOL VIS5mpBWEdgeEn::OnInitDialog()
 
 	//HWND hListSldEnhanGainVL = GetDlgItem(hwnd, IDC_SLD_EDGEGAIN_LVL);
 
-	SendMessageA(c_sldEdgeLevel, TBM_SETRANGEMAX, TRUE, 0x7F);
+	SendMessageA(c_sldEdgeLevel, TBM_SETRANGEMAX, TRUE, 0xFF);
 	SendMessageA(c_sldEdgeLevel, TBM_SETRANGEMIN, TRUE, 0);
 	SendMessageA(c_sldEdgeLevel, TBM_SETPAGESIZE, TRUE, 1);
 	SendMessageA(c_sldEdgeLevel, TBM_SETPOS, TRUE, retValue);
@@ -189,7 +189,7 @@ void VIS5mpBWEdgeEn::saveEnhanceInitSetting()
 	{
 		value = (value & 0xC) >> 2;
 		initCtrlSetting.EGEEnhanceMode = value + 1;
-		}
+	}
 	else
 		initCtrlSetting.EGEEnhanceMode = 0; // the enhancement off.
 	getExtControlValue(23, &initCtrlSetting.EGEEnhanceGain);
