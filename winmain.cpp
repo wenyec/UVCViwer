@@ -190,6 +190,7 @@ INT WINAPI wWinMain(HINSTANCE, HINSTANCE, LPWSTR, INT)
 	DWORD size = 32;
 	char bstr[32];
 	char DefChar = ' ';
+
 	GetModuleFileNameW(hModule, path, MAX_PATH);
 	//convert from wide char to narrow char array
 	//char pathStr[MAX_PATH];
@@ -206,6 +207,7 @@ INT WINAPI wWinMain(HINSTANCE, HINSTANCE, LPWSTR, INT)
 		strncpy(pathExe, pathStr, lastIndex + 1);
 		pathExe[lastIndex + 1] = '\0';
 	}
+
 	SHGetSpecialFolderPath(HWND_DESKTOP, snapPath, CSIDL_DESKTOP, FALSE);
 	WideCharToMultiByte(CP_ACP, 0, snapPath, -1, bstr, size, &DefChar, NULL);
 

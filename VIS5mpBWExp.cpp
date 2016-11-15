@@ -1740,7 +1740,7 @@ void VIS5mpBWExp::OnCancel()
 
 	if (initCtrlSetting.AECtrlSpeed != initCtrlSetting.AECtrlSpeed_bak || initCtrlSetting.shutterEnable_bak != initCtrlSetting.shutterEnable)
 	{
-		setExtControls(21, initCtrlSetting.AECtrlSpeed | initCtrlSetting.shutterEnable_bak);
+		setExtControls(21, initCtrlSetting.AECtrlSpeed_bak | initCtrlSetting.shutterEnable_bak);
 	}
 
 

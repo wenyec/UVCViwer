@@ -65,6 +65,7 @@ BEGIN
             MENUITEM "Video Resolution",            ID_FORMAT_VIDEORESOLUTION
             MENUITEM "Region of Interest (720 and VGA)", ID_FORMAT_REGIONOFINTREST
         END
+		/* the playback style has been removed from the publish version. but it's remained the version fro internal debugging. */
 //        POPUP "Playback Style"
 //        BEGIN
 //            MENUITEM "Full Image",                  ID_PLAYBACKSTYLE_FULLIMAGE
@@ -82,7 +83,7 @@ BEGIN
         POPUP "5MP Camera Settings"
         BEGIN
             MENUITEM "Shutter and BLC",             ID_5MPCAMERASETTINGS_SHUT
-            MENUITEM "Edge Enhancement, Merror, and Freq. Selection",         ID_5MPCAMERASETTINGS_EDGEENHANCEMENT
+            MENUITEM "Edge Enhancement, Mirror, and Freq. Selection",         ID_5MPCAMERASETTINGS_EDGEENHANCEMENT
             MENUITEM "Gamma and 2DNR",              ID_5MPCAMERASETTINGS_GAMMAAND2DNR
         END
         POPUP "Camera Management"
