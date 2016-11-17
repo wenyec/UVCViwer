@@ -151,12 +151,25 @@ static struct VIS_CameraID
 };
 
 static VIS_CameraID visID[16] = {	//available VIS camera ID
-	{ 0x1bbdff50 },				// 5MP B/W
-	{ 0x1bbdff51 },				// 5MP Color
-	{ 0x1bbd3061 },				// 2MP Color
-	{ 0x1bbd3062 },				// 1.2MP Color
-	{ 0x1bbdff62 },				// Invendo
-	{ 0x1bbdfff0 }				// Unknow
+	{ 0x1bbdff50 },				// 5MP B/W		,0
+	{ 0x1bbdff51 },				// 5MP Color	,1
+	{ 0x1bbd3061 },				// 2MP Color	,2
+	{ 0x1bbd3062 },				// 1.2MP Color	,3
+	{ 0x1bbdff62 },				// Invendo		,4
+	{ 0x1bbd2410 }, 			// misumi 5mp	,5
+	{ 0x1bbd0bf6 }, 			// e-con 5mp	,6
+	{ 0 } 			// unknow		,7
+
+};
+
+static enum CAMIDex{
+	CAM5MP_BW = 0,
+	CAM5MP_COLOR,
+	CAM2MP_COLOR,
+	CAM1D2MP_COLOR,
+	CAMINVENDO,
+	CAM5MPMISUMI,
+	CAM5MPECON
 };
 
 //static StillFormats stillFmts[5];

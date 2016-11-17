@@ -3,7 +3,7 @@
 // Used by MFCaptureD3D.rc
 //
 #define ID_FINESHUT_EN                  3
-#define IDR_MENU1                       101
+#define IDR_MENU_5MPBW                  101
 #define IDD_CHOOSE_DEVICE               102
 #define IDD_CAM_CONTROL                 105
 #define ID_FINDSHUTTER_EN               105
@@ -22,6 +22,9 @@
 #define IDD_ROI_CONTROL                 120
 #define IDD_STILLRES                    122
 #define IDD_ENHANCE_CONTROL             123
+#define IDR_MENU_5MPCL                  124
+#define IDR_MENU_2MPCL                  126
+#define IDR_MENUMISU                    127
 #define IDC_LIST1                       1001
 #define IDC_DEVICE_LIST                 1001
 #define IDC_COMBO1                      1002
@@ -271,7 +274,7 @@
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
-#define _APS_NEXT_RESOURCE_VALUE        124
+#define _APS_NEXT_RESOURCE_VALUE        128
 #define _APS_NEXT_COMMAND_VALUE         40041
 #define _APS_NEXT_CONTROL_VALUE         1095
 #define _APS_NEXT_SYMED_VALUE           101

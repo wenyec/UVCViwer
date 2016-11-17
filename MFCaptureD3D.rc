@@ -50,7 +50,7 @@ END
 // Menu
 //
 
-IDR_MENU1 MENU
+IDR_MENU_5MPBW MENU
 BEGIN
     POPUP "Device"
     BEGIN
@@ -65,12 +65,6 @@ BEGIN
             MENUITEM "Video Resolution",            ID_FORMAT_VIDEORESOLUTION
             MENUITEM "Region of Interest (720 and VGA)", ID_FORMAT_REGIONOFINTREST
         END
-		/* the playback style has been removed from the publish version. but it's remained the version for internal debugging. */
-//       POPUP "Playback Style"
-//       BEGIN
-//            MENUITEM "Full Image",                  ID_PLAYBACKSTYLE_FULLIMAGE, CHECKED
-//           MENUITEM "Original Pixels",             ID_PLAYBACKSTYLE_ORIGINALPIXELS
-//        END
     END
     POPUP "Image Capture"
     BEGIN
@@ -83,14 +77,112 @@ BEGIN
         POPUP "5MP Camera Settings"
         BEGIN
             MENUITEM "Shutter and BLC",             ID_5MPCAMERASETTINGS_SHUT
-            MENUITEM "Edge Enhancement, Mirror, and Freq. Selection",         ID_5MPCAMERASETTINGS_EDGEENHANCEMENT
+            MENUITEM "Edge Enhancement, Mirror, and Freq. Selection", ID_5MPCAMERASETTINGS_EDGEENHANCEMENT
             MENUITEM "Gamma and 2DNR",              ID_5MPCAMERASETTINGS_GAMMAAND2DNR
         END
         POPUP "Camera Management"
         BEGIN
             MENUITEM "Save Current Parameters",     ID_CAMERA_SAVEPARAMETERS
-            MENUITEM "Reset to Factory Settings", ID_CAMERA_RESETSETTINGS
+            MENUITEM "Reset to Factory Settings",   ID_CAMERA_RESETSETTINGS
         END
+    END
+    MENUITEM "&About",                      40011
+END
+
+IDR_MENU_5MPCL MENU
+BEGIN
+    POPUP "Device"
+    BEGIN
+        MENUITEM "Choose Device",               ID_FILE_CHOOSEDEVICE
+    END
+    POPUP "Option(Settings)"
+    BEGIN
+        MENUITEM "Image Control",               ID_SETTING_VIDEOQUALITYSETTINGS
+        MENUITEM "I2C Controls",                MENU_I2C_CONTROL
+        POPUP "Video Format"
+        BEGIN
+            MENUITEM "Video Resolution",            ID_FORMAT_VIDEORESOLUTION
+            MENUITEM "Region of Interest (720 and VGA)", ID_FORMAT_REGIONOFINTREST
+        END
+    END
+    POPUP "Image Capture"
+    BEGIN
+        MENUITEM "Get Image",                   ID_SNAPSHOT_GETIMAGE
+        MENUITEM "Set Image Resolution",        ID_SNAPSHOT_SETIMAGERESOLUTION
+        MENUITEM "Set Saving Directory",        ID_SNAPSHOT_SETSAVINGDIRECTORY
+    END
+    POPUP "Videology Option"
+    BEGIN
+        POPUP "5MP Camera Settings"
+        BEGIN
+            MENUITEM "Shutter and BLC",             ID_5MPCAMERASETTINGS_SHUT
+            MENUITEM "Edge Enhancement, Mirror, and Freq. Selection", ID_5MPCAMERASETTINGS_EDGEENHANCEMENT
+            MENUITEM "Gamma and 2DNR",              ID_5MPCAMERASETTINGS_GAMMAAND2DNR
+        END
+        POPUP "Camera Management"
+        BEGIN
+            MENUITEM "Save Current Parameters",     ID_CAMERA_SAVEPARAMETERS
+            MENUITEM "Reset to Factory Settings",   ID_CAMERA_RESETSETTINGS
+        END
+    END
+    MENUITEM "&About",                      40011
+END
+
+IDR_MENU_2MPCL MENU
+BEGIN
+    POPUP "Device"
+    BEGIN
+        MENUITEM "Choose Device",               ID_FILE_CHOOSEDEVICE
+    END
+    POPUP "Option(Settings)"
+    BEGIN
+        MENUITEM "Image Control",               ID_SETTING_VIDEOQUALITYSETTINGS
+        MENUITEM "I2C Controls",                MENU_I2C_CONTROL
+        POPUP "Video Format"
+        BEGIN
+            MENUITEM "Video Resolution",            ID_FORMAT_VIDEORESOLUTION
+            MENUITEM "Region of Interest (720 and VGA)", ID_FORMAT_REGIONOFINTREST
+        END
+    END
+    POPUP "Image Capture"
+    BEGIN
+        MENUITEM "Get Image",                   ID_SNAPSHOT_GETIMAGE
+        MENUITEM "Set Image Resolution",        ID_SNAPSHOT_SETIMAGERESOLUTION
+        MENUITEM "Set Saving Directory",        ID_SNAPSHOT_SETSAVINGDIRECTORY
+    END
+    POPUP "Videology Option"
+    BEGIN
+        POPUP "5MP Camera Settings"
+        BEGIN
+            MENUITEM "Shutter and BLC",             ID_5MPCAMERASETTINGS_SHUT
+            MENUITEM "Edge Enhancement, Mirror, and Freq. Selection", ID_5MPCAMERASETTINGS_EDGEENHANCEMENT
+            MENUITEM "Gamma and 2DNR",              ID_5MPCAMERASETTINGS_GAMMAAND2DNR
+        END
+        POPUP "Camera Management"
+        BEGIN
+            MENUITEM "Save Current Parameters",     ID_CAMERA_SAVEPARAMETERS
+            MENUITEM "Reset to Factory Settings",   ID_CAMERA_RESETSETTINGS
+        END
+    END
+    MENUITEM "&About",                      40011
+END
+
+IDR_MENUMISU MENU
+BEGIN
+    POPUP "Device"
+    BEGIN
+        MENUITEM "Choose Device",               ID_FILE_CHOOSEDEVICE
+    END
+    POPUP "Option(Settings)"
+    BEGIN
+        MENUITEM "Image Control",               ID_SETTING_VIDEOQUALITYSETTINGS
+        MENUITEM "Video Resolution",            ID_FORMAT_VIDEORESOLUTION
+     END
+    POPUP "Image Capture"
+    BEGIN
+        MENUITEM "Get Image",                   ID_SNAPSHOT_GETIMAGE
+        MENUITEM "Set Image Resolution",        ID_SNAPSHOT_SETIMAGERESOLUTION
+        MENUITEM "Set Saving Directory",        ID_SNAPSHOT_SETSAVINGDIRECTORY
     END
     MENUITEM "&About",                      40011
 END

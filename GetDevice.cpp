@@ -248,13 +248,13 @@ void GetDevice::OnOK()
 	{
 		devCap->iSelectedDeviceIndex = (UINT32)m_DevNameList.GetItemData(sel);
 		int j;
-		for (j = 0; j < 5; j++){
+		for (j = 0; j < 16; j++){
 			if (devCap->vis_camID[devCap->iSelectedDeviceIndex].VidPid == visCamID[j].VidPid){
 				devCap->CamIndex = j;
 				break;
 			}
 		}
-		if (j >= 5){
+		if (j >= 16){
 			devCap->CamIndex = 0xff; //it's not VIS camera.
 		}
 	}
