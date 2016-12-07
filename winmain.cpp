@@ -83,7 +83,7 @@ HRESULT	getStandardControlPropertyCurrentValue(long PropertyID, long *currValue,
 //Camera Terminal Controls
 HRESULT	getCameraTerminalControlPropertyRange(long PropertyID, long *lMin, long *lMax, long *lStep, long *lDefault, long *lCaps);
 HRESULT	getCameraTerminalControlPropertyCurrentValue(long PropertyID, long *currValue, long *lCaps);
-
+void GetCurrentStillFormat(eMediaType *MediaType, TCHAR* Format); //add for mjpg image capture
 void	AddDevicesToMenu();
 void	IMonRelease(IMoniker *&pm);
 
@@ -145,6 +145,8 @@ void	readSnapCount();
 void	writeSnapCount();
 HRESULT stillTrigger();
 HRESULT setStilFmat(HWND hwnd, DWORD Width, DWORD Height);
+/* for misumi=e-con capture filter features setting */
+void ShowCapFilterPropPage(HWND hwnd);
 
 // Constants 
 const WCHAR CLASS_NAME[] = L"MFCapture Window Class";
@@ -344,6 +346,7 @@ public:
 	STDMETHODIMP BufferCB(double Time, BYTE *pBuffer, long BufferLen)
 	{
 		_AMMediaType mt;
+		DWORD dwWritten = 0;
 
 		HRESULT hr = gcap.pSampleGrabber->GetConnectedMediaType((_AMMediaType *)&mt);
 
@@ -373,7 +376,10 @@ public:
 		SYSTEMTIME st;
 		//GetSystemTime(&st);
 		GetLocalTime(&st);
-		hr = StringCbPrintf(tempFileName, sizeof(tempFileName), L"SnapShot%d%d%d_%d_%d_%d_%d.bmp", st.wMonth, st.wDay, st.wYear, st.wHour, st.wMinute, st.wSecond, st.wMilliseconds);
+		if (gcap.stillsubType == MEDIA_MJPEG)
+			hr = StringCbPrintf(tempFileName, sizeof(tempFileName), L"SnapShot%d%d%d_%d_%d_%d_%d.jpg", st.wMonth, st.wDay, st.wYear, st.wHour, st.wMinute, st.wSecond, st.wMilliseconds);
+		else
+			hr = StringCbPrintf(tempFileName, sizeof(tempFileName), L"SnapShot%d%d%d_%d_%d_%d_%d.bmp", st.wMonth, st.wDay, st.wYear, st.wHour, st.wMinute, st.wSecond, st.wMilliseconds);
 
 		wcscat(snapHwTrigger, tempFileName);
 
@@ -383,22 +389,30 @@ public:
 		{
 			return E_FAIL;
 		}
+		if (gcap.stillsubType == MEDIA_MJPEG){
+			// Create jpeg file
+			BOOL bWriteFileResult = FALSE;
+			bWriteFileResult = WriteFile(hf, pBuffer, BufferLen, &dwWritten, NULL);
 
-		// Create bitmap structure
-		long cbBitmapInfoSize = mt.cbFormat - SIZE_PREHEADER;
-		VIDEOINFOHEADER *pVideoHeader = (VIDEOINFOHEADER*)mt.pbFormat;
+		}
+		else{
 
-		BITMAPFILEHEADER bfh;
-		ZeroMemory(&bfh, sizeof(bfh));
-		bfh.bfType = 'MB';  // Little-endian for "BM".
-		bfh.bfSize = sizeof(bfh)+BufferLen + cbBitmapInfoSize;
-		bfh.bfOffBits = sizeof(BITMAPFILEHEADER)+cbBitmapInfoSize;
+			// Create bitmap structure
+			long cbBitmapInfoSize = mt.cbFormat - SIZE_PREHEADER;
+			VIDEOINFOHEADER *pVideoHeader = (VIDEOINFOHEADER*)mt.pbFormat;
 
-		// Write the file header.
-		DWORD dwWritten = 0;
-		WriteFile(hf, &bfh, sizeof(bfh), &dwWritten, NULL);
-		WriteFile(hf, HEADER(pVideoHeader), cbBitmapInfoSize, &dwWritten, NULL);
-		WriteFile(hf, pBuffer, BufferLen, &dwWritten, NULL);
+			BITMAPFILEHEADER bfh;
+			ZeroMemory(&bfh, sizeof(bfh));
+			bfh.bfType = 'MB';  // Little-endian for "BM".
+			bfh.bfSize = sizeof(bfh)+BufferLen + cbBitmapInfoSize;
+			bfh.bfOffBits = sizeof(BITMAPFILEHEADER)+cbBitmapInfoSize;
+
+			// Write the file header.
+			DWORD dwWritten = 0;
+			WriteFile(hf, &bfh, sizeof(bfh), &dwWritten, NULL);
+			WriteFile(hf, HEADER(pVideoHeader), cbBitmapInfoSize, &dwWritten, NULL);
+			WriteFile(hf, pBuffer, BufferLen, &dwWritten, NULL);
+		}
 		CloseHandle(hf);
 		return S_OK;
 
@@ -1596,33 +1610,14 @@ void OnCommand(HWND hwnd, int id, HWND /*hwndCtl*/, UINT /*codeNotify*/)
 	case ID_SETTING_VIDEOQUALITYSETTINGS:
 		OnVideoQualityControlMenu(hwnd);
 		break;
-
+	case ID_SETTING_VIDEOQUALITYSETTINGS_MISU:
+		ShowCapFilterPropPage(hwnd);
+		break;
 	case ID_SETTING_3DNOISEREDUCTION:
 		//On3DNoiseReduction(hwnd);	// keep the 3D NR in the future
 		break;
-
 	case MENU_I2C_CONTROL:
-		//hMenu1 = GetMenu(hwnd);
-		if (!MenuTestFg){
-			hMainMenu = GetMenu(ghwndApp);
-			hMenu1 = GetSubMenu(hMainMenu, 1);
-			hMenu2 = GetSubMenu(hMenu1, 2);
-			DeleteMenu(hMenu2, 1, 0x400);
-			MenuTestFg = TRUE;
-		}
-		else{
-			hMainMenu = GetMenu(ghwndApp);
-			hMenu1 = GetSubMenu(hMainMenu, 1);
-			hMenu2 = GetSubMenu(hMenu1, 2);
-			//InsertMenu(hMenu2, 0, 0x410, ID_FORMAT_REGIONOFINTREST, L"Region of Interestin");
-			hMenu3 = CreatePopupMenu();
-			AppendMenu(hMenu2, 0x10, (UINT)hMenu3, L"Region of Interestin Ext");
-			InsertMenu(hMenu3, 0, 0x410, ID_FORMAT_REGIONOFINTREST, L"Region of Interestin");
-			MenuTestFg = FALSE;
-		}
-		//DeleteMenu(hMainMenu, 3, 0x400);
-		/* for test menu operations */
-		//OnI2CControlMenu(hwnd);
+		OnI2CControlMenu(hwnd);
 		break;
 
 	case MENU_ZOOM_CONTROL:
@@ -6360,6 +6355,8 @@ void OnInitImageSetResDialog(HWND hwnd)
 	HRESULT hr = NULL;
 	AM_MEDIA_TYPE *pmt = NULL;
 	int iCount = 0, iSize = 0;
+	BOOL yuy2Flag = FALSE;
+	BOOL mjpgFlag = FALSE;
 
 	// get format
 	num_of_elms = 0;
@@ -6369,6 +6366,9 @@ void OnInitImageSetResDialog(HWND hwnd)
 		pstillFmts = gcap.stillFmts;
 		if (iSize == sizeof(VIDEO_STREAM_CONFIG_CAPS)){
 			HWND hListStilSet = GetDlgItem(hwnd, IDC_COMBO_STIL_RES);
+			HWND hListStilType = GetDlgItem(hwnd, IDC_COMBO_STIL_VIDTYPE);
+			TCHAR  txt_display[20];
+
 			for (int iFormat = 0; iFormat < iCount; iFormat++){
 				VIDEO_STREAM_CONFIG_CAPS scc;
 				VIDEOINFOHEADER *pvi;
@@ -6376,18 +6376,36 @@ void OnInitImageSetResDialog(HWND hwnd)
 				if (SUCCEEDED(hr)){
 					if (pmt->subtype == MEDIASUBTYPE_YUY2){
 						wcsncpy_s((pstillFmts+iFormat)->Comp, 5, _T("YUY2"), _TRUNCATE);
+						yuy2Flag = TRUE;
+					}
+					else if (pmt->subtype == MEDIASUBTYPE_MJPG){
+						wcsncpy_s((pstillFmts + iFormat)->Comp, 5, _T("MJPG"), _TRUNCATE);
+						mjpgFlag = TRUE;
 					}
 					pvi = (VIDEOINFOHEADER *)pmt->pbFormat;
 					(pstillFmts + iFormat)->width = pvi->bmiHeader.biWidth;
 					(pstillFmts + iFormat)->height = pvi->bmiHeader.biHeight;
 				}
-				TCHAR  txt_display[20];
 				StringCbPrintf(txt_display, 20, L"%dx%d", (pstillFmts + iFormat)->width, (pstillFmts + iFormat)->height);
 				ComboBox_AddString(hListStilSet, txt_display);
 			}
+			if (yuy2Flag){
+				StringCbPrintf(txt_display, 20, L"YUY2");
+				ComboBox_AddString(hListStilType, txt_display);
+			}
+			if (mjpgFlag){
+				StringCbPrintf(txt_display, 20, L"MJPG");
+				ComboBox_AddString(hListStilType, txt_display);
+			}
+
 			for (int i = 0; i < iCount; i++){
-				if (((pstillFmts + i)->width == gcap.stillWidth) && ((pstillFmts + i)->height == gcap.stillHeight))
+				if (((pstillFmts + i)->width == gcap.stillWidth) && ((pstillFmts + i)->height == gcap.stillHeight)){
 					ComboBox_SetCurSel(hListStilSet, i);
+					if (wcscmp((pstillFmts + i)->Comp, _T("YUY2")) == 0 && gcap.stillsubType == MEDIA_YUY2)
+						ComboBox_SetCurSel(hListStilType, 0);
+					else if (wcscmp((pstillFmts + i)->Comp, _T("MJPG")) == 0 && gcap.stillsubType == MEDIA_MJPEG)
+						ComboBox_SetCurSel(hListStilType, 1);
+				}
 			}
 		}
 
@@ -6695,8 +6713,13 @@ HRESULT stillTrigger() //--wenye
 			// don't use the code for check the midea type as the only YUY2 format here.
 			if (mediaType.subtype == MEDIASUBTYPE_YUY2)
 			{
-				hr = NULL;//g_StillCapCB.SetStillMediaType(MEDIA_YUY2, GetTickCount(), gcap.stillWidth, gcap.stillHeight);
+				OutputDebugStringW(TEXT("still subtype YUY2...\r\n"));
 			}
+			if (mediaType.subtype == MEDIASUBTYPE_MJPG)
+			{
+				OutputDebugStringW(TEXT("still subtype MJPG...\r\n"));
+			}
+
 #endif
 		}
 		gcap.pAMVideoCtrl->SetMode(gcap.pstilPin, VideoControlFlag_Trigger); //trigger a snapshot
@@ -6732,6 +6755,10 @@ HRESULT setStilFmat(HWND hwnd, DWORD Width, DWORD Height)
 	}
 	gcap.stillWidth = width;
 	gcap.stillHeight = height;
+
+	HWND hListStilType = GetDlgItem(hwnd, IDC_COMBO_STIL_VIDTYPE);
+	ComboBox_GetText(hListStilType, txt_select_subtype, 255);
+
 	/*
 	int sel = ComboBox_GetCurSel(hListStilSet);	
 	switch (sel)
@@ -6768,18 +6795,29 @@ HRESULT setStilFmat(HWND hwnd, DWORD Width, DWORD Height)
 					pvi = (VIDEOINFOHEADER *)pmt->pbFormat;
 					if ((pvi->bmiHeader.biWidth == gcap.stillWidth)
 						&& (pvi->bmiHeader.biHeight == gcap.stillHeight)){
-						//if (wcscmp(subtype, _T("YUY2")) == 0){
-							pmt->subtype = MEDIASUBTYPE_YUY2;
-						//}
-						//else{
-							//;
-						//}
-						if (pmt != NULL){
-							hr = gcap.pSSC->SetFormat(pmt);
-							if (hr == S_OK || hr == NO_ERROR)
+						if (wcscmp(txt_select_subtype, _T("YUY2")) == 0 && (pmt->subtype == MEDIASUBTYPE_YUY2)){
+							gcap.stillsubType = MEDIA_YUY2;
+							if (pmt != NULL){
+								hr = gcap.pSSC->SetFormat(pmt);
+								if (hr == S_OK || hr == NO_ERROR)
 								break;
 						}
-						break;
+						}
+						else if (wcscmp(txt_select_subtype, _T("MJPG")) == 0 && (pmt->subtype == MEDIASUBTYPE_MJPG)){
+							//pmt->subtype = MEDIASUBTYPE_MJPG;
+							gcap.stillsubType = MEDIA_MJPEG;
+							if (pmt != NULL){
+								hr = gcap.pSSC->SetFormat(pmt);
+								if (hr == S_OK || hr == NO_ERROR)
+									break;
+							}
+						}
+						//						if (pmt != NULL){
+						//							hr = gcap.pSSC->SetFormat(pmt);
+						//							if (hr == S_OK || hr == NO_ERROR)
+						//								break;
+						//						}
+						//						break;
 					}
 					else{
 						hr = FALSE;
@@ -7507,12 +7545,12 @@ BOOL InitCapFilters()
 						pvi = (VIDEOINFOHEADER *)pmt->pbFormat;
 						if ((pvi->bmiHeader.biWidth == gcap.stillWidth)
 							&& (pvi->bmiHeader.biHeight == gcap.stillHeight)){
-							//if (wcscmp(subtype, _T("YUY2")) == 0){
-							pmt->subtype = MEDIASUBTYPE_YUY2;
-							//}
-							//else{
-							//;
-							//}
+							if (gcap.stillsubType == MEDIA_YUY2){
+								pmt->subtype = MEDIASUBTYPE_YUY2;
+							}
+							else if (gcap.stillsubType == MEDIA_MJPEG){
+								pmt->subtype = MEDIASUBTYPE_MJPG;;
+							}
 							if (pmt != NULL){
 								hr = gcap.pSSC->SetFormat(pmt);
 								if (hr == S_OK || hr == NO_ERROR)
@@ -8355,4 +8393,66 @@ void ErrMsg(LPTSTR szFormat, ...)
 
 	MessageBox(ghwndApp, szBuffer, NULL,
 		MB_OK | MB_ICONEXCLAMATION | MB_TASKMODAL);
+}
+
+void ShowCapFilterPropPage(HWND hwnd)
+{
+	ISpecifyPropertyPages *pSpec;
+	CAUUID cauuid;
+
+	HRESULT hr;
+	if (gcap.pVCap)
+	{
+		hr = gcap.pVCap->QueryInterface(IID_ISpecifyPropertyPages,
+			(void **)&pSpec);
+
+		if (hr == S_OK)
+		{
+			hr = pSpec->GetPages(&cauuid);
+
+			hr = OleCreatePropertyFrame(hwnd, 30, 30, NULL, 1,
+				(IUnknown **)&gcap.pVCap, cauuid.cElems,
+				(GUID *)cauuid.pElems, 0, 0, NULL);
+
+			CoTaskMemFree(cauuid.pElems);
+			pSpec->Release();
+		}
+	}
+}
+
+
+
+void GetCurrentStillFormat(eMediaType *MediaType, TCHAR* Format)
+{
+	// DV capture does not use a VIDEOINFOHEADER
+	if (gcap.pSSC != NULL)
+	{
+		AM_MEDIA_TYPE *pmt;
+		HRESULT hr = gcap.pSSC->GetFormat(&pmt);
+		eMediaType m_MediaSubType;
+		if (pmt->formattype == FORMAT_VideoInfo)
+		{
+			if (pmt->subtype == MEDIASUBTYPE_YUY2)
+			{
+				//PrintMessage(L"MEDIASUBTYPE_YUY2 \r\n");
+				m_MediaSubType = MEDIA_YUY2;
+			}
+			else if (pmt->subtype == MEDIASUBTYPE_MJPG)
+			{
+				//PrintMessage(L"MEDIASUBTYPE_MJPG \r\n");
+				m_MediaSubType = MEDIA_MJPEG;
+			}
+		}
+		if (m_MediaSubType == MEDIA_MJPEG)
+		{
+			wsprintf(Format, TEXT("%s"), TEXT("MJPG"));
+			OutputDebugStringW(Format);
+
+		}
+		else
+		{
+			wsprintf(Format, TEXT("%s"), TEXT("YUY2"));
+			OutputDebugStringW(Format);
+		}
+	}
 }

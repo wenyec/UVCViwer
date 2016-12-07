@@ -58,6 +58,12 @@ typedef struct CameraInfo{
 	ULONG VidPid;
 };
 
+// for stream type
+typedef enum{
+	MEDIA_MJPEG = 0,
+	MEDIA_YUY2 = 1
+}eMediaType;
+
 static struct _capstuff
 {
 	WCHAR wszCaptureFile[_MAX_PATH];
@@ -139,7 +145,8 @@ static struct _capstuff
 	BOOL isStillSup;  // the flag for still capture support --wenye
 	DWORD stillWidth;
 	DWORD stillHeight;
-	StillFormats stillFmts[5];
+	eMediaType   stillsubType;
+	StillFormats stillFmts[16];
 	int CamIndex = 0xff; //keep the activity camera index.
 
 } gcap;
@@ -251,12 +258,6 @@ static struct InitControlsSetting
 	int CurspeedCtrl = 0;
 
 }initCtrlSetting;
-
-// for stream type
-typedef enum{
-	MEDIA_MJPEG = 0,
-	MEDIA_YUY2 = 1
-}eMediaType;
 
 /* for menu operation */
 static CWnd *pMain;

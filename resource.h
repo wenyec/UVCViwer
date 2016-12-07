@@ -169,6 +169,7 @@
 #define IDC_STR_OPT_ZOOM_MIN            1063
 #define IDC_EDIT_DATA2                  1063
 #define IDC_STR_DIG_ZOOMTRC_POS         1063
+#define IDC_STR_DIG_FOCUS_POS2          1063
 #define IDC_EDIT_OPT_ZOOM_MIN           1064
 #define IDC_STR_DIG_FOCUSONE_POS        1064
 #define IDC_STR_OPT_ZOOM_MAX            1065
@@ -217,6 +218,7 @@
 #define IDC_COMBO_ROI_MODE              1094
 #define IDC_2DNR_ENABL                  1094
 #define IDC_COMBO_STIL_RES              1095
+#define IDC_COMBO_STIL_VIDTYPE          1096
 #define IDC_STR_3D_NOISE_REDU_MODE      1146
 #define IDC_STR_GAMMA_MODE              1146
 #define ID_FILE_CHOOSEDEVICE            40001
@@ -259,6 +261,7 @@
 #define ID_CAMERA_SAVEPARAMETERS        40038
 #define ID_CAMERA_RESETSETTINGS         40039
 #define VIS_CAMERA_MENU                 40040
+#define ID_SETTING_VIDEOQUALITYSETTINGS_MISU 40041
 #define IDC_STR_DAY_NIGHT_MODE          -1
 #define IDC_STR_BCKLGTCOMP              -1
 #define IDC_STATIC_WH_COMP_BLUE         -1
@@ -275,7 +278,7 @@
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NEXT_RESOURCE_VALUE        128
-#define _APS_NEXT_COMMAND_VALUE         40041
+#define _APS_NEXT_COMMAND_VALUE         40042
 #define _APS_NEXT_CONTROL_VALUE         1095
 #define _APS_NEXT_SYMED_VALUE           101
 #endif
