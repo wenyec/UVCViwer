@@ -39,6 +39,9 @@
     <ClCompile Include="VISImageProc.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="VIS2mpColFocusZoom.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="BufferLock.h">
@@ -86,6 +89,9 @@
     <ClInclude Include="VISImageProc.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="VIS2mpColFocusZoom.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="MFCaptureD3D.rc">
@@ -97,6 +103,9 @@
   </ItemGroup>
   <ItemGroup>
     <Image Include="FX3.ico">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="bitmap1.bmp">
       <Filter>Resource Files</Filter>
     </Image>
   </ItemGroup>

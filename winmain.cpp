@@ -28,6 +28,7 @@
 #include "VIS5mpBWEdgeEn.h"
 #include "VIS5mpBWGam2DN.h"
 #include "VISImageProc.h"
+#include "VIS2mpColFocusZoom.h"
 
 //------------------------------------------------------------------------------
 // Macros
@@ -104,11 +105,12 @@ INT_PTR CALLBACK CameraRecoveryParamDlgProc(HWND hwnd, UINT msg, WPARAM wParam, 
 INT_PTR CALLBACK LoginDlgProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam);
 INT_PTR CALLBACK ROIControlDlgProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam);
 INT_PTR CALLBACK ImageResSetDlgProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam);
-
+/* 2MP color */
+INT_PTR CALLBACK CameraControlDlgProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam);
 INT_PTR CALLBACK ZoomControlDlgProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam);
 INT_PTR CALLBACK IrisControlDlgProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam);
 INT_PTR CALLBACK DayNightSettingsDlgProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
-//INT_PTR CALLBACK NoiseReductionDlgProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam);
+INT_PTR CALLBACK NoiseReductionDlgProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam);
 
 void    ShowErrorMessage(PCWSTR format, HRESULT hr);
 
@@ -122,9 +124,11 @@ void    OnSize(/*HWND hwnd,*/ WPARAM wParam, LPARAM lParam/*, UINT state*/);
 // Command handlers
 void    OnChooseDevice(HWND hwnd, BOOL bPrompt);
 void	OnCameraControlMenu(HWND hwnd);   // Shutter and BLC
+void    OnCameraControlMenu2Mcl(HWND hwnd);
 void	OnDayNightMenu(HWND hwnd);
 void	OnVideoQualityControlMenu(HWND hwnd);
 void	On2DNoiseReduction(HWND hwnd);    // Gamma and 2DNR 
+void	On3DNoiseReduction2mpCol(HWND hwnd); // 3DNR
 void	OnEdgeEnhanment(HWND hwnd);    // Edge Enhancement ... 
 void	OnAboutMenu(HWND hwnd);
 void	OnI2CControlMenu(HWND hwnd);
@@ -1600,10 +1604,12 @@ void OnCommand(HWND hwnd, int id, HWND /*hwndCtl*/, UINT /*codeNotify*/)
 		break;
 
 	case MENU_CAM_CONTROL:
-		OnCameraControlMenu(hwnd);
+	case ID_CAMERASETTINGS_SHUT_20_12MC:
+		OnCameraControlMenu2Mcl(hwnd);
 		break;
 
 	case MENU_DAY_NIGHT_SETTING:
+	case ID_DAYNIGHTSETTINGS_20_12MC:
 		OnDayNightMenu(hwnd);
 		break;
 
@@ -1614,6 +1620,8 @@ void OnCommand(HWND hwnd, int id, HWND /*hwndCtl*/, UINT /*codeNotify*/)
 		ShowCapFilterPropPage(hwnd);
 		break;
 	case ID_SETTING_3DNOISEREDUCTION:
+	case ID_3DNR_SETTINGS_20_12MC:
+		On3DNoiseReduction2mpCol(hwnd);
 		//On3DNoiseReduction(hwnd);	// keep the 3D NR in the future
 		break;
 	case MENU_I2C_CONTROL:
@@ -1625,6 +1633,7 @@ void OnCommand(HWND hwnd, int id, HWND /*hwndCtl*/, UINT /*codeNotify*/)
 		break;
 
 	case MENU_IRIS_CONTROL:
+	case ID_CAMERA_TERMINAL_SETTINGS_20_12MC:
 		OnIrisControlMenu(hwnd);
 		break;
 
@@ -1671,7 +1680,7 @@ void OnCommand(HWND hwnd, int id, HWND /*hwndCtl*/, UINT /*codeNotify*/)
 		SendMessage(ghwndApp, WM_SIZE, SIZE_RESTORED, 0);// force a WM_SIZE message
 		break;
 
-		/*new dialogs */
+		/*new dialogs for 5MP b/w */
 	case ID_5MPCAMERASETTINGS_SHUT:
 		OnCameraControlMenu(hwnd);
 		break;
@@ -1687,6 +1696,12 @@ void OnCommand(HWND hwnd, int id, HWND /*hwndCtl*/, UINT /*codeNotify*/)
 		saveParamClicked(hwnd);
 		//OnEdgeEnhanment(hwnd);
 		break;
+
+		/* for 2.0/1.2MP color */
+	case ID_FOCUS_ZOOM_SETTINGS_20_12MC:
+		OnZoomControlMenu(hwnd);
+		break;
+
 	case ID_CAMERA_RESETSETTINGS:
 		resetParamClicked(hwnd);
 		//On2DNoiseReduction(hwnd);
@@ -1901,6 +1916,25 @@ void OnCameraControlMenu(HWND hwnd)
 
 }
 
+void OnCameraControlMenu2Mcl(HWND hwnd)
+{
+
+	INT_PTR result = DialogBoxParam(
+		GetModuleHandle(NULL),
+		MAKEINTRESOURCE(IDD_CAM_CONTROL2MPCL),
+		hwnd,
+		CameraControlDlgProc,
+		NULL
+		);
+
+	if (result == IDOK)
+	{
+		//TODO : send extension cmd to camera
+		// int selIndex = param.selMirrorIndex;
+	}
+
+}
+
 void OnDayNightMenu(HWND hwnd)
 {
 
@@ -1917,7 +1951,18 @@ void OnDayNightMenu(HWND hwnd)
 		//TODO : send extension cmd to camera
 		// int selIndex = param.selMirrorIndex;
 	}
-
+	/*
+		if (!AfxWinInit(::GetModuleHandle(NULL), NULL, ::GetCommandLine(), 0))
+	{
+		;
+	}
+	AfxGetInstanceHandle();
+	VIS2mpColFocusZoom c_2mpColFocusZoom; // add the get device class --wcheng
+	c_2mpColFocusZoom.devCap = &gcap;
+	c_2mpColFocusZoom.camNodeTree = &ksNodeTree;
+	c_2mpColFocusZoom.saveFocusZoomInitSetting();
+	c_2mpColFocusZoom.DoModal();
+	*/
 }
 
 void OnVideoQualityControlMenu(HWND hwnd)
@@ -1927,16 +1972,15 @@ void OnVideoQualityControlMenu(HWND hwnd)
 		;
 	}
 	AfxGetInstanceHandle();
-	VISImageProc c_5mpBWImageCtrl; // add the get device class --wcheng
+	VISImageProc c_5mpBWImageCtrl; // add the get device class. it's for all cameras --wcheng
 	c_5mpBWImageCtrl.devCap = &gcap;
 	c_5mpBWImageCtrl.camNodeTree = &ksNodeTree;
 	c_5mpBWImageCtrl.saveImageInitSetting();
 	c_5mpBWImageCtrl.DoModal();
 }
-#if 0 //keep for the 3D ND in futrue
-void On3DNoiseReduction(HWND hwnd)
+#if 1 //keep for the 3D ND in futrue
+void On3DNoiseReduction2mpCol(HWND hwnd)
 {
-
 	INT_PTR result = DialogBoxParam(
 		GetModuleHandle(NULL),
 		MAKEINTRESOURCE(IDD_3D_NOISE_REDUCTION),
@@ -1951,9 +1995,18 @@ void On3DNoiseReduction(HWND hwnd)
 		// int selIndex = param.selMirrorIndex;
 	}
 
-	//CVideoQualityControl Dlg;
-	//Dlg.DoModal();
-
+	/*
+	if (!AfxWinInit(::GetModuleHandle(NULL), NULL, ::GetCommandLine(), 0))
+	{
+		;
+	}
+	AfxGetInstanceHandle();
+	VIS2mpColFocusZoom c_2mpColFocusZoom; // add the get device class --wcheng
+	c_2mpColFocusZoom.devCap = &gcap;
+	c_2mpColFocusZoom.camNodeTree = &ksNodeTree;
+	c_2mpColFocusZoom.saveFocusZoomInitSetting();
+	c_2mpColFocusZoom.DoModal();
+	*/
 }
 #endif
 
@@ -2028,7 +2081,7 @@ void OnI2CControlMenu(HWND hwnd)
 
 void OnZoomControlMenu(HWND hwnd)
 {
-
+#if 1
 	INT_PTR result = DialogBoxParam(
 		GetModuleHandle(NULL),
 		MAKEINTRESOURCE(IDD_ZOOM_CONTROL),
@@ -2042,7 +2095,24 @@ void OnZoomControlMenu(HWND hwnd)
 		//TODO : send extension cmd to camera
 		// int selIndex = param.selMirrorIndex;
 	}
+#else
+	if (!AfxWinInit(::GetModuleHandle(NULL), NULL, ::GetCommandLine(), 0))
+	{
+		;
+	}
+	AfxGetInstanceHandle();
+	VIS2mpColFocusZoom c_2mpColFocusZoom; // add the get device class --wcheng
+	c_2mpColFocusZoom.devCap = &gcap;
+	c_2mpColFocusZoom.camNodeTree = &ksNodeTree;
+	c_2mpColFocusZoom.saveFocusZoomInitSetting();
+	SetWindowLong(GetDlgItem(hwnd, IDC_BTN_ZOOM_IN), GWL_EXSTYLE, GetWindowLong(hwnd, GWL_EXSTYLE) & ~WS_EX_NOPARENTNOTIFY);
+	SetWindowLong(GetDlgItem(hwnd, IDC_BTN_ZOOM_OUT), GWL_EXSTYLE, GetWindowLong(hwnd, GWL_EXSTYLE) & ~WS_EX_NOPARENTNOTIFY);
+	SetWindowLong(GetDlgItem(hwnd, IDC_BTN_FOCUS_START), GWL_EXSTYLE, GetWindowLong(hwnd, GWL_EXSTYLE) & ~WS_EX_NOPARENTNOTIFY);
+	SetWindowLong(GetDlgItem(hwnd, IDC_BTN_FOCUS_NEAR), GWL_EXSTYLE, GetWindowLong(hwnd, GWL_EXSTYLE) & ~WS_EX_NOPARENTNOTIFY);
+	SetWindowLong(GetDlgItem(hwnd, IDC_BTN_FOCUS_FAR), GWL_EXSTYLE, GetWindowLong(hwnd, GWL_EXSTYLE) & ~WS_EX_NOPARENTNOTIFY);
 
+	c_2mpColFocusZoom.DoModal();
+#endif
 }
 
 
@@ -2062,7 +2132,18 @@ void OnIrisControlMenu(HWND hwnd)
 		//TODO : send extension cmd to camera
 		// int selIndex = param.selMirrorIndex;
 	}
-
+	/*
+		if (!AfxWinInit(::GetModuleHandle(NULL), NULL, ::GetCommandLine(), 0))
+	{
+		;
+	}
+	AfxGetInstanceHandle();
+	VIS2mpColFocusZoom c_2mpColFocusZoom; // add the get device class --wcheng
+	c_2mpColFocusZoom.devCap = &gcap;
+	c_2mpColFocusZoom.camNodeTree = &ksNodeTree;
+	c_2mpColFocusZoom.saveFocusZoomInitSetting();
+	c_2mpColFocusZoom.DoModal();
+	*/
 }
 
 void OnImageCaptureMenu(HWND hwnd)
@@ -2323,8 +2404,6 @@ done:
 
 
 /////////////////////////////////////////////////////////////////////
-
-// Dialog functions
 
 //HRESULT getBLCRangeValue(int PropertyId, int *hpos, int *hsize, int *vpos, int *vsize);
 //HRESULT getExposureAGCLvlValue(int PropertyId, int *ExpValue, int *AgcLvlValue);
@@ -2604,463 +2683,24 @@ HRESULT setExtControls(int PropertyId, int PropertyValue)
 	}
 	return hr;
 }
+/*will delet 1*/
+//HRESULT OnShutCtrlChange(HWND hwnd)
 
-HRESULT OnShutCtrlChange(HWND hwnd)
-{
-	HRESULT hr = S_OK;
-	HWND hListComboShutCtrl = GetDlgItem(hwnd, IDC_COMBO_SHUT_CONTL);
+/*will delet 2*/
+//HRESULT OnSenUpModeChange(HWND hwnd)
 
-	int sel = ComboBox_GetCurSel(hListComboShutCtrl);
+/*will delet 3*/
+//HRESULT onAEReferenceLevelChange(HWND hwnd)
 
-	if (sel != LB_ERR && ksNodeTree.isOK)
-	{
+/*will delet 4*/
+//HRESULT OnExposureModeChange(HWND hwnd)
 
-		ULONG ulSize;
-		BYTE *pbPropertyValue;
-		int PropertId = 1;
+/*will delet 6*/
+//HRESULT onAEShutLevelChange(HWND hwnd)
 
-		hr = getExtionControlPropertySize(PropertId, &ulSize);
-		if (FAILED(hr))
-		{
-#ifdef DEBUG
-			sprintf(logMessage, "\nFunction : OnShutCtrlChange \t Msg : Unable to find property size : %x", hr);
-			printLogMessage(logMessage);
-#endif
-		}
-		else
-		{
-			pbPropertyValue = new BYTE[ulSize];
-			if (!pbPropertyValue)
-			{
-#ifdef DEBUG
-				sprintf(logMessage, "\nFunction : OnShutCtrlChange \t Msg : Unable to allocate memory for property value");
-				printLogMessage(logMessage);
-#endif
-			}
-			else
-			{
-				memcpy(pbPropertyValue, (char*)&sel, ulSize);
-				hr = setExtionControlProperty(PropertId, ulSize, pbPropertyValue);
-			}
-			delete[] pbPropertyValue;
-		}
-
-#ifdef DEBUG
-		sprintf(logMessage, "\nFunction : OnShutCtrlChange \t Msg : Return Value:%ld", hr);
-		printLogMessage(logMessage);
-#endif
-	}
-
-	return hr;
-}
-
-HRESULT OnSenUpModeChange(HWND hwnd)
-{
-	HRESULT hr = S_OK;
-	HWND hListSenseUpMode = GetDlgItem(hwnd, IDC_COMBO_SEN_UP_MODE);
-
-	int sel = ComboBox_GetCurSel(hListSenseUpMode);
-
-	if (sel != LB_ERR && ksNodeTree.isOK)
-	{
-		ULONG ulSize;
-		BYTE *pbPropertyValue;
-		int PropertId = 2;
-
-		hr = getExtionControlPropertySize(PropertId, &ulSize);
-		if (FAILED(hr))
-		{
-#ifdef DEBUG
-			sprintf(logMessage, "\nERROR \t Function : OnSenUpModeChange \t Msg : Unable to find property size : %x", hr);
-			printLogMessage(logMessage);
-#endif
-		}
-		else
-		{
-			pbPropertyValue = new BYTE[ulSize];
-			if (!pbPropertyValue)
-			{
-#ifdef DEBUG
-				sprintf(logMessage, "\nERROR \t Function : OnSenUpModeChange \t Msg : Unable to allocate memory for property value");
-				printLogMessage(logMessage);
-#endif
-			}
-			else
-			{
-				memcpy(pbPropertyValue, (char*)&sel, ulSize);
-				hr = setExtionControlProperty(PropertId, ulSize, pbPropertyValue);
-			}
-			delete[] pbPropertyValue;
-		}
-
-#ifdef DEBUG
-		sprintf(logMessage, "\nERROR \t Function : OnSenUpModeChange \t Msg : Return Value:%ld", hr);
-		printLogMessage(logMessage);
-#endif
-	}
-
-	return hr;
-}
-
-HRESULT onAEReferenceLevelChange(HWND hwnd)
-{
-	HRESULT hr = S_OK;
-
-	try
-	{
-		long arSldPos = 0;
-		CString strPos;
-		HWND hListSldAELVL = GetDlgItem(hwnd, IDC_SLD_AE_REF_LVL);
-		arSldPos = (long)SendMessageA(hListSldAELVL, TBM_GETPOS, TRUE, arSldPos);
-
-		HWND hListAELVL = GetDlgItem(hwnd, IDC_EDIT_AE_REF_LVL);
-		strPos.Format(L"%ld", arSldPos);
-		Edit_SetText(hListAELVL, strPos);
-
-		if (ksNodeTree.isOK)
-		{
-			ULONG ulSize;
-			BYTE *pbPropertyValue;
-			int PropertId = 11;
-
-			hr = getExtionControlPropertySize(PropertId, &ulSize);
-			if (FAILED(hr))
-			{
-#ifdef DEBUG
-				sprintf(logMessage, "\nERROR \t Function : onAEReferenceLevelChange \t Msg : Unable to find property size : %x", hr);
-				printLogMessage(logMessage);
-#endif
-			}
-			else
-			{
-				pbPropertyValue = new BYTE[ulSize];
-				if (!pbPropertyValue)
-				{
-#ifdef DEBUG
-					sprintf(logMessage, "\nERROR \t Function : onAEReferenceLevelChange \t Msg : Unable to allocate memory for property value");
-					printLogMessage(logMessage);
-#endif
-				}
-				else
-				{
-					memcpy(pbPropertyValue, (char*)&arSldPos, ulSize);
-					hr = setExtionControlProperty(PropertId, ulSize, pbPropertyValue);
-				}
-				delete[] pbPropertyValue;
-			}
-
-#ifdef DEBUG
-			sprintf(logMessage, "\nERROR \t Function : onAEReferenceLevelChange \t Msg : Return Value:%ld", hr);
-			printLogMessage(logMessage);
-#endif
-		}
-
-	}
-	catch (...)
-	{
-#ifdef DEBUG
-		sprintf(logMessage, "\nERROR : In Function : onAEReferenceLevelChange");
-		printLogMessage(logMessage);
-#endif
-	}
-
-	return hr;
-}
-
-HRESULT OnExposureModeChange(HWND hwnd)
-{
-	HRESULT hr = S_OK;
-	CButton *shutCheck;
-
-	try
-	{
-		HWND hListExpoMode = GetDlgItem(hwnd, IDC_COMBO_EXPOSURE_MODE);
-
-		int sel = ComboBox_GetCurSel(hListExpoMode);
-		HWND hListBackLight = GetDlgItem(hwnd, IDC_COMBO_BACK_LIGHT);
-		HWND hListSldAGCLVL = GetDlgItem(hwnd, IDC_SLD_AGC_LVL);
-		HWND hListComboShutCtrl = GetDlgItem(hwnd, IDC_COMBO_SHUT_CONTL);
-		HWND hListSldShutLVL = GetDlgItem(hwnd, IDC_SLD_SHUT_LVL);
-		HWND hListSldBLCWLvl = GetDlgItem(hwnd, IDC_SLD_BLCWLvl);
-		HWND hListSldHPos = GetDlgItem(hwnd, IDC_SLD_HPos);
-		HWND hListSldHSize = GetDlgItem(hwnd, IDC_SLD_HSize);
-		HWND hListSldVPos = GetDlgItem(hwnd, IDC_SLD_VPos);
-		HWND hListSldVSize = GetDlgItem(hwnd, IDC_SLD_VSize);
-		HWND hListFineShutEnb = GetDlgItem(hwnd, IDC_FINE_SHUTTER_ENABLE);
-		switch (sel)
-		{
-		case 0:
-			EnableWindow(hListSldAGCLVL, FALSE);
-			EnableWindow(hListComboShutCtrl, FALSE);
-			EnableWindow(hListSldShutLVL, FALSE);
-			EnableWindow(hListFineShutEnb, FALSE);
-			EnableWindow(hListBackLight, TRUE);
-			break;
-		case 1:
-			EnableWindow(hListSldAGCLVL, FALSE);
-			EnableWindow(hListFineShutEnb, TRUE);
-			
-			if (IsDlgButtonChecked(hwnd, IDC_FINE_SHUTTER_ENABLE) == BST_CHECKED){
-				EnableWindow(hListComboShutCtrl, FALSE);
-				EnableWindow(hListSldShutLVL, TRUE);
-				initCtrlSetting.shutterEnable = 8;
-			}
-			else{
-				EnableWindow(hListComboShutCtrl, TRUE);
-				EnableWindow(hListSldShutLVL, FALSE);
-				initCtrlSetting.shutterEnable = 0;
-			}
-			
-			//EnableWindow(hListComboShutCtrl, TRUE);
-			//EnableWindow(hListSldShutLVL, TRUE);
-
-			EnableWindow(hListBackLight, TRUE);
-			break;
-		case 2:
-			EnableWindow(hListSldAGCLVL, TRUE);
-			EnableWindow(hListFineShutEnb, FALSE);
-			EnableWindow(hListComboShutCtrl, FALSE);
-			EnableWindow(hListSldShutLVL, FALSE);
-			EnableWindow(hListBackLight, TRUE);
-			break;
-		case 3:
-			EnableWindow(hListSldAGCLVL, TRUE);
-			EnableWindow(hListFineShutEnb, TRUE);
-
-			if (IsDlgButtonChecked(hwnd, IDC_FINE_SHUTTER_ENABLE) == BST_CHECKED){
-				EnableWindow(hListComboShutCtrl, FALSE);
-				EnableWindow(hListSldShutLVL, TRUE);
-				initCtrlSetting.shutterEnable = 8;
-			}
-			else{
-				EnableWindow(hListComboShutCtrl, TRUE);
-				EnableWindow(hListSldShutLVL, FALSE);
-				initCtrlSetting.shutterEnable = 0;
-			}
-			//EnableWindow(hListComboShutCtrl, TRUE);
-			//EnableWindow(hListSldShutLVL, TRUE);
-
-			EnableWindow(hListBackLight, FALSE);
-			ksNodeTree.pProcAmp->Set(KSPROPERTY_VIDEOPROCAMP_BACKLIGHT_COMPENSATION, (long)0, VideoProcAmp_Flags_Manual);
-
-				/* check the res */
-				//AM_MEDIA_TYPE *pmt;
-				//gcap.pVSC->GetFormat(&pmt);
-				//if (initCtrlSetting.BacklightCompensation == 0)
-				//{
-					EnableWindow(hListSldBLCWLvl, FALSE);
-					EnableWindow(hListSldHPos, FALSE);
-					EnableWindow(hListSldHSize, FALSE);
-					EnableWindow(hListSldVPos, FALSE);
-					EnableWindow(hListSldVSize, FALSE);
-
-			//}
-
-			break;
-		default:
-			break;
-		}
-		/*
-		if (sel == 0)
-		{
-			HWND hListSldAGCLVL = GetDlgItem(hwnd, IDC_SLD_AGC_LVL);
-			EnableWindow(hListSldAGCLVL, FALSE);
-			//HWND hListAGCLVL = GetDlgItem(hwnd, IDC_EDIT_AGC_LVL);
-			//EnableWindow(hListAGCLVL, FALSE);
-		}
-		else
-		{
-			HWND hListSldAGCLVL = GetDlgItem(hwnd, IDC_SLD_AGC_LVL);
-			EnableWindow(hListSldAGCLVL, TRUE);
-			//HWND hListAGCLVL = GetDlgItem(hwnd, IDC_EDIT_AGC_LVL);
-			//EnableWindow(hListAGCLVL, TRUE);
-		}
-		*/
-		if (sel != LB_ERR && ksNodeTree.isOK)
-		{
-
-			ULONG ulSize;
-			BYTE *pbPropertyValue;
-			int PropertId = 10;
-
-			hr = getExtionControlPropertySize(PropertId, &ulSize);
-			if (FAILED(hr) || (ulSize != 4)) // first two byte Exposure Mode & last two byte AGC level mast be 4 byte
-			{
-#ifdef DEBUG
-				sprintf(logMessage, "\nERROR \t Function : OnExposureModeChange \t Msg : Unable to find property size : %x", hr);
-				printLogMessage(logMessage);
-#endif
-			}
-			else
-			{
-				pbPropertyValue = new BYTE[ulSize];
-				if (!pbPropertyValue)
-				{
-#ifdef DEBUG
-					sprintf(logMessage, "\nERROR \t Function : OnExposureModeChange \t Msg : Unable to allocate memory for property value");
-					printLogMessage(logMessage);
-#endif
-				}
-				else
-				{
-					long agcSldPos = 0;
-					CString strPos;
-					HWND hListSldAGCLVL = GetDlgItem(hwnd, IDC_SLD_AGC_LVL);
-					agcSldPos = (long)SendMessageA(hListSldAGCLVL, TBM_GETPOS, TRUE, agcSldPos);
-
-					int ExposureByte = 2;
-					int AgcLvlByte = 2;
-					memcpy(&pbPropertyValue[0], (char*)&sel, ExposureByte); // first two byte Exposure Mode & last two byte AGC level
-					memcpy(&pbPropertyValue[ExposureByte], (char*)&agcSldPos, AgcLvlByte); // first two byte Exposure Mode & last two byte AGC level
-
-					hr = setExtionControlProperty(PropertId, ulSize, pbPropertyValue);
-				}
-				delete[] pbPropertyValue;
-			}
-
-#ifdef DEBUG
-			sprintf(logMessage, "\nFunction : OnExposureModeChange \t Msg : Return Value:%ld", hr);
-			printLogMessage(logMessage);
-#endif
-		}
-
-	}
-	catch (...)
-	{
-#ifdef DEBUG
-		sprintf(logMessage, "\nERROR : In Function : OnExposureModeChange");
-		printLogMessage(logMessage);
-#endif
-	}
-
-	return hr;
-
-}
-
-HRESULT onAEShutLevelChange(HWND hwnd)
-{
-
-	HRESULT hr = S_OK;
-	long shutSldPos = 0;
-	CString strPos;
-	HWND hListSldSHUTLVL = GetDlgItem(hwnd, IDC_SLD_SHUT_LVL);
-	shutSldPos = (long)SendMessageA(hListSldSHUTLVL, TBM_GETPOS, TRUE, shutSldPos);
-
-	HWND hListExpoMode = GetDlgItem(hwnd, IDC_COMBO_EXPOSURE_MODE);
-	int sel = ComboBox_GetCurSel(hListExpoMode);
-
-	HWND hListSHUTLVL = GetDlgItem(hwnd, IDC_EDIT_SHUT_LVL);
-	strPos.Format(L"%ld", shutSldPos);
-	Edit_SetText(hListSHUTLVL, strPos);
-
-	if (ksNodeTree.isOK && (sel > 0))
-	{
-		ULONG ulSize;
-		BYTE *pbPropertyValue;
-		int PropertId = 12;
-
-		hr = getExtionControlPropertySize(PropertId, &ulSize);
-		if (FAILED(hr) || (ulSize != 2)) // first two byte Exposure Mode & last two byte AGC level mast be 4 byte
-		{
-#ifdef DEBUG
-			sprintf(logMessage, "\nERROR \t Function : onAgcLvlChange \t Msg : Unable to find property size : %x", hr);
-			printLogMessage(logMessage);
-#endif
-		}
-		else
-		{
-			pbPropertyValue = new BYTE[ulSize];
-			if (!pbPropertyValue)
-			{
-#ifdef DEBUG
-				sprintf(logMessage, "\nERROR \t Function : onAgcLvlChange \t Msg : Unable to allocate memory for property value");
-				printLogMessage(logMessage);
-#endif
-			}
-			else
-			{
-				//int ExposureByte = 2;
-				int ShutLvlByte = 2;
-				//memcpy(&pbPropertyValue[0], (char*)&sel, ExposureByte); // first two byte Exposure Mode & last two byte AGC level
-				memcpy(&pbPropertyValue[0], (char*)&shutSldPos, ShutLvlByte); // two byte SHUT level
-
-				hr = setExtionControlProperty(PropertId, ulSize, pbPropertyValue);
-			}
-			delete[] pbPropertyValue;
-		}
-
-#ifdef DEBUG
-		sprintf(logMessage, "\nFunction : onAgcLvlChange \t Msg : Return Value:%ld", hr);
-		printLogMessage(logMessage);
-#endif
-	}
-
-	return hr;
-}
-
-
-HRESULT onAgcLvlChange(HWND hwnd)
-{
-
-	HRESULT hr = S_OK;
-	long agcSldPos = 0;
-	CString strPos;
-	HWND hListSldAGCLVL = GetDlgItem(hwnd, IDC_SLD_AGC_LVL);
-	agcSldPos = (long)SendMessageA(hListSldAGCLVL, TBM_GETPOS, TRUE, agcSldPos);
-
-	HWND hListExpoMode = GetDlgItem(hwnd, IDC_COMBO_EXPOSURE_MODE);
-	int sel = ComboBox_GetCurSel(hListExpoMode);
-
-	HWND hListAGCLVL = GetDlgItem(hwnd, IDC_EDIT_AGC_LVL);
-	strPos.Format(L"%ld", agcSldPos);
-	Edit_SetText(hListAGCLVL, strPos);
-
-	if (ksNodeTree.isOK && (sel > 0))
-	{
-		ULONG ulSize;
-		BYTE *pbPropertyValue;
-		int PropertId = 10;
-
-		hr = getExtionControlPropertySize(PropertId, &ulSize);
-		if (FAILED(hr) || (ulSize != 4)) // first two byte Exposure Mode & last two byte AGC level mast be 4 byte
-		{
-#ifdef DEBUG
-			sprintf(logMessage, "\nERROR \t Function : onAgcLvlChange \t Msg : Unable to find property size : %x", hr);
-			printLogMessage(logMessage);
-#endif
-		}
-		else
-		{
-			pbPropertyValue = new BYTE[ulSize];
-			if (!pbPropertyValue)
-			{
-#ifdef DEBUG
-				sprintf(logMessage, "\nERROR \t Function : onAgcLvlChange \t Msg : Unable to allocate memory for property value");
-				printLogMessage(logMessage);
-#endif
-			}
-			else
-			{
-				int ExposureByte = 2;
-				int AgcLvlByte = 2;
-				memcpy(&pbPropertyValue[0], (char*)&sel, ExposureByte); // first two byte Exposure Mode & last two byte AGC level
-				memcpy(&pbPropertyValue[ExposureByte], (char*)&agcSldPos, AgcLvlByte); // first two byte Exposure Mode & last two byte AGC level
-
-				hr = setExtionControlProperty(PropertId, ulSize, pbPropertyValue);
-			}
-			delete[] pbPropertyValue;
-		}
-
-#ifdef DEBUG
-		sprintf(logMessage, "\nFunction : onAgcLvlChange \t Msg : Return Value:%ld", hr);
-		printLogMessage(logMessage);
-#endif
-	}
-
-	return hr;
-}
-
-
+/*will delet 5*/
+//HRESULT onAgcLvlChange(HWND hwnd)
+#if 0
 HRESULT OnhExHystLvlChangeSLD(HWND hwnd)
 {
 
@@ -3182,364 +2822,24 @@ HRESULT OnhExCtrlSpeedLvlChangeSLD(HWND hwnd)
 
 	return hr;
 }
-
-
-
-HRESULT onBLCRangeChange(HWND hwnd)
-{
-
-	HRESULT hr = S_OK;
-	unsigned short hpos = 0, hsize = 0, vpos = 0, vsize = 0;
-	CString strPos;
-
-	HWND hListSldHPos = GetDlgItem(hwnd, IDC_SLD_HPos);
-	HWND hListSldHSize = GetDlgItem(hwnd, IDC_SLD_HSize);
-	HWND hListSldVPos = GetDlgItem(hwnd, IDC_SLD_VPos);
-	HWND hListSldVSize = GetDlgItem(hwnd, IDC_SLD_VSize);
-
-	hpos = (unsigned short)SendMessageA(hListSldHPos, TBM_GETPOS, TRUE, hpos);
-	hsize = (unsigned short)SendMessageA(hListSldHSize, TBM_GETPOS, TRUE, hsize);
-	vpos = (unsigned short)SendMessageA(hListSldVPos, TBM_GETPOS, TRUE, vpos);
-	vsize = (unsigned short)SendMessageA(hListSldVSize, TBM_GETPOS, TRUE, vsize);
-
-	HWND hListEditHPos = GetDlgItem(hwnd, IDC_EDIT_HPos);
-	strPos.Format(L"%ld", hpos);
-	Edit_SetText(hListEditHPos, strPos);
-
-	HWND hListEditHSize = GetDlgItem(hwnd, IDC_EDIT_HSize);
-	strPos.Format(L"%ld", hsize);
-	Edit_SetText(hListEditHSize, strPos);
-
-	HWND hListEditVPos = GetDlgItem(hwnd, IDC_EDIT_VPos);
-	strPos.Format(L"%ld", vpos);
-	Edit_SetText(hListEditVPos, strPos);
-
-	HWND hListEditVSize = GetDlgItem(hwnd, IDC_EDIT_VSize);
-	strPos.Format(L"%ld", vsize);
-	Edit_SetText(hListEditVSize, strPos);
-
-	if (ksNodeTree.isOK)
-	{
-		ULONG ulSize;
-		BYTE *pbPropertyValue;
-		int PropertId = 17;
-
-		hr = getExtionControlPropertySize(PropertId, &ulSize);
-		//ulSize = 2;
-		if (FAILED(hr) || (ulSize != 2))
-		{
-#ifdef DEBUG
-			sprintf(logMessage, "\nERROR \t Function : onBLCRangeChange \t Msg : Unable to find property size : %x", hr);
-			printLogMessage(logMessage);
 #endif
-		}
-		else
-		{
-			pbPropertyValue = new BYTE[ulSize];
-			if (!pbPropertyValue)
-			{
-#ifdef DEBUG
-				sprintf(logMessage, "\nERROR \t Function : onBLCRangeChange \t Msg : Unable to allocate memory for property value");
-				printLogMessage(logMessage);
-#endif
-			}
-			else
-			{
-				/*
-				*vpos = ((*pbPropertyValue) & 0x0F);
-				*vsize = ((*pbPropertyValue) >> 4 & 0x0F);
-				*hpos = ((*(pbPropertyValue + 1)) & 0x0F);
-				*hsize = ((*(pbPropertyValue + 1) >> 4) & 0x0F);
-				*/
-				/*
-				*pbPropertyValue = (*pbPropertyValue & 0x00) | ((vsize & 0x000F) << 4) | (hsize & 0x000F);
-				*(pbPropertyValue+1) = (*(pbPropertyValue+1) & 0x00) | ((vpos & 0x000F) << 4) | (hpos & 0x000F);
-				*/
-				*pbPropertyValue = (*pbPropertyValue & 0x00) | ((vpos & 0x000F) << 4) | (hpos & 0x000F);
-				*(pbPropertyValue + 1) = (*(pbPropertyValue + 1) & 0x00) | ((vsize & 0x000F) << 4) | (hsize & 0x000F);
-				hr = setExtionControlProperty(PropertId, ulSize, pbPropertyValue);
-			}
-			delete[] pbPropertyValue;
-		}
+/*will delet 7*/
+//HRESULT onBLCRangeChange(HWND hwnd)
 
-#ifdef DEBUG
-		sprintf(logMessage, "\nFunction : onBLCRangeChange \t Msg : Return Value:%ld", hr);
-		printLogMessage(logMessage);
-#endif
-	}
+/*will delet 11*/
+//HRESULT OnCameraModeChange(HWND hwnd)
 
-	return hr;
-}
+/*will delet 14*/
+//HRESULT OnBLCGridChange(HWND hwnd)
 
+/*will delet 12*/
+//HRESULT OnBLCWeightFactorChange(HWND hwnd)
 
-HRESULT OnCameraModeChange(HWND hwnd)
-{
-	HRESULT hr = S_OK;
-	HWND hListComboCameraMode = GetDlgItem(hwnd, IDC_COMBO_CAM_MODE);
+/*will delet 13*/
+//HRESULT OnBLCWeightFactorChangeSLD(HWND hwnd)
 
-	int sel = ComboBox_GetCurSel(hListComboCameraMode);
-
-	if (sel != LB_ERR && ksNodeTree.isOK)
-	{
-
-		ULONG ulSize;
-		BYTE *pbPropertyValue;
-		int PropertId = 13;
-
-		hr = getExtionControlPropertySize(PropertId, &ulSize);
-		if (FAILED(hr))
-		{
-#ifdef DEBUG
-			sprintf(logMessage, "\nERROR \t Function : OnCameraModeChange \t Msg : Unable to find property size : %x", hr);
-			printLogMessage(logMessage);
-#endif
-		}
-		else
-		{
-			pbPropertyValue = new BYTE[ulSize];
-			if (!pbPropertyValue)
-			{
-#ifdef DEBUG
-				sprintf(logMessage, "\nERROR \t Function : OnCameraModeChange \t Msg : Unable to allocate memory for property value");
-				printLogMessage(logMessage);
-#endif
-			}
-			else
-			{
-				memcpy(pbPropertyValue, (char*)&sel, ulSize);
-				hr = setExtionControlProperty(PropertId, ulSize, pbPropertyValue);
-
-				if (0&&SUCCEEDED(hr))
-				{
-					long currValue, lCaps;
-					getStandardControlPropertyCurrentValue(KSPROPERTY_VIDEOPROCAMP_BACKLIGHT_COMPENSATION, &currValue, &lCaps);
-					HWND hListBackLight = GetDlgItem(hwnd, IDC_COMBO_BACK_LIGHT);
-					ComboBox_SetCurSel(hListBackLight, currValue);
-
-				}
-			}
-			delete[] pbPropertyValue;
-		}
-
-#ifdef DEBUG
-		sprintf(logMessage, "\nFunction : OnCameraModeChange \t Msg : Return Value:%ld", hr);
-		printLogMessage(logMessage);
-#endif
-	}
-
-	return hr;
-}
-
-
-HRESULT OnBLCGridChange(HWND hwnd)
-{
-	HRESULT hr = S_OK;
-	HWND hListComboBLCGrid = GetDlgItem(hwnd, IDC_COMBO_BLC_GRID);
-
-	int sel = ComboBox_GetCurSel(hListComboBLCGrid);
-
-	if (sel != LB_ERR && ksNodeTree.isOK)
-	{
-
-		ULONG ulSize;
-		BYTE *pbPropertyValue;
-		int PropertId = 19;
-
-		hr = getExtionControlPropertySize(PropertId, &ulSize);
-		if (FAILED(hr))
-		{
-#ifdef DEBUG
-			sprintf(logMessage, "\nERROR \t Function : OnBLCGridChange \t Msg : Unable to find property size : %x", hr);
-			printLogMessage(logMessage);
-#endif
-		}
-		else
-		{
-			pbPropertyValue = new BYTE[ulSize];
-			if (!pbPropertyValue)
-			{
-#ifdef DEBUG
-				sprintf(logMessage, "\nERROR \t Function : OnBLCGridChange \t Msg : Unable to allocate memory for property value");
-				printLogMessage(logMessage);
-#endif
-			}
-			else
-			{
-				memcpy(pbPropertyValue, (char*)&sel, ulSize);
-				hr = setExtionControlProperty(PropertId, ulSize, pbPropertyValue);
-			}
-			delete[] pbPropertyValue;
-		}
-
-#ifdef DEBUG
-		sprintf(logMessage, "\nFunction : OnBLCGridChange \t Msg : Return Value:%ld", hr);
-		printLogMessage(logMessage);
-#endif
-	}
-
-	return hr;
-}
-
-
-HRESULT OnBLCWeightFactorChange(HWND hwnd)
-{
-	HRESULT hr = S_OK;
-	HWND hListComboBLCWF = GetDlgItem(hwnd, IDC_COMBO_BLC_WGHT_FACT);
-
-	int sel = ComboBox_GetCurSel(hListComboBLCWF);
-
-	if (sel != LB_ERR && ksNodeTree.isOK)
-	{
-
-		ULONG ulSize;
-		BYTE *pbPropertyValue;
-		int PropertId = 18;
-
-		hr = getExtionControlPropertySize(PropertId, &ulSize);
-		if (FAILED(hr))
-		{
-#ifdef DEBUG
-			sprintf(logMessage, "\nERROR \t Function : OnBLCWeightFactorChange \t Msg : Unable to find property size : %x", hr);
-			printLogMessage(logMessage);
-#endif
-		}
-		else
-		{
-			pbPropertyValue = new BYTE[ulSize];
-			if (!pbPropertyValue)
-			{
-#ifdef DEBUG
-				sprintf(logMessage, "\nERROR \t Function : OnBLCWeightFactorChange \t Msg : Unable to allocate memory for property value");
-				printLogMessage(logMessage);
-#endif
-			}
-			else
-			{
-				memcpy(pbPropertyValue, (char*)&sel, ulSize);
-				hr = setExtionControlProperty(PropertId, ulSize, pbPropertyValue);
-			}
-			delete[] pbPropertyValue;
-		}
-
-#ifdef DEBUG
-		sprintf(logMessage, "\nFunction : OnBLCWeightFactorChange \t Msg : Return Value:%ld", hr);
-		printLogMessage(logMessage);
-#endif
-	}
-
-	return hr;
-}
-
-HRESULT OnBLCWeightFactorChangeSLD(HWND hwnd)
-{
-
-	HRESULT hr = S_OK;
-	long BLCWSldLvl = 0;
-	CString strLvl;
-	HWND hListSldBLCWLvl = GetDlgItem(hwnd, IDC_SLD_BLCWLvl);
-	BLCWSldLvl = (long)SendMessageA(hListSldBLCWLvl, TBM_GETPOS, TRUE, BLCWSldLvl);
-
-	//HWND hListExpoMode = GetDlgItem(hwnd, IDC_COMBO_EXPOSURE_MODE);
-	//int sel = ComboBox_GetCurSel(hListExpoMode);
-
-	HWND hListBLCW = GetDlgItem(hwnd, IDC_EDIT_BLCWLvl);
-	strLvl.Format(L"%ld", BLCWSldLvl);
-	Edit_SetText(hListBLCW, strLvl);
-
-	if (ksNodeTree.isOK /*&& (sel > 0)*/)
-	{
-		ULONG ulSize;
-		BYTE *pbPropertyValue;
-		int PropertId = 18;
-
-		hr = getExtionControlPropertySize(PropertId, &ulSize);
-		if (FAILED(hr) || (ulSize != 2)) // first two byte Exposure Mode & last two byte AGC level mast be 4 byte
-		{
-#ifdef DEBUG
-			sprintf(logMessage, "\nERROR \t Function : onAgcLvlChange \t Msg : Unable to find property size : %x", hr);
-			printLogMessage(logMessage);
-#endif
-		}
-		else
-		{
-			pbPropertyValue = new BYTE[ulSize];
-			if (!pbPropertyValue)
-			{
-#ifdef DEBUG
-				sprintf(logMessage, "\nERROR \t Function : onAgcLvlChange \t Msg : Unable to allocate memory for property value");
-				printLogMessage(logMessage);
-#endif
-			}
-			else
-			{
-				//int ExposureByte = 2;
-				int BLCWByte = 2;
-				//memcpy(&pbPropertyValue[0], (char*)&sel, ExposureByte); // first two byte Exposure Mode & last two byte AGC level
-				memcpy(&pbPropertyValue[0], (char*)&BLCWSldLvl, BLCWByte); // two byte BLC Weight Factor level
-
-				hr = setExtionControlProperty(PropertId, ulSize, pbPropertyValue);
-			}
-			delete[] pbPropertyValue;
-		}
-
-#ifdef DEBUG
-		sprintf(logMessage, "\nFunction : onAgcLvlChange \t Msg : Return Value:%ld", hr);
-		printLogMessage(logMessage);
-#endif
-	}
-
-	return hr;
-}
-
-
-HRESULT OnSelectedIndexChangeMirror(HWND hwnd)
-{
-	HRESULT hr = S_OK;
-	HWND hListComboMirror = GetDlgItem(hwnd, IDC_COMBO_MIRROR_MODE);
-
-	int sel = ComboBox_GetCurSel(hListComboMirror);
-
-	if (sel != LB_ERR && ksNodeTree.isOK)
-	{
-
-		ULONG ulSize;
-		BYTE *pbPropertyValue;
-		int PropertId = 3;
-
-		hr = getExtionControlPropertySize(PropertId, &ulSize);
-		if (FAILED(hr))
-		{
-#ifdef DEBUG
-			sprintf(logMessage, "\nERROR \t Function : OnSelectedIndexChangeMirror \t Msg : Unable to find property size : %x", hr);
-			printLogMessage(logMessage);
-#endif
-		}
-		else
-		{
-			pbPropertyValue = new BYTE[ulSize];
-			if (!pbPropertyValue)
-			{
-#ifdef DEBUG
-				sprintf(logMessage, "\nERROR \t Function : OnSelectedIndexChangeMirror \t Msg : Unable to allocate memory for property value");
-				printLogMessage(logMessage);
-#endif
-			}
-			else
-			{
-				memcpy(pbPropertyValue, (char*)&sel, ulSize);
-				hr = setExtionControlProperty(PropertId, ulSize, pbPropertyValue);
-			}
-			delete[] pbPropertyValue;
-		}
-
-#ifdef DEBUG
-		sprintf(logMessage, "\nFunction : OnSelectedIndexChangeMirror \t Msg : Return Value:%ld", hr);
-		printLogMessage(logMessage);
-#endif
-	}
-
-	return hr;
-}
+/*will delet 8*/
+//HRESULT OnSelectedIndexChangeMirror(HWND hwnd)
 
 int getMainsFrequency()
 {
@@ -3566,120 +2866,11 @@ int getMainsFrequency()
 	return (int)retValue;
 
 }
+/*will delet 9*/
+//HRESULT OnMainsFrequencyChange(HWND hwnd)
 
-HRESULT OnMainsFrequencyChange(HWND hwnd)
-{
-	HRESULT hr = S_OK;
-	HWND hListMainFeq = GetDlgItem(hwnd, IDC_COMBO_MAIN_FEQ);
-
-	int sel = ComboBox_GetCurSel(hListMainFeq);
-	if (sel != LB_ERR && ksNodeTree.isOKpProcAmp)
-	{
-#ifdef DEBUG
-		sprintf(logMessage, "\nbmRequestType:SET \t bRequest:SET_CUR \t wValue:Mains frequency \t wIndex:0x02\t PutValue:%d", sel);
-		printLogMessage(logMessage);
-#endif
-		hr = ksNodeTree.pProcAmp->Set(KSPROPERTY_VIDEOPROCAMP_POWERLINE_FREQUENCY, (long)sel, VideoProcAmp_Flags_Manual);
-#ifdef DEBUG
-		sprintf(logMessage, "\nFunction : OnMainsFrequencyChange Msg : Return Value:%ld", hr);
-		printLogMessage(logMessage);
-#endif
-	}
-	return hr;
-}
-
-HRESULT	onBacklightCompensationChange(HWND hwnd)
-{
-	HRESULT hr = S_OK;
-	HWND hListBackLight = GetDlgItem(hwnd, IDC_COMBO_BACK_LIGHT);
-	int setV = 0;
-
-	int sel = ComboBox_GetCurSel(hListBackLight);
-
-	/* check the res */
-	AM_MEDIA_TYPE *pmt;
-	gcap.pVSC->GetFormat(&pmt);
-
-	if (sel != LB_ERR && ksNodeTree.isOKpProcAmp)
-	{
-#ifdef DEBUG
-		sprintf(logMessage, "\nbmRequestType:SET \t bRequest:SET_CUR \t wValue:BacklightCompensation \t wIndex:0x02\t PutValue:%d", sel);
-		printLogMessage(logMessage);
-#endif
-		if (0&&((pmt->lSampleSize == 4147200) || (pmt->lSampleSize == 1036800))) //1080p
-		{
-			switch (sel)
-			{
-			case 0:
-				setV = 3;
-				break;
-			case 1:
-				setV = 0;
-				break;
-			case 2:
-				setV = 2;
-				break;
-			case 3:
-				setV = 1;
-				break;
-			}
-		}
-		else{ //720p
-			switch (sel)
-			{
-			case 0:
-				setV = 0;
-				break;
-			case 1:
-				setV = 1;
-				break;
-			}
-
-		}
-		HWND hListBLCGrid = GetDlgItem(hwnd, IDC_COMBO_BLC_GRID);
-		HWND hListSldBLCWLvl = GetDlgItem(hwnd, IDC_SLD_BLCWLvl);
-		HWND hListSldHPos = GetDlgItem(hwnd, IDC_SLD_HPos);
-		HWND hListSldHSize = GetDlgItem(hwnd, IDC_SLD_HSize);
-		HWND hListSldVPos = GetDlgItem(hwnd, IDC_SLD_VPos);
-		HWND hListSldVSize = GetDlgItem(hwnd, IDC_SLD_VSize);
-		if (setV == 0)
-		{
-			EnableWindow(hListBLCGrid, FALSE);
-			EnableWindow(hListSldBLCWLvl, FALSE);
-			EnableWindow(hListSldHPos, FALSE);
-			EnableWindow(hListSldHSize, FALSE);
-			EnableWindow(hListSldVPos, FALSE);
-			EnableWindow(hListSldVSize, FALSE);
-		}
-		else{
-			EnableWindow(hListBLCGrid, TRUE);
-			EnableWindow(hListSldBLCWLvl, TRUE);
-			EnableWindow(hListSldHPos, TRUE);
-			EnableWindow(hListSldHSize, TRUE);
-			EnableWindow(hListSldVPos, TRUE);
-			EnableWindow(hListSldVSize, TRUE);
-		}
-
-
-		hr = ksNodeTree.pProcAmp->Set(KSPROPERTY_VIDEOPROCAMP_BACKLIGHT_COMPENSATION, (long)setV, VideoProcAmp_Flags_Manual);
-
-		if (SUCCEEDED(hr))
-		{
-			HWND hListCameraMode = GetDlgItem(hwnd, IDC_COMBO_CAM_MODE);
-			int retValue = 0;
-			getExtControlValue(13, &retValue);
-			ComboBox_SetCurSel(hListCameraMode, retValue);
-		}
-
-#ifdef DEBUG
-		sprintf(logMessage, "\nFunction : onBacklightCompensationChange Msg : Return Value:%ld", hr);
-		printLogMessage(logMessage);
-#endif
-	}
-
-	return hr;
-}
-
+/*will delet 10*/
+//HRESULT	onBacklightCompensationChange(HWND hwnd)
 
 /////////////////////////////////////////////////////////////////////
 
@@ -4319,17 +3510,13 @@ HRESULT onWhiteBalanceCompChange(HWND hwnd)
 /////////////////////////////////////////////////////////////////////
 
 // Dialog functions
-//void    OnInitNoiseReductionDialog(HWND hwnd);
-//void	save2DNoiseReductionInitSetting(HWND hwnd);
-//void	reset2DNoiseReductionInitSetting(HWND hwnd);
-//HRESULT OnGammaCorrMode(HWND hwnd);
-//HRESULT On2DNoiseReductionMode(HWND hwnd);
-//HRESULT on2DNoiseGainLvlChange(HWND hwnd);
-//HRESULT	on2DNoiseStaNedLvlChange(HWND hwnd);
-//HRESULT	On2DNREnable(HWND hwnd);
+void    OnInitNoiseReductionDialog(HWND hwnd);
+void	saveNoiseReductionInitSetting(HWND hwnd);
+void	resetNoiseReductionInitSetting(HWND hwnd);
+HRESULT On3DNoiseReductionMode(HWND hwnd);
+HRESULT on3DNoiseRedLvlChange(HWND hwnd);
 
-
-#if 0//keep for 3D noise deduction
+#if 1//keep for 3D noise deduction
 INT_PTR CALLBACK NoiseReductionDlgProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 {
 
@@ -4397,6 +3584,165 @@ INT_PTR CALLBACK NoiseReductionDlgProc(HWND hwnd, UINT msg, WPARAM wParam, LPARA
 	return FALSE;
 }
 #endif
+void OnInitNoiseReductionDialog(HWND hwnd)
+{
+	HRESULT hr = S_OK;
+	int retValue = 0;
+	CString retValueStr;
+
+	HWND hListWhiteBalanceMode = GetDlgItem(hwnd, IDC_COMBO_3D_NOISE_REDU_MODE);
+	hr = getExtControlValue(4, &retValue);
+	if (FAILED(hr))
+	{
+		EnableWindow(hListWhiteBalanceMode, FALSE);
+	}
+	ComboBox_AddString(hListWhiteBalanceMode, L"OFF");
+	ComboBox_AddString(hListWhiteBalanceMode, L"ON");
+	ComboBox_SetCurSel(hListWhiteBalanceMode, retValue);
+
+	HWND hListSld3DNoise = GetDlgItem(hwnd, IDC_SLD_3D_NOISE_REDU_VAL);
+	hr = getExtControlValue(5, &retValue);
+	if (FAILED(hr))
+	{
+		EnableWindow(hListSld3DNoise, FALSE);
+	}
+	SendMessageA(hListSld3DNoise, TBM_SETRANGEMAX, TRUE, 64);
+	SendMessageA(hListSld3DNoise, TBM_SETRANGEMIN, TRUE, 0);
+	SendMessageA(hListSld3DNoise, TBM_SETPAGESIZE, TRUE, 1);
+	SendMessageA(hListSld3DNoise, TBM_SETPOS, TRUE, retValue);
+
+	HWND hList3DNoiseReduMode = GetDlgItem(hwnd, IDC_EDIT_3D_NOISE_REDU_VAL);
+	retValueStr.Format(L"%d", retValue);
+	Edit_SetText(hList3DNoiseReduMode, retValueStr);
+	EnableWindow(hList3DNoiseReduMode, FALSE);
+
+}
+
+void saveNoiseReductionInitSetting(HWND hwnd)
+{
+	// reset global struct
+	initCtrlSetting.NoiseReductionMode = 0;
+	initCtrlSetting.NoiseReductionControl = 0;
+
+	// get current Value
+	getExtControlValue(4, &initCtrlSetting.NoiseReductionMode);
+	getExtControlValue(5, &initCtrlSetting.NoiseReductionControl);
+
+}
+
+void resetNoiseReductionInitSetting(HWND hwnd)
+{
+	HWND hListWhiteBalanceMode = GetDlgItem(hwnd, IDC_COMBO_3D_NOISE_REDU_MODE);
+	int sel = ComboBox_GetCurSel(hListWhiteBalanceMode);
+	if (sel != initCtrlSetting.NoiseReductionMode)
+		setExtControls(4, initCtrlSetting.NoiseReductionMode);
+
+	HWND hListSld3DNoise = GetDlgItem(hwnd, IDC_SLD_3D_NOISE_REDU_VAL);
+	long noiseRedSldPos = (long)SendMessageA(hListSld3DNoise, TBM_GETPOS, TRUE, noiseRedSldPos);
+	if (noiseRedSldPos != initCtrlSetting.NoiseReductionControl)
+		setExtControls(5, initCtrlSetting.NoiseReductionControl);
+}
+
+
+HRESULT On3DNoiseReductionMode(HWND hwnd)
+{
+	HRESULT hr = S_OK;
+	HWND hListWhiteBalanceMode = GetDlgItem(hwnd, IDC_COMBO_3D_NOISE_REDU_MODE);
+
+	int sel = ComboBox_GetCurSel(hListWhiteBalanceMode);
+
+	if (sel != LB_ERR && ksNodeTree.isOK)
+	{
+
+		ULONG ulSize;
+		BYTE *pbPropertyValue;
+		int PropertId = 4;
+
+		hr = getExtionControlPropertySize(PropertId, &ulSize);
+		if (FAILED(hr))
+		{
+#ifdef DEBUG
+			sprintf(logMessage, "\nERROR \t Function : On3DNoiseReductionMode \t Msg : Unable to find property size : %x", hr);
+			printLogMessage(logMessage);
+#endif
+		}
+		else
+		{
+			pbPropertyValue = new BYTE[ulSize];
+			if (!pbPropertyValue)
+			{
+#ifdef DEBUG
+				sprintf(logMessage, "\nERROR \t Function : On3DNoiseReductionMode \t Msg : Unable to allocate memory for property value");
+				printLogMessage(logMessage);
+#endif
+			}
+			else
+			{
+				memcpy(pbPropertyValue, (char*)&sel, ulSize);
+				hr = setExtionControlProperty(PropertId, ulSize, pbPropertyValue);
+			}
+		}
+
+#ifdef DEBUG
+		sprintf(logMessage, "\nFunction : On3DNoiseReductionMode \t Msg : Return Value:%ld", hr);
+		printLogMessage(logMessage);
+#endif
+	}
+
+	return hr;
+}
+
+HRESULT on3DNoiseRedLvlChange(HWND hwnd)
+{
+	HRESULT hr = S_OK;
+	long noiseRedSldPos = 0;
+	CString strPos;
+	HWND hListSld3DNoise = GetDlgItem(hwnd, IDC_SLD_3D_NOISE_REDU_VAL);
+	noiseRedSldPos = (long)SendMessageA(hListSld3DNoise, TBM_GETPOS, TRUE, noiseRedSldPos);
+
+	HWND hList3DNoiseReduMode = GetDlgItem(hwnd, IDC_EDIT_3D_NOISE_REDU_VAL);
+	strPos.Format(L"%ld", noiseRedSldPos);
+	Edit_SetText(hList3DNoiseReduMode, strPos);
+
+	if (ksNodeTree.isOK)
+	{
+		ULONG ulSize;
+		BYTE *pbPropertyValue;
+		int PropertId = 5;
+
+		hr = getExtionControlPropertySize(PropertId, &ulSize);
+		if (FAILED(hr))
+		{
+#ifdef DEBUG
+			sprintf(logMessage, "\nERROR \t Function : on3DNoiseRedLvlChange \t Msg : Unable to find property size : %x", hr);
+			printLogMessage(logMessage);
+#endif
+		}
+		else
+		{
+			pbPropertyValue = new BYTE[ulSize];
+			if (!pbPropertyValue)
+			{
+#ifdef DEBUG
+				sprintf(logMessage, "\nERROR \t Function : on3DNoiseRedLvlChange \t Msg : Unable to allocate memory for property value");
+				printLogMessage(logMessage);
+#endif
+			}
+			else
+			{
+				memcpy(pbPropertyValue, (char*)&noiseRedSldPos, ulSize);
+				hr = setExtionControlProperty(PropertId, ulSize, pbPropertyValue);
+			}
+		}
+
+#ifdef DEBUG
+		sprintf(logMessage, "\nFunction : on3DNoiseRedLvlChange \t Msg : Return Value:%ld", hr);
+		printLogMessage(logMessage);
+#endif
+	}
+
+	return hr;
+}
 
 #if 0 // keep for the 3DNR in future
 HRESULT On3DNoiseReductionMode(HWND hwnd)
@@ -8456,3 +7802,1718 @@ void GetCurrentStillFormat(eMediaType *MediaType, TCHAR* Format)
 		}
 	}
 }
+
+/* the 2/1.2 mp color camera control dialog */
+/////////////////////////////////////////////////////////////////////
+
+// Dialog functions
+
+void    OnInitCameraControlDialog(HWND hwnd);
+void	saveCameraControlInitSetting(HWND hwnd);
+void	resetCameraControlInitSetting(HWND hwnd);
+HRESULT	OnShutCtrlChange(HWND hwnd);
+//HRESULT	getExtControlValue(int PropertyId, int *curValue);
+HRESULT	OnSenUpModeChange(HWND hwnd);
+HRESULT	onAEReferenceLevelChange(HWND hwnd);
+HRESULT OnExposureModeChange(HWND hwnd);
+HRESULT	onAgcLvlChange(HWND hwnd);
+HRESULT	onBLCRangeChange(HWND hwnd);
+HRESULT OnSelectedIndexChangeMirror(HWND hwnd);
+//int		getMainsFrequency();
+HRESULT OnMainsFrequencyChange(HWND hwnd);
+HRESULT	onBacklightCompensationChange(HWND hwnd);
+HRESULT OnCameraModeChange(HWND hwnd);
+HRESULT OnBLCWeightFactorChange(HWND hwnd);
+HRESULT OnBLCGridChange(HWND hwnd);
+
+//HRESULT getBLCRangeValue(int PropertyId, int *hpos, int *hsize, int *vpos, int *vsize);
+HRESULT getExposureAGCLvlValue(int PropertyId, int *ExpValue, int *AgcLvlValue);
+HRESULT setExposureAGCLvlValue(HWND hwnd, int PropertyId, int ExpValue, int AgcLvlValue);
+//HRESULT setExtControls(int PropertyId, int PropertyValue);
+
+//-------------------------------------------------------------------
+//  CameraControlDlgProc
+//
+//  CameraControlDlgProc procedure for the "Extension settings" dialog.
+//-------------------------------------------------------------------
+
+INT_PTR CALLBACK CameraControlDlgProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
+{
+
+	switch (msg)
+	{
+	case WM_INITDIALOG:
+#ifdef DEBUG
+		sprintf(logMessage, "\nCommand Fired : WM_INITDIALOG ID : IDD_CAM_CONTROL");
+		printLogMessage(logMessage);
+#endif
+		saveCameraControlInitSetting(hwnd);  // save initial value
+		OnInitCameraControlDialog(hwnd);
+		return TRUE;
+
+	case WM_COMMAND:
+		switch (LOWORD(wParam))
+		{
+		case IDOK:
+			//OnSelectedIndexChangeMirror(hwnd, pParam);
+			EndDialog(hwnd, LOWORD(wParam));
+			return TRUE;
+
+		case IDC_COMBO_SHUT_CONTL:
+			switch (HIWORD(wParam)) // Find out what message it was
+			{
+			case CBN_SELCHANGE:
+#ifdef DEBUG
+				sprintf(logMessage, " \nCommand Fired : IDC_COMBO_SHUT_CONTL Event : CBN_SELCHANGE");
+				printLogMessage(logMessage);
+#endif
+				OnShutCtrlChange(hwnd);
+				break;
+			}
+			return TRUE;
+
+		case IDC_COMBO_SEN_UP_MODE:
+			switch (HIWORD(wParam)) // Find out what message it was
+			{
+			case CBN_SELCHANGE:
+#ifdef DEBUG
+				sprintf(logMessage, " \nCommand Fired : IDC_COMBO_SEN_UP_MODE Event : CBN_SELCHANGE");
+				printLogMessage(logMessage);
+#endif
+				OnSenUpModeChange(hwnd);
+				break;
+			}
+			return TRUE;
+
+		case IDC_COMBO_EXPOSURE_MODE:
+			switch (HIWORD(wParam)) // Find out what message it was
+			{
+			case CBN_SELCHANGE:
+#ifdef DEBUG
+				sprintf(logMessage, " \nCommand Fired : IDC_COMBO_EXPOSURE_MODE Event : CBN_SELCHANGE");
+				printLogMessage(logMessage);
+#endif
+				OnExposureModeChange(hwnd);
+				break;
+			}
+			return TRUE;
+
+		case IDC_COMBO_MIRROR_MODE:
+			switch (HIWORD(wParam)) // Find out what message it was
+			{
+			case CBN_SELCHANGE:
+#ifdef DEBUG
+				sprintf(logMessage, " \nCommand Fired : IDC_COMBO_MIRROR_MODE Event : CBN_SELCHANGE");
+				printLogMessage(logMessage);
+#endif
+				OnSelectedIndexChangeMirror(hwnd);
+				break;
+			}
+			return TRUE;
+
+		case IDC_COMBO_MAIN_FEQ:
+			switch (HIWORD(wParam)) // Find out what message it was
+			{
+			case CBN_SELCHANGE:
+#ifdef DEBUG
+				sprintf(logMessage, " \nCommand Fired : IDC_COMBO_MAIN_FEQ Event : CBN_SELCHANGE");
+				printLogMessage(logMessage);
+#endif
+				OnMainsFrequencyChange(hwnd);
+				break;
+			}
+			return TRUE;
+
+		case IDC_COMBO_BACK_LIGHT:
+			switch (HIWORD(wParam)) // Find out what message it was
+			{
+			case CBN_SELCHANGE:
+#ifdef DEBUG
+				sprintf(logMessage, " \nCommand Fired : IDC_COMBO_BACK_LIGHT Event : CBN_SELCHANGE");
+				printLogMessage(logMessage);
+#endif
+				onBacklightCompensationChange(hwnd);
+				break;
+			}
+			return TRUE;
+
+		case IDC_COMBO_CAM_MODE:
+			switch (HIWORD(wParam)) // Find out what message it was
+			{
+			case CBN_SELCHANGE:
+#ifdef DEBUG
+				sprintf(logMessage, " \nCommand Fired : IDC_COMBO_CAM_MODE Event : CBN_SELCHANGE");
+				printLogMessage(logMessage);
+#endif
+				OnCameraModeChange(hwnd);
+				break;
+			}
+			return TRUE;
+
+		case IDC_COMBO_BLC_WGHT_FACT:
+			switch (HIWORD(wParam)) // Find out what message it was
+			{
+			case CBN_SELCHANGE:
+#ifdef DEBUG
+				sprintf(logMessage, " \nCommand Fired : IDC_COMBO_BLC_WGHT_FACT Event : CBN_SELCHANGE");
+				printLogMessage(logMessage);
+#endif
+				OnBLCWeightFactorChange(hwnd);
+				break;
+			}
+			return TRUE;
+
+		case IDC_COMBO_BLC_GRID:
+			switch (HIWORD(wParam)) // Find out what message it was
+			{
+			case CBN_SELCHANGE:
+#ifdef DEBUG
+				sprintf(logMessage, " \nCommand Fired : IDC_COMBO_BLC_GRID Event : CBN_SELCHANGE");
+				printLogMessage(logMessage);
+#endif
+				OnBLCGridChange(hwnd);
+				break;
+			}
+			return TRUE;
+
+
+		case IDCANCEL:
+			resetCameraControlInitSetting(hwnd);  // reset initial value
+			EndDialog(hwnd, LOWORD(wParam));
+			return TRUE;
+
+		}
+		break;
+
+	case WM_HSCROLL:
+		HWND hSLDArRefLvl = GetDlgItem(hwnd, IDC_SLD_AE_REF_LVL);
+		if ((HWND)lParam == hSLDArRefLvl)
+		{
+			switch (LOWORD(wParam)) // Find out what message it was
+			{
+			case TB_ENDTRACK: // This means that the list is about to display
+#ifdef DEBUG
+				sprintf(logMessage, " \nCommand Fired : IDC_SLD_AE_REF_LVL Event : TB_ENDTRACK");
+				printLogMessage(logMessage);
+#endif
+				onAEReferenceLevelChange(hwnd);
+				break;
+			}
+			return TRUE;
+		}
+
+		HWND hSLDAgcLvl = GetDlgItem(hwnd, IDC_SLD_AGC_LVL);
+		if ((HWND)lParam == hSLDAgcLvl)
+		{
+			switch (LOWORD(wParam)) // Find out what message it was
+			{
+			case TB_ENDTRACK: // This means that the list is about to display
+#ifdef DEBUG
+				sprintf(logMessage, " \nCommand Fired : IDC_SLD_AGC_LVL Event : TB_ENDTRACK");
+				printLogMessage(logMessage);
+
+#endif
+				onAgcLvlChange(hwnd);
+				break;
+			}
+			return TRUE;
+		}
+
+		HWND hSLDHPos = GetDlgItem(hwnd, IDC_SLD_HPos);
+		HWND hSLDHSize = GetDlgItem(hwnd, IDC_SLD_HSize);
+		HWND hSLDVPos = GetDlgItem(hwnd, IDC_SLD_VPos);
+		HWND hSLDVSize = GetDlgItem(hwnd, IDC_SLD_VSize);
+		if ((HWND)lParam == hSLDHPos || (HWND)lParam == hSLDHSize || (HWND)lParam == hSLDVPos || (HWND)lParam == hSLDVSize)
+		{
+			switch (LOWORD(wParam)) // Find out what message it was
+			{
+			case TB_ENDTRACK: // This means that the list is about to display
+#ifdef DEBUG
+				sprintf(logMessage, " \nCommand Fired : IDC_SLD_HPos Event : TB_ENDTRACK");
+				printLogMessage(logMessage);
+#endif
+				onBLCRangeChange(hwnd);
+				break;
+			}
+			return TRUE;
+		}
+
+		break;
+
+	}
+
+	return FALSE;
+}
+
+
+void OnInitCameraControlDialog(HWND hwnd)
+{
+	HRESULT hr;
+	CString retValueStr;
+	int retValue = 0;
+	long currValue, lCaps;
+	long lMin, lMax, lStep, lDefault;
+
+	hr = getExtControlValue(1, &retValue);
+	hr = getExtControlValue(17, &retValue);
+
+	HWND hListShutCtrl = GetDlgItem(hwnd, IDC_COMBO_SHUT_CONTL);
+	hr = getExtControlValue(1, &retValue);
+	if (FAILED(hr))
+	{
+		EnableWindow(hListShutCtrl, FALSE);
+	}
+	ComboBox_AddString(hListShutCtrl, L"0x00:AUTO");
+	ComboBox_AddString(hListShutCtrl, L"0x01:1/50 - 1/60");
+	ComboBox_AddString(hListShutCtrl, L"0x02:Flickerless");
+	ComboBox_AddString(hListShutCtrl, L"0x03:1/250");
+	ComboBox_AddString(hListShutCtrl, L"0x04:1/500");
+	ComboBox_AddString(hListShutCtrl, L"0x05:1/1000");
+	ComboBox_AddString(hListShutCtrl, L"0x06:1/2000");
+	ComboBox_AddString(hListShutCtrl, L"0x07:1/5000");
+	ComboBox_AddString(hListShutCtrl, L"0x08:1/10000");
+	ComboBox_AddString(hListShutCtrl, L"0x09:1/100000");
+	ComboBox_AddString(hListShutCtrl, L"0x0a:extended X2");
+	ComboBox_AddString(hListShutCtrl, L"0x0b:extended X4");
+	ComboBox_AddString(hListShutCtrl, L"0x0c:extended X6");
+	ComboBox_AddString(hListShutCtrl, L"0x0d:extended X8");
+	ComboBox_AddString(hListShutCtrl, L"0x0e:extended X10");
+	ComboBox_AddString(hListShutCtrl, L"0x0f:extended X15");
+	ComboBox_AddString(hListShutCtrl, L"0x10:extended X20");
+	ComboBox_AddString(hListShutCtrl, L"0x11:extended X25");
+	ComboBox_AddString(hListShutCtrl, L"0x12:extended X30");
+	ComboBox_SetCurSel(hListShutCtrl, retValue);
+
+
+	HWND hListSenseUpMode = GetDlgItem(hwnd, IDC_COMBO_SEN_UP_MODE);
+	hr = getExtControlValue(2, &retValue);
+	if (FAILED(hr))
+	{
+		EnableWindow(hListSenseUpMode, FALSE);
+	}
+
+	ComboBox_AddString(hListSenseUpMode, L"00:OFF");
+	ComboBox_AddString(hListSenseUpMode, L"01:X2");
+	ComboBox_AddString(hListSenseUpMode, L"02:X4");
+	ComboBox_AddString(hListSenseUpMode, L"03:X6");
+	ComboBox_AddString(hListSenseUpMode, L"04:X8");
+	ComboBox_AddString(hListSenseUpMode, L"05:X10");
+	ComboBox_AddString(hListSenseUpMode, L"06:X15");
+	ComboBox_AddString(hListSenseUpMode, L"07:X20");
+	ComboBox_AddString(hListSenseUpMode, L"08:X25");
+	ComboBox_AddString(hListSenseUpMode, L"09:X30");
+	ComboBox_SetCurSel(hListSenseUpMode, retValue);
+
+	HWND hListSldAELVL = GetDlgItem(hwnd, IDC_SLD_AE_REF_LVL);
+	hr = getExtControlValue(11, &retValue);
+	if (FAILED(hr))
+	{
+		EnableWindow(hListSldAELVL, FALSE);
+	}
+
+	SendMessageA(hListSldAELVL, TBM_SETRANGEMAX, TRUE, 64);
+	SendMessageA(hListSldAELVL, TBM_SETRANGEMIN, TRUE, 0);
+	SendMessageA(hListSldAELVL, TBM_SETPAGESIZE, TRUE, 1);
+	SendMessageA(hListSldAELVL, TBM_SETPOS, TRUE, retValue);
+	HWND hListAELVL = GetDlgItem(hwnd, IDC_EDIT_AE_REF_LVL);
+	retValueStr.Format(L"%d", retValue);
+	EnableWindow(hListAELVL, FALSE);
+	Edit_SetText(hListAELVL, retValueStr);
+
+	int expMode = 0, AGCLvl = 0;
+	hr = getExposureAGCLvlValue(10, &expMode, &AGCLvl);
+
+	HWND hListExpoMode = GetDlgItem(hwnd, IDC_COMBO_EXPOSURE_MODE);
+	if (FAILED(hr))
+	{
+		EnableWindow(hListExpoMode, FALSE);
+	}
+	ComboBox_AddString(hListExpoMode, L"0x00:AUTO");
+	ComboBox_AddString(hListExpoMode, L"0x01");
+	ComboBox_AddString(hListExpoMode, L"0x02");
+	ComboBox_AddString(hListExpoMode, L"0x03");
+	ComboBox_AddString(hListExpoMode, L"0x04");
+	ComboBox_AddString(hListExpoMode, L"0x05");
+	ComboBox_AddString(hListExpoMode, L"0x06");
+	ComboBox_AddString(hListExpoMode, L"0x07");
+	ComboBox_AddString(hListExpoMode, L"0x08");
+	ComboBox_AddString(hListExpoMode, L"0x09");
+	ComboBox_AddString(hListExpoMode, L"0x0a");
+	ComboBox_AddString(hListExpoMode, L"0x0b");
+	ComboBox_AddString(hListExpoMode, L"0x0c");
+	ComboBox_AddString(hListExpoMode, L"0x0d");
+	ComboBox_AddString(hListExpoMode, L"0x0e");
+	ComboBox_AddString(hListExpoMode, L"0x0f");
+	ComboBox_AddString(hListExpoMode, L"0x10");
+	ComboBox_AddString(hListExpoMode, L"0x11");
+	ComboBox_AddString(hListExpoMode, L"0x12");
+	ComboBox_SetCurSel(hListExpoMode, expMode);
+
+	HWND hListSldAGCLVL = GetDlgItem(hwnd, IDC_SLD_AGC_LVL);
+	if (FAILED(hr) || expMode == 0)
+	{
+		EnableWindow(hListSldAGCLVL, FALSE);
+	}
+
+	SendMessageA(hListSldAGCLVL, TBM_SETRANGEMAX, TRUE, 255);
+	SendMessageA(hListSldAGCLVL, TBM_SETRANGEMIN, TRUE, 0);
+	SendMessageA(hListSldAGCLVL, TBM_SETPAGESIZE, TRUE, 1);
+	SendMessageA(hListSldAGCLVL, TBM_SETPOS, TRUE, AGCLvl);
+
+	HWND hListAGCLVL = GetDlgItem(hwnd, IDC_EDIT_AGC_LVL);
+	//Edit_SetText(hListAGCLVL, L"0");
+	EnableWindow(hListAGCLVL, FALSE);
+	retValueStr.Format(L"%d", AGCLvl);
+	Edit_SetText(hListAGCLVL, retValueStr);
+
+
+	HWND hListMirrorMode = GetDlgItem(hwnd, IDC_COMBO_MIRROR_MODE);
+	hr = getExtControlValue(3, &retValue);
+	if (FAILED(hr))
+	{
+		EnableWindow(hListMirrorMode, FALSE);
+	}
+	ComboBox_AddString(hListMirrorMode, L"OFF");
+	ComboBox_AddString(hListMirrorMode, L"MIRROR");
+	ComboBox_AddString(hListMirrorMode, L"V_FLIP");
+	ComboBox_AddString(hListMirrorMode, L"ROTATE ");
+	ComboBox_SetCurSel(hListMirrorMode, retValue);
+
+
+	HWND hListMainFeq = GetDlgItem(hwnd, IDC_COMBO_MAIN_FEQ);
+	ComboBox_AddString(hListMainFeq, L"Disabled");
+	ComboBox_AddString(hListMainFeq, L"50 Hz");
+	ComboBox_AddString(hListMainFeq, L"60 Hz");
+	ComboBox_SetCurSel(hListMainFeq, getMainsFrequency());
+
+	/* check the res */
+	AM_MEDIA_TYPE *pmt;
+	gcap.pVSC->GetFormat(&pmt);
+	int setV = 0;
+	getStandardControlPropertyCurrentValue(KSPROPERTY_VIDEOPROCAMP_BACKLIGHT_COMPENSATION, &currValue, &lCaps);
+	HWND hListBackLight = GetDlgItem(hwnd, IDC_COMBO_BACK_LIGHT);
+	if ((pmt->lSampleSize == 4147200) || (pmt->lSampleSize == 1036800)){
+		ComboBox_AddString(hListBackLight, L"Wide Dyn Range");
+		switch (currValue)
+		{
+		case 0:
+			setV = 1;// 3;
+			break;
+		case 1:
+			setV = 3;// 0;
+			break;
+		case 2:
+			setV = 2;
+			break;
+		case 3:
+			setV = 0;// 1;
+			break;
+		}
+	}
+	else{
+		switch (currValue)
+		{
+		case 0:
+			setV = 0;
+			break;
+		case 1:
+			setV = 1;
+			break;
+		}
+	}
+	ComboBox_AddString(hListBackLight, L"BLC off");
+	if ((pmt->lSampleSize == 4147200) || (pmt->lSampleSize == 1036800)){
+		ComboBox_AddString(hListBackLight, L"HBLC");
+	}
+	ComboBox_AddString(hListBackLight, L"BLC on");
+	ComboBox_SetCurSel(hListBackLight, setV);
+
+	HWND hListCameraMode = GetDlgItem(hwnd, IDC_COMBO_CAM_MODE);
+	hr = getExtControlValue(13, &retValue);
+	if (FAILED(hr))
+	{
+		EnableWindow(hListCameraMode, FALSE);
+	}
+
+	// default capture format
+
+	// DV capture does not use a VIDEOINFOHEADER
+	if (pmt->lSampleSize == 4147200) //1080p
+	{
+		ComboBox_AddString(hListCameraMode, L"1080P(25/30fps)");
+		//ComboBox_AddString(hListCameraMode, L"Linear 1080P(25/30fps),BLC OFF");
+		//ComboBox_AddString(hListCameraMode, L"Linear 1080P(25/30fps),BLC ON");
+		//ComboBox_AddString(hListCameraMode, L"Linear 1080P(25/30fps),HBLC OFF");
+		//ComboBox_AddString(hListCameraMode, L"WDR 1080P(25/30fps),BLC OFF");
+	}
+	if (pmt->lSampleSize == 1036800) //1080p/2
+	{
+		ComboBox_AddString(hListCameraMode, L"1080P(25/30fps) USB2");
+		//ComboBox_AddString(hListCameraMode, L"Linear 1080P(25/30fps),BLC OFF");
+		//ComboBox_AddString(hListCameraMode, L"Linear 1080P(25/30fps),BLC ON");
+		//ComboBox_AddString(hListCameraMode, L"Linear 1080P(25/30fps),HBLC OFF");
+		//ComboBox_AddString(hListCameraMode, L"WDR 1080P(25/30fps),BLC OFF");
+	}
+
+	if (pmt->lSampleSize == 1843200) //720p
+	{
+		ComboBox_AddString(hListCameraMode, L"720P(50/60fps)");
+		// This capture filter captures something other that pure video.
+		//ComboBox_AddString(hListCameraMode, L"Linear 720P(50 / 60fps), BLC OFF");
+		//ComboBox_AddString(hListCameraMode, L"Linear 720P(50/60fps), BLC ON");
+		//ComboBox_AddString(hListCameraMode, L"Linear 720P(50/60fps), HBLC ON");
+	}
+	if (pmt->lSampleSize == 460800) //720p/2
+	{
+		ComboBox_AddString(hListCameraMode, L"720P(50/60fps) USB2");
+		// This capture filter captures something other that pure video.
+		//ComboBox_AddString(hListCameraMode, L"Linear 720P(50 / 60fps), BLC OFF");
+		//ComboBox_AddString(hListCameraMode, L"Linear 720P(50/60fps), BLC ON");
+		//ComboBox_AddString(hListCameraMode, L"Linear 720P(50/60fps), HBLC ON");
+	}
+
+	/*
+	ComboBox_AddString(hListCameraMode, L"Linear 1080P(25/30fps),BLC OFF");
+	ComboBox_AddString(hListCameraMode, L"Linear 1080P(25/30fps),BLC ON");
+	ComboBox_AddString(hListCameraMode, L"Linear 1080P(25/30fps),HBLC OFF");
+	ComboBox_AddString(hListCameraMode, L"WDR 1080P(25/30fps),BLC OFF");
+	ComboBox_AddString(hListCameraMode, L"Linear 720P(50 / 60fps), BLC OFF");
+	ComboBox_AddString(hListCameraMode, L"Linear 720P(50/60fps), BLC ON");
+	ComboBox_AddString(hListCameraMode, L"Linear 720P(50/60fps), HBLC ON");*/
+	ComboBox_SetCurSel(hListCameraMode, 0/*retValue*/);
+
+	HWND hListBLCGrid = GetDlgItem(hwnd, IDC_COMBO_BLC_GRID);
+	hr = getExtControlValue(19, &retValue);
+	if (FAILED(hr))
+	{
+		EnableWindow(hListBLCGrid, FALSE);
+	}
+	ComboBox_AddString(hListBLCGrid, L"disable");
+	ComboBox_AddString(hListBLCGrid, L"enable");
+	ComboBox_SetCurSel(hListBLCGrid, retValue);
+
+	HWND hListBLCWF = GetDlgItem(hwnd, IDC_COMBO_BLC_WGHT_FACT);
+	hr = getExtControlValue(18, &retValue);
+	if (FAILED(hr))
+	{
+		EnableWindow(hListBLCWF, FALSE);
+	}
+	ComboBox_AddString(hListBLCWF, L"low-gain");
+	ComboBox_AddString(hListBLCWF, L"medium-gain");
+	ComboBox_AddString(hListBLCWF, L"high-gain");
+	ComboBox_SetCurSel(hListBLCWF, retValue);
+
+	int hpos = 0, hsize = 0, vpos = 0, vsize = 0;
+	hr = getBLCRangeValue(17, &hpos, &hsize, &vpos, &vsize);
+
+	HWND hListSldHPos = GetDlgItem(hwnd, IDC_SLD_HPos);
+	HWND hListSldHSize = GetDlgItem(hwnd, IDC_SLD_HSize);
+	HWND hListSldVPos = GetDlgItem(hwnd, IDC_SLD_VPos);
+	HWND hListSldVSize = GetDlgItem(hwnd, IDC_SLD_VSize);
+	if (FAILED(hr))
+	{
+		EnableWindow(hListSldHPos, FALSE);
+		EnableWindow(hListSldHSize, FALSE);
+		EnableWindow(hListSldVPos, FALSE);
+		EnableWindow(hListSldVSize, FALSE);
+	}
+
+	SendMessageA(hListSldHPos, TBM_SETRANGEMAX, TRUE, 12);
+	SendMessageA(hListSldHPos, TBM_SETRANGEMIN, TRUE, 0);
+	SendMessageA(hListSldHPos, TBM_SETPAGESIZE, TRUE, 1);
+	SendMessageA(hListSldHPos, TBM_SETPOS, TRUE, hpos);
+
+	HWND hListEditHPos = GetDlgItem(hwnd, IDC_EDIT_HPos);
+	EnableWindow(hListEditHPos, FALSE);
+	retValueStr.Format(L"%d", hpos);
+	Edit_SetText(hListEditHPos, retValueStr);
+
+
+	SendMessageA(hListSldHSize, TBM_SETRANGEMAX, TRUE, 12);
+	SendMessageA(hListSldHSize, TBM_SETRANGEMIN, TRUE, 0);
+	SendMessageA(hListSldHSize, TBM_SETPAGESIZE, TRUE, 1);
+	SendMessageA(hListSldHSize, TBM_SETPOS, TRUE, hsize);
+
+	HWND hListEditHSize = GetDlgItem(hwnd, IDC_EDIT_HSize);
+	EnableWindow(hListEditHSize, FALSE);
+	retValueStr.Format(L"%d", hsize);
+	Edit_SetText(hListEditHSize, retValueStr);
+
+	SendMessageA(hListSldVPos, TBM_SETRANGEMAX, TRUE, 7);
+	SendMessageA(hListSldVPos, TBM_SETRANGEMIN, TRUE, 0);
+	SendMessageA(hListSldVPos, TBM_SETPAGESIZE, TRUE, 1);
+	SendMessageA(hListSldVPos, TBM_SETPOS, TRUE, vpos);
+
+	HWND hListEditVPos = GetDlgItem(hwnd, IDC_EDIT_VPos);
+	EnableWindow(hListEditVPos, FALSE);
+	retValueStr.Format(L"%d", vpos);
+	Edit_SetText(hListEditVPos, retValueStr);
+
+	SendMessageA(hListSldVSize, TBM_SETRANGEMAX, TRUE, 7);
+	SendMessageA(hListSldVSize, TBM_SETRANGEMIN, TRUE, 0);
+	SendMessageA(hListSldVSize, TBM_SETPAGESIZE, TRUE, 1);
+	SendMessageA(hListSldVSize, TBM_SETPOS, TRUE, vsize);
+
+	HWND hListEditVSize = GetDlgItem(hwnd, IDC_EDIT_VSize);
+	EnableWindow(hListEditVSize, FALSE);
+	retValueStr.Format(L"%d", vsize);
+	Edit_SetText(hListEditVSize, retValueStr);
+
+}
+
+void saveCameraControlInitSetting(HWND hwnd)
+{
+	long currValue, lCaps;
+	int setV = 0;
+
+	// reset global struct
+	initCtrlSetting.ShutterControl = 0;
+	initCtrlSetting.SenseUpMode = 0;
+	initCtrlSetting.AEReferenceLevel = 0;
+	initCtrlSetting.ExposureMode = 0;
+	initCtrlSetting.AGCLevel = 0;
+	initCtrlSetting.MirrorMode = 0;
+	initCtrlSetting.MainsFrequency = 0;
+	initCtrlSetting.BacklightCompensation = 0;
+	initCtrlSetting.CameraMode = 0;
+
+	// get current Value
+	getExtControlValue(1, &initCtrlSetting.ShutterControl);
+	getExtControlValue(2, &initCtrlSetting.SenseUpMode);
+	getExtControlValue(11, &initCtrlSetting.AEReferenceLevel);
+
+	getExposureAGCLvlValue(10, &initCtrlSetting.ExposureMode, &initCtrlSetting.AGCLevel);
+
+	getExtControlValue(3, &initCtrlSetting.MirrorMode);
+	//getExtControlValue(13, &initCtrlSetting.CameraMode);
+	//initCtrlSetting.CameraMode = 0;
+	getExtControlValue(18, &initCtrlSetting.BLCWeightFactor);
+	getExtControlValue(19, &initCtrlSetting.BLCGrid);
+
+	getStandardControlPropertyCurrentValue(KSPROPERTY_VIDEOPROCAMP_POWERLINE_FREQUENCY, &currValue, &lCaps);
+	initCtrlSetting.MainsFrequency = currValue;
+	currValue = 0;
+	getStandardControlPropertyCurrentValue(KSPROPERTY_VIDEOPROCAMP_BACKLIGHT_COMPENSATION, &currValue, &lCaps);
+#if 0	
+	/* check the res */
+	AM_MEDIA_TYPE *pmt;
+	gcap.pVSC->GetFormat(&pmt);
+
+	if ((pmt->lSampleSize == 4147200) || (pmt->lSampleSize == 1036800)) //1080p
+	{
+		switch (currValue)
+		{
+		case 0:
+			setV = 1;
+			break;
+		case 1:
+			setV = 3;
+			break;
+		case 2:
+			setV = 2;
+			break;
+		case 3:
+			setV = 0;
+			break;
+		}
+	}
+	else{ //720p
+		switch (currValue)
+		{
+		case 0:
+			setV = 0;
+			break;
+		case 1:
+			setV = 1;
+			break;
+		}
+
+	}
+
+#endif	
+	initCtrlSetting.BacklightCompensation = currValue;
+
+}
+
+void resetCameraControlInitSetting(HWND hwnd)
+{
+	HWND hListComboShutCtrl = GetDlgItem(hwnd, IDC_COMBO_SHUT_CONTL);
+	int sel = ComboBox_GetCurSel(hListComboShutCtrl);
+	int setV = 0;
+	if (sel != initCtrlSetting.ShutterControl)
+		setExtControls(1, initCtrlSetting.ShutterControl);
+
+	HWND hListSenseUpMode = GetDlgItem(hwnd, IDC_COMBO_SEN_UP_MODE);
+	sel = ComboBox_GetCurSel(hListSenseUpMode);
+	if (sel != initCtrlSetting.SenseUpMode)
+		setExtControls(2, initCtrlSetting.SenseUpMode);
+
+	HWND hListComboMirror = GetDlgItem(hwnd, IDC_COMBO_MIRROR_MODE);
+	sel = ComboBox_GetCurSel(hListComboMirror);
+	if (sel != initCtrlSetting.MirrorMode)
+		setExtControls(3, initCtrlSetting.MirrorMode);
+
+	HWND hListSldAELVL = GetDlgItem(hwnd, IDC_SLD_AE_REF_LVL);
+	long arSldPos = (long)SendMessageA(hListSldAELVL, TBM_GETPOS, TRUE, arSldPos);
+	if (arSldPos != initCtrlSetting.AEReferenceLevel)
+		setExtControls(11, initCtrlSetting.AEReferenceLevel);
+
+	HWND hListComboCameraMode = GetDlgItem(hwnd, IDC_COMBO_CAM_MODE);
+	sel = ComboBox_GetCurSel(hListComboCameraMode);
+	if (sel != initCtrlSetting.CameraMode)
+		setExtControls(13, initCtrlSetting.CameraMode);
+
+	HWND hListComboBLCWF = GetDlgItem(hwnd, IDC_COMBO_BLC_WGHT_FACT);
+	sel = ComboBox_GetCurSel(hListComboBLCWF);
+	if (sel != initCtrlSetting.BLCWeightFactor)
+		setExtControls(18, initCtrlSetting.BLCWeightFactor);
+
+	HWND hListComboBLCGrid = GetDlgItem(hwnd, IDC_COMBO_BLC_GRID);
+	sel = ComboBox_GetCurSel(hListComboBLCGrid);
+	if (sel != initCtrlSetting.BLCGrid)
+		setExtControls(19, initCtrlSetting.BLCGrid);
+
+
+	HWND hListExpoMode = GetDlgItem(hwnd, IDC_COMBO_EXPOSURE_MODE);
+	sel = ComboBox_GetCurSel(hListExpoMode);
+	HWND hListSldAGCLVL = GetDlgItem(hwnd, IDC_SLD_AGC_LVL);
+	int agcSldPos = (int)SendMessageA(hListSldAGCLVL, TBM_GETPOS, TRUE, agcSldPos);
+
+	if (sel != initCtrlSetting.ExposureMode || agcSldPos != initCtrlSetting.AGCLevel)
+	{
+		setExposureAGCLvlValue(hwnd, 10, initCtrlSetting.ExposureMode, initCtrlSetting.AGCLevel);
+	}
+
+
+	if (ksNodeTree.isOKpProcAmp)
+	{
+		HWND hListMainFeq = GetDlgItem(hwnd, IDC_COMBO_MAIN_FEQ);
+		sel = ComboBox_GetCurSel(hListMainFeq);
+		if (sel != initCtrlSetting.MainsFrequency)
+			ksNodeTree.pProcAmp->Set(KSPROPERTY_VIDEOPROCAMP_POWERLINE_FREQUENCY, (long)initCtrlSetting.MainsFrequency, VideoProcAmp_Flags_Manual);
+
+		HWND hListBackLight = GetDlgItem(hwnd, IDC_COMBO_BACK_LIGHT);
+		sel = ComboBox_GetCurSel(hListBackLight);
+
+		/* check the res */
+		AM_MEDIA_TYPE *pmt;
+		gcap.pVSC->GetFormat(&pmt);
+
+		if ((pmt->lSampleSize == 4147200) || (pmt->lSampleSize == 1036800)) //1080p
+		{
+			switch (sel)
+			{
+			case 0:
+				setV = 3;
+				break;
+			case 1:
+				setV = 0;
+				break;
+			case 2:
+				setV = 2;
+				break;
+			case 3:
+				setV = 1;
+				break;
+			}
+		}
+		else{ //720p
+			switch (sel)
+			{
+			case 0:
+				setV = 0;
+				break;
+			case 1:
+				setV = 1;
+				break;
+			}
+
+		}
+
+
+		if (setV != initCtrlSetting.BacklightCompensation)
+			ksNodeTree.pProcAmp->Set(KSPROPERTY_VIDEOPROCAMP_BACKLIGHT_COMPENSATION, (long)initCtrlSetting.BacklightCompensation, VideoProcAmp_Flags_Manual);
+
+	}
+
+}
+#if 0
+HRESULT	getExtControlValue(int PropertyId, int *curValue)
+{
+	HRESULT hr = S_OK;
+	ULONG ulSize;
+	BYTE *pbPropertyValue;
+	int retValue = 0;
+
+	hr = getExtionControlPropertySize(PropertyId, &ulSize);
+	if (FAILED(hr))
+	{
+#ifdef DEBUG
+		sprintf(logMessage, " \nERROR \t Function : getExtControlValue \t Msg : Unable to find property[%d] size : %x", PropertyId, hr);
+		printLogMessage(logMessage);
+#endif
+	}
+	else
+	{
+		pbPropertyValue = new BYTE[ulSize];
+		if (!pbPropertyValue)
+		{
+#ifdef DEBUG
+			sprintf(logMessage, " \nERROR \t Function : getExtControlValue \t Msg : Unable to allocate memory for property[%d] value", PropertyId);
+			printLogMessage(logMessage);
+#endif
+		}
+
+		hr = getExtionControlProperty(PropertyId, ulSize, pbPropertyValue);
+
+		if (FAILED(hr))
+		{
+#ifdef DEBUG
+			sprintf(logMessage, " \nERROR \t Function : getExtControlValue \t Msg : Unable to get property[%d] value", PropertyId);
+			printLogMessage(logMessage);
+#endif
+		}
+
+		memcpy(&retValue, (char *)pbPropertyValue, ulSize);
+
+#ifdef DEBUG
+		sprintf(logMessage, " \nFunction : getExtControlValue \t Msg : property[%d] value[%d]", PropertyId, retValue);
+		printLogMessage(logMessage);
+#endif
+
+	}
+
+	*curValue = retValue;
+	return hr;
+
+}
+#endif
+#if 0
+HRESULT getBLCRangeValue(int PropertyId, int *hpos, int *hsize, int *vpos, int *vsize)
+{
+	HRESULT hr = S_OK;
+	ULONG ulSize;
+	BYTE *pbPropertyValue;
+	int retValue = 0;
+
+	*hpos = 0;
+	*hsize = 0;
+	*vpos = 0;
+	*vsize = 0;
+
+	hr = getExtionControlPropertySize(PropertyId, &ulSize);
+	//ulSize = 2;
+	if (FAILED(hr) || (ulSize != 2))
+	{
+#ifdef DEBUG
+		sprintf(logMessage, " \nERROR \t Function : getBLCRangeValue \t Msg : Unable to find property[%d] size : %x", PropertyId, hr);
+		printLogMessage(logMessage);
+#endif
+	}
+	else
+	{
+		pbPropertyValue = new BYTE[ulSize];
+		if (!pbPropertyValue)
+		{
+#ifdef DEBUG
+			sprintf(logMessage, " \nERROR \t Function : getBLCRangeValue \t Msg : Unable to allocate memory for property[%d] value", PropertyId);
+			printLogMessage(logMessage);
+#endif
+		}
+
+		hr = getExtionControlProperty(PropertyId, ulSize, pbPropertyValue);
+		//pbPropertyValue[0] = 0x05;
+		//pbPropertyValue[1] = 0x06;
+
+		if (FAILED(hr))
+		{
+#ifdef DEBUG
+			sprintf(logMessage, " \nERROR \t Function : getBLCRangeValue \t Msg : Unable to get property[%d] value", PropertyId);
+			printLogMessage(logMessage);
+#endif
+		}
+
+		// *pbPropertyValue = (*pbPropertyValue & 0x0000) | ((vpos & 0x000F) << 12) | ((hpos & 0x000F) << 8) | ((vsize & 0x000F) << 4) | ((hsize & 0x000F));
+
+		/*
+		*hsize = ((*pbPropertyValue) & 0x0F);
+		*vsize = ((*pbPropertyValue) >> 4 & 0x0F);
+		*hpos = ((*(pbPropertyValue+1)) & 0x0F);
+		*vpos = ((*(pbPropertyValue+1) >> 4) & 0x0F);
+		*/
+
+		*hpos = ((*pbPropertyValue) & 0x0F);
+		*vpos = ((*pbPropertyValue) >> 4 & 0x0F);
+		*hsize = ((*(pbPropertyValue + 1)) & 0x0F);
+		*vsize = ((*(pbPropertyValue + 1) >> 4) & 0x0F);
+
+
+#ifdef DEBUG
+		sprintf(logMessage, " \nFunction : getBLCRangeValue \t Msg : property[%d] value[%d]", PropertyId, retValue);
+		printLogMessage(logMessage);
+#endif
+
+	}
+
+	return hr;
+}
+#endif
+HRESULT getExposureAGCLvlValue(int PropertyId, int *ExpValue, int *AgcLvlValue)
+{
+	HRESULT hr = S_OK;
+	ULONG ulSize;
+	BYTE *pbPropertyValue;
+	int retValue = 0;
+
+	*ExpValue = 0;
+	*AgcLvlValue = 0;
+
+	hr = getExtionControlPropertySize(PropertyId, &ulSize);
+	if (FAILED(hr) || (ulSize != 4))
+	{
+#ifdef DEBUG
+		sprintf(logMessage, " \nERROR \t Function : getExposureAGCLvlValue \t Msg : Unable to find property[%d] size : %x", PropertyId, hr);
+		printLogMessage(logMessage);
+#endif
+	}
+	else
+	{
+		pbPropertyValue = new BYTE[ulSize];
+		if (!pbPropertyValue)
+		{
+#ifdef DEBUG
+			sprintf(logMessage, " \nERROR \t Function : getExposureAGCLvlValue \t Msg : Unable to allocate memory for property[%d] value", PropertyId);
+			printLogMessage(logMessage);
+#endif
+		}
+
+		hr = getExtionControlProperty(PropertyId, ulSize, pbPropertyValue);
+
+		if (FAILED(hr))
+		{
+#ifdef DEBUG
+			sprintf(logMessage, " \nERROR \t Function : getExposureAGCLvlValue \t Msg : Unable to get property[%d] value", PropertyId);
+			printLogMessage(logMessage);
+#endif
+		}
+
+		memcpy(ExpValue, (char *)&pbPropertyValue[0], 2);
+		memcpy(AgcLvlValue, (char *)&pbPropertyValue[2], 2);
+
+#ifdef DEBUG
+		sprintf(logMessage, " \nFunction : getExposureAGCLvlValue \t Msg : property[%d] value[%d]", PropertyId, retValue);
+		printLogMessage(logMessage);
+#endif
+
+	}
+
+	return hr;
+}
+
+HRESULT setExposureAGCLvlValue(HWND hwnd, int PropertyId, int ExpValue, int AgcLvlValue)
+{
+	HRESULT hr = S_OK;
+
+	try
+	{
+		if (ExpValue == 0)
+		{
+			HWND hListSldAGCLVL = GetDlgItem(hwnd, IDC_SLD_AGC_LVL);
+			EnableWindow(hListSldAGCLVL, FALSE);
+		}
+		else
+		{
+			HWND hListSldAGCLVL = GetDlgItem(hwnd, IDC_SLD_AGC_LVL);
+			EnableWindow(hListSldAGCLVL, TRUE);
+		}
+
+		if (ExpValue != LB_ERR && ksNodeTree.isOK)
+		{
+
+			ULONG ulSize;
+			BYTE *pbPropertyValue;
+
+			hr = getExtionControlPropertySize(PropertyId, &ulSize);
+			if (FAILED(hr) || (ulSize != 4)) // first two byte Exposure Mode & last two byte AGC level mast be 4 byte
+			{
+#ifdef DEBUG
+				sprintf(logMessage, "\nERROR \t Function : setExposureAGCLvlValue \t Msg : Unable to find property size : %x", hr);
+				printLogMessage(logMessage);
+#endif
+			}
+			else
+			{
+				pbPropertyValue = new BYTE[ulSize];
+				if (!pbPropertyValue)
+				{
+#ifdef DEBUG
+					sprintf(logMessage, "\nERROR \t Function : setExposureAGCLvlValue \t Msg : Unable to allocate memory for property value");
+					printLogMessage(logMessage);
+#endif
+				}
+				else
+				{
+					int ExposureByte = 2;
+					int AgcLvlByte = 2;
+					memcpy(&pbPropertyValue[0], (char*)&ExpValue, ExposureByte); // first two byte Exposure Mode & last two byte AGC level
+					memcpy(&pbPropertyValue[ExposureByte], (char*)&AgcLvlValue, AgcLvlByte); // first two byte Exposure Mode & last two byte AGC level
+
+					hr = setExtionControlProperty(PropertyId, ulSize, pbPropertyValue);
+				}
+			}
+
+#ifdef DEBUG
+			sprintf(logMessage, "\nFunction : setExposureAGCLvlValue \t Msg : Return Value:%ld", hr);
+			printLogMessage(logMessage);
+#endif
+		}
+
+	}
+	catch (...)
+	{
+#ifdef DEBUG
+		sprintf(logMessage, "\nERROR : In Function : setExposureAGCLvlValue");
+		printLogMessage(logMessage);
+#endif
+	}
+
+	return hr;
+
+}
+#if 0
+HRESULT setExtControls(int PropertyId, int PropertyValue)
+{
+	HRESULT hr = S_OK;
+	ULONG ulSize;
+	BYTE *pbPropertyValue;
+
+	hr = getExtionControlPropertySize(PropertyId, &ulSize);
+	if (SUCCEEDED(hr))
+	{
+
+		pbPropertyValue = new BYTE[ulSize];
+		if (!pbPropertyValue)
+		{
+#ifdef DEBUG
+			sprintf(logMessage, "\nError \t Function : resetCameraControlInitSetting \t Msg : Unable to allocate memory for property value");
+			printLogMessage(logMessage);
+#endif
+		}
+		else
+		{
+			memcpy(pbPropertyValue, (char*)&PropertyValue, ulSize);
+			hr = setExtionControlProperty(PropertyId, ulSize, pbPropertyValue);
+		}
+	}
+	return hr;
+}
+#endif
+HRESULT OnShutCtrlChange(HWND hwnd)
+{
+	HRESULT hr = S_OK;
+	HWND hListComboShutCtrl = GetDlgItem(hwnd, IDC_COMBO_SHUT_CONTL);
+
+	int sel = ComboBox_GetCurSel(hListComboShutCtrl);
+
+	if (sel != LB_ERR && ksNodeTree.isOK)
+	{
+
+		ULONG ulSize;
+		BYTE *pbPropertyValue;
+		int PropertId = 1;
+
+		hr = getExtionControlPropertySize(PropertId, &ulSize);
+		if (FAILED(hr))
+		{
+#ifdef DEBUG
+			sprintf(logMessage, "\nFunction : OnShutCtrlChange \t Msg : Unable to find property size : %x", hr);
+			printLogMessage(logMessage);
+#endif
+		}
+		else
+		{
+			pbPropertyValue = new BYTE[ulSize];
+			if (!pbPropertyValue)
+			{
+#ifdef DEBUG
+				sprintf(logMessage, "\nFunction : OnShutCtrlChange \t Msg : Unable to allocate memory for property value");
+				printLogMessage(logMessage);
+#endif
+			}
+			else
+			{
+				memcpy(pbPropertyValue, (char*)&sel, ulSize);
+				hr = setExtionControlProperty(PropertId, ulSize, pbPropertyValue);
+			}
+		}
+
+#ifdef DEBUG
+		sprintf(logMessage, "\nFunction : OnShutCtrlChange \t Msg : Return Value:%ld", hr);
+		printLogMessage(logMessage);
+#endif
+	}
+
+	return hr;
+}
+
+HRESULT OnSenUpModeChange(HWND hwnd)
+{
+	HRESULT hr = S_OK;
+	HWND hListSenseUpMode = GetDlgItem(hwnd, IDC_COMBO_SEN_UP_MODE);
+
+	int sel = ComboBox_GetCurSel(hListSenseUpMode);
+
+	if (sel != LB_ERR && ksNodeTree.isOK)
+	{
+		ULONG ulSize;
+		BYTE *pbPropertyValue;
+		int PropertId = 2;
+
+		hr = getExtionControlPropertySize(PropertId, &ulSize);
+		if (FAILED(hr))
+		{
+#ifdef DEBUG
+			sprintf(logMessage, "\nERROR \t Function : OnSenUpModeChange \t Msg : Unable to find property size : %x", hr);
+			printLogMessage(logMessage);
+#endif
+		}
+		else
+		{
+			pbPropertyValue = new BYTE[ulSize];
+			if (!pbPropertyValue)
+			{
+#ifdef DEBUG
+				sprintf(logMessage, "\nERROR \t Function : OnSenUpModeChange \t Msg : Unable to allocate memory for property value");
+				printLogMessage(logMessage);
+#endif
+			}
+			else
+			{
+				memcpy(pbPropertyValue, (char*)&sel, ulSize);
+				hr = setExtionControlProperty(PropertId, ulSize, pbPropertyValue);
+			}
+		}
+
+#ifdef DEBUG
+		sprintf(logMessage, "\nERROR \t Function : OnSenUpModeChange \t Msg : Return Value:%ld", hr);
+		printLogMessage(logMessage);
+#endif
+	}
+
+	return hr;
+}
+
+HRESULT onAEReferenceLevelChange(HWND hwnd)
+{
+	HRESULT hr = S_OK;
+
+	try
+	{
+		long arSldPos = 0;
+		CString strPos;
+		HWND hListSldAELVL = GetDlgItem(hwnd, IDC_SLD_AE_REF_LVL);
+		arSldPos = (long)SendMessageA(hListSldAELVL, TBM_GETPOS, TRUE, arSldPos);
+
+		HWND hListAELVL = GetDlgItem(hwnd, IDC_EDIT_AE_REF_LVL);
+		strPos.Format(L"%ld", arSldPos);
+		Edit_SetText(hListAELVL, strPos);
+
+		if (ksNodeTree.isOK)
+		{
+			ULONG ulSize;
+			BYTE *pbPropertyValue;
+			int PropertId = 11;
+
+			hr = getExtionControlPropertySize(PropertId, &ulSize);
+			if (FAILED(hr))
+			{
+#ifdef DEBUG
+				sprintf(logMessage, "\nERROR \t Function : onAEReferenceLevelChange \t Msg : Unable to find property size : %x", hr);
+				printLogMessage(logMessage);
+#endif
+			}
+			else
+			{
+				pbPropertyValue = new BYTE[ulSize];
+				if (!pbPropertyValue)
+				{
+#ifdef DEBUG
+					sprintf(logMessage, "\nERROR \t Function : onAEReferenceLevelChange \t Msg : Unable to allocate memory for property value");
+					printLogMessage(logMessage);
+#endif
+				}
+				else
+				{
+					memcpy(pbPropertyValue, (char*)&arSldPos, ulSize);
+					hr = setExtionControlProperty(PropertId, ulSize, pbPropertyValue);
+				}
+			}
+
+#ifdef DEBUG
+			sprintf(logMessage, "\nERROR \t Function : onAEReferenceLevelChange \t Msg : Return Value:%ld", hr);
+			printLogMessage(logMessage);
+#endif
+		}
+
+	}
+	catch (...)
+	{
+#ifdef DEBUG
+		sprintf(logMessage, "\nERROR : In Function : onAEReferenceLevelChange");
+		printLogMessage(logMessage);
+#endif
+	}
+
+	return hr;
+}
+
+HRESULT OnExposureModeChange(HWND hwnd)
+{
+	HRESULT hr = S_OK;
+
+	try
+	{
+		HWND hListExpoMode = GetDlgItem(hwnd, IDC_COMBO_EXPOSURE_MODE);
+
+		int sel = ComboBox_GetCurSel(hListExpoMode);
+		if (sel == 0)
+		{
+			HWND hListSldAGCLVL = GetDlgItem(hwnd, IDC_SLD_AGC_LVL);
+			EnableWindow(hListSldAGCLVL, FALSE);
+			//HWND hListAGCLVL = GetDlgItem(hwnd, IDC_EDIT_AGC_LVL);
+			//EnableWindow(hListAGCLVL, FALSE);
+		}
+		else
+		{
+			HWND hListSldAGCLVL = GetDlgItem(hwnd, IDC_SLD_AGC_LVL);
+			EnableWindow(hListSldAGCLVL, TRUE);
+			//HWND hListAGCLVL = GetDlgItem(hwnd, IDC_EDIT_AGC_LVL);
+			//EnableWindow(hListAGCLVL, TRUE);
+		}
+
+		if (sel != LB_ERR && ksNodeTree.isOK)
+		{
+
+			ULONG ulSize;
+			BYTE *pbPropertyValue;
+			int PropertId = 10;
+
+			hr = getExtionControlPropertySize(PropertId, &ulSize);
+			if (FAILED(hr) || (ulSize != 4)) // first two byte Exposure Mode & last two byte AGC level mast be 4 byte
+			{
+#ifdef DEBUG
+				sprintf(logMessage, "\nERROR \t Function : OnExposureModeChange \t Msg : Unable to find property size : %x", hr);
+				printLogMessage(logMessage);
+#endif
+			}
+			else
+			{
+				pbPropertyValue = new BYTE[ulSize];
+				if (!pbPropertyValue)
+				{
+#ifdef DEBUG
+					sprintf(logMessage, "\nERROR \t Function : OnExposureModeChange \t Msg : Unable to allocate memory for property value");
+					printLogMessage(logMessage);
+#endif
+				}
+				else
+				{
+					long agcSldPos = 0;
+					CString strPos;
+					HWND hListSldAGCLVL = GetDlgItem(hwnd, IDC_SLD_AGC_LVL);
+					agcSldPos = (long)SendMessageA(hListSldAGCLVL, TBM_GETPOS, TRUE, agcSldPos);
+
+					int ExposureByte = 2;
+					int AgcLvlByte = 2;
+					memcpy(&pbPropertyValue[0], (char*)&sel, ExposureByte); // first two byte Exposure Mode & last two byte AGC level
+					memcpy(&pbPropertyValue[ExposureByte], (char*)&agcSldPos, AgcLvlByte); // first two byte Exposure Mode & last two byte AGC level
+
+					hr = setExtionControlProperty(PropertId, ulSize, pbPropertyValue);
+				}
+			}
+
+#ifdef DEBUG
+			sprintf(logMessage, "\nFunction : OnExposureModeChange \t Msg : Return Value:%ld", hr);
+			printLogMessage(logMessage);
+#endif
+		}
+
+	}
+	catch (...)
+	{
+#ifdef DEBUG
+		sprintf(logMessage, "\nERROR : In Function : OnExposureModeChange");
+		printLogMessage(logMessage);
+#endif
+	}
+
+	return hr;
+
+}
+
+HRESULT onAgcLvlChange(HWND hwnd)
+{
+
+	HRESULT hr = S_OK;
+	long agcSldPos = 0;
+	CString strPos;
+	HWND hListSldAGCLVL = GetDlgItem(hwnd, IDC_SLD_AGC_LVL);
+	agcSldPos = (long)SendMessageA(hListSldAGCLVL, TBM_GETPOS, TRUE, agcSldPos);
+
+	HWND hListExpoMode = GetDlgItem(hwnd, IDC_COMBO_EXPOSURE_MODE);
+	int sel = ComboBox_GetCurSel(hListExpoMode);
+
+	HWND hListAGCLVL = GetDlgItem(hwnd, IDC_EDIT_AGC_LVL);
+	strPos.Format(L"%ld", agcSldPos);
+	Edit_SetText(hListAGCLVL, strPos);
+
+	if (ksNodeTree.isOK && (sel > 0))
+	{
+		ULONG ulSize;
+		BYTE *pbPropertyValue;
+		int PropertId = 10;
+
+		hr = getExtionControlPropertySize(PropertId, &ulSize);
+		if (FAILED(hr) || (ulSize != 4)) // first two byte Exposure Mode & last two byte AGC level mast be 4 byte
+		{
+#ifdef DEBUG
+			sprintf(logMessage, "\nERROR \t Function : onAgcLvlChange \t Msg : Unable to find property size : %x", hr);
+			printLogMessage(logMessage);
+#endif
+		}
+		else
+		{
+			pbPropertyValue = new BYTE[ulSize];
+			if (!pbPropertyValue)
+			{
+#ifdef DEBUG
+				sprintf(logMessage, "\nERROR \t Function : onAgcLvlChange \t Msg : Unable to allocate memory for property value");
+				printLogMessage(logMessage);
+#endif
+			}
+			else
+			{
+				int ExposureByte = 2;
+				int AgcLvlByte = 2;
+				memcpy(&pbPropertyValue[0], (char*)&sel, ExposureByte); // first two byte Exposure Mode & last two byte AGC level
+				memcpy(&pbPropertyValue[ExposureByte], (char*)&agcSldPos, AgcLvlByte); // first two byte Exposure Mode & last two byte AGC level
+
+				hr = setExtionControlProperty(PropertId, ulSize, pbPropertyValue);
+			}
+		}
+
+#ifdef DEBUG
+		sprintf(logMessage, "\nFunction : onAgcLvlChange \t Msg : Return Value:%ld", hr);
+		printLogMessage(logMessage);
+#endif
+	}
+
+	return hr;
+}
+
+
+HRESULT onBLCRangeChange(HWND hwnd)
+{
+
+	HRESULT hr = S_OK;
+	unsigned short hpos = 0, hsize = 0, vpos = 0, vsize = 0;
+	CString strPos;
+
+	HWND hListSldHPos = GetDlgItem(hwnd, IDC_SLD_HPos);
+	HWND hListSldHSize = GetDlgItem(hwnd, IDC_SLD_HSize);
+	HWND hListSldVPos = GetDlgItem(hwnd, IDC_SLD_VPos);
+	HWND hListSldVSize = GetDlgItem(hwnd, IDC_SLD_VSize);
+
+	hpos = (unsigned short)SendMessageA(hListSldHPos, TBM_GETPOS, TRUE, hpos);
+	hsize = (unsigned short)SendMessageA(hListSldHSize, TBM_GETPOS, TRUE, hsize);
+	vpos = (unsigned short)SendMessageA(hListSldVPos, TBM_GETPOS, TRUE, vpos);
+	vsize = (unsigned short)SendMessageA(hListSldVSize, TBM_GETPOS, TRUE, vsize);
+
+	HWND hListEditHPos = GetDlgItem(hwnd, IDC_EDIT_HPos);
+	strPos.Format(L"%ld", hpos);
+	Edit_SetText(hListEditHPos, strPos);
+
+	HWND hListEditHSize = GetDlgItem(hwnd, IDC_EDIT_HSize);
+	strPos.Format(L"%ld", hsize);
+	Edit_SetText(hListEditHSize, strPos);
+
+	HWND hListEditVPos = GetDlgItem(hwnd, IDC_EDIT_VPos);
+	strPos.Format(L"%ld", vpos);
+	Edit_SetText(hListEditVPos, strPos);
+
+	HWND hListEditVSize = GetDlgItem(hwnd, IDC_EDIT_VSize);
+	strPos.Format(L"%ld", vsize);
+	Edit_SetText(hListEditVSize, strPos);
+
+	if (ksNodeTree.isOK)
+	{
+		ULONG ulSize;
+		BYTE *pbPropertyValue;
+		int PropertId = 17;
+
+		hr = getExtionControlPropertySize(PropertId, &ulSize);
+		//ulSize = 2;
+		if (FAILED(hr) || (ulSize != 2))
+		{
+#ifdef DEBUG
+			sprintf(logMessage, "\nERROR \t Function : onBLCRangeChange \t Msg : Unable to find property size : %x", hr);
+			printLogMessage(logMessage);
+#endif
+		}
+		else
+		{
+			pbPropertyValue = new BYTE[ulSize];
+			if (!pbPropertyValue)
+			{
+#ifdef DEBUG
+				sprintf(logMessage, "\nERROR \t Function : onBLCRangeChange \t Msg : Unable to allocate memory for property value");
+				printLogMessage(logMessage);
+#endif
+			}
+			else
+			{
+				/*
+				*vpos = ((*pbPropertyValue) & 0x0F);
+				*vsize = ((*pbPropertyValue) >> 4 & 0x0F);
+				*hpos = ((*(pbPropertyValue + 1)) & 0x0F);
+				*hsize = ((*(pbPropertyValue + 1) >> 4) & 0x0F);
+				*/
+				/*
+				*pbPropertyValue = (*pbPropertyValue & 0x00) | ((vsize & 0x000F) << 4) | (hsize & 0x000F);
+				*(pbPropertyValue+1) = (*(pbPropertyValue+1) & 0x00) | ((vpos & 0x000F) << 4) | (hpos & 0x000F);
+				*/
+				*pbPropertyValue = (*pbPropertyValue & 0x00) | ((vpos & 0x000F) << 4) | (hpos & 0x000F);
+				*(pbPropertyValue + 1) = (*(pbPropertyValue + 1) & 0x00) | ((vsize & 0x000F) << 4) | (hsize & 0x000F);
+				hr = setExtionControlProperty(PropertId, ulSize, pbPropertyValue);
+			}
+		}
+
+#ifdef DEBUG
+		sprintf(logMessage, "\nFunction : onBLCRangeChange \t Msg : Return Value:%ld", hr);
+		printLogMessage(logMessage);
+#endif
+	}
+
+	return hr;
+}
+
+
+HRESULT OnCameraModeChange(HWND hwnd)
+{
+	HRESULT hr = S_OK;
+	HWND hListComboCameraMode = GetDlgItem(hwnd, IDC_COMBO_CAM_MODE);
+
+	int sel = ComboBox_GetCurSel(hListComboCameraMode);
+
+	if (sel != LB_ERR && ksNodeTree.isOK)
+	{
+
+		ULONG ulSize;
+		BYTE *pbPropertyValue;
+		int PropertId = 13;
+
+		hr = getExtionControlPropertySize(PropertId, &ulSize);
+		if (FAILED(hr))
+		{
+#ifdef DEBUG
+			sprintf(logMessage, "\nERROR \t Function : OnCameraModeChange \t Msg : Unable to find property size : %x", hr);
+			printLogMessage(logMessage);
+#endif
+		}
+		else
+		{
+			pbPropertyValue = new BYTE[ulSize];
+			if (!pbPropertyValue)
+			{
+#ifdef DEBUG
+				sprintf(logMessage, "\nERROR \t Function : OnCameraModeChange \t Msg : Unable to allocate memory for property value");
+				printLogMessage(logMessage);
+#endif
+			}
+			else
+			{
+				memcpy(pbPropertyValue, (char*)&sel, ulSize);
+				hr = setExtionControlProperty(PropertId, ulSize, pbPropertyValue);
+
+				if (0 && SUCCEEDED(hr))
+				{
+					long currValue, lCaps;
+					getStandardControlPropertyCurrentValue(KSPROPERTY_VIDEOPROCAMP_BACKLIGHT_COMPENSATION, &currValue, &lCaps);
+					HWND hListBackLight = GetDlgItem(hwnd, IDC_COMBO_BACK_LIGHT);
+					ComboBox_SetCurSel(hListBackLight, currValue);
+
+				}
+			}
+		}
+
+#ifdef DEBUG
+		sprintf(logMessage, "\nFunction : OnCameraModeChange \t Msg : Return Value:%ld", hr);
+		printLogMessage(logMessage);
+#endif
+	}
+
+	return hr;
+}
+
+
+HRESULT OnBLCGridChange(HWND hwnd)
+{
+	HRESULT hr = S_OK;
+	HWND hListComboBLCGrid = GetDlgItem(hwnd, IDC_COMBO_BLC_GRID);
+
+	int sel = ComboBox_GetCurSel(hListComboBLCGrid);
+
+	if (sel != LB_ERR && ksNodeTree.isOK)
+	{
+
+		ULONG ulSize;
+		BYTE *pbPropertyValue;
+		int PropertId = 19;
+
+		hr = getExtionControlPropertySize(PropertId, &ulSize);
+		if (FAILED(hr))
+		{
+#ifdef DEBUG
+			sprintf(logMessage, "\nERROR \t Function : OnBLCGridChange \t Msg : Unable to find property size : %x", hr);
+			printLogMessage(logMessage);
+#endif
+		}
+		else
+		{
+			pbPropertyValue = new BYTE[ulSize];
+			if (!pbPropertyValue)
+			{
+#ifdef DEBUG
+				sprintf(logMessage, "\nERROR \t Function : OnBLCGridChange \t Msg : Unable to allocate memory for property value");
+				printLogMessage(logMessage);
+#endif
+			}
+			else
+			{
+				memcpy(pbPropertyValue, (char*)&sel, ulSize);
+				hr = setExtionControlProperty(PropertId, ulSize, pbPropertyValue);
+			}
+		}
+
+#ifdef DEBUG
+		sprintf(logMessage, "\nFunction : OnBLCGridChange \t Msg : Return Value:%ld", hr);
+		printLogMessage(logMessage);
+#endif
+	}
+
+	return hr;
+}
+
+
+HRESULT OnBLCWeightFactorChange(HWND hwnd)
+{
+	HRESULT hr = S_OK;
+	HWND hListComboBLCWF = GetDlgItem(hwnd, IDC_COMBO_BLC_WGHT_FACT);
+
+	int sel = ComboBox_GetCurSel(hListComboBLCWF);
+
+	if (sel != LB_ERR && ksNodeTree.isOK)
+	{
+
+		ULONG ulSize;
+		BYTE *pbPropertyValue;
+		int PropertId = 18;
+
+		hr = getExtionControlPropertySize(PropertId, &ulSize);
+		if (FAILED(hr))
+		{
+#ifdef DEBUG
+			sprintf(logMessage, "\nERROR \t Function : OnBLCWeightFactorChange \t Msg : Unable to find property size : %x", hr);
+			printLogMessage(logMessage);
+#endif
+		}
+		else
+		{
+			pbPropertyValue = new BYTE[ulSize];
+			if (!pbPropertyValue)
+			{
+#ifdef DEBUG
+				sprintf(logMessage, "\nERROR \t Function : OnBLCWeightFactorChange \t Msg : Unable to allocate memory for property value");
+				printLogMessage(logMessage);
+#endif
+			}
+			else
+			{
+				memcpy(pbPropertyValue, (char*)&sel, ulSize);
+				hr = setExtionControlProperty(PropertId, ulSize, pbPropertyValue);
+			}
+		}
+
+#ifdef DEBUG
+		sprintf(logMessage, "\nFunction : OnBLCWeightFactorChange \t Msg : Return Value:%ld", hr);
+		printLogMessage(logMessage);
+#endif
+	}
+
+	return hr;
+}
+
+HRESULT OnSelectedIndexChangeMirror(HWND hwnd)
+{
+	HRESULT hr = S_OK;
+	HWND hListComboMirror = GetDlgItem(hwnd, IDC_COMBO_MIRROR_MODE);
+
+	int sel = ComboBox_GetCurSel(hListComboMirror);
+
+	if (sel != LB_ERR && ksNodeTree.isOK)
+	{
+
+		ULONG ulSize;
+		BYTE *pbPropertyValue;
+		int PropertId = 3;
+
+		hr = getExtionControlPropertySize(PropertId, &ulSize);
+		if (FAILED(hr))
+		{
+#ifdef DEBUG
+			sprintf(logMessage, "\nERROR \t Function : OnSelectedIndexChangeMirror \t Msg : Unable to find property size : %x", hr);
+			printLogMessage(logMessage);
+#endif
+		}
+		else
+		{
+			pbPropertyValue = new BYTE[ulSize];
+			if (!pbPropertyValue)
+			{
+#ifdef DEBUG
+				sprintf(logMessage, "\nERROR \t Function : OnSelectedIndexChangeMirror \t Msg : Unable to allocate memory for property value");
+				printLogMessage(logMessage);
+#endif
+			}
+			else
+			{
+				memcpy(pbPropertyValue, (char*)&sel, ulSize);
+				hr = setExtionControlProperty(PropertId, ulSize, pbPropertyValue);
+			}
+		}
+
+#ifdef DEBUG
+		sprintf(logMessage, "\nFunction : OnSelectedIndexChangeMirror \t Msg : Return Value:%ld", hr);
+		printLogMessage(logMessage);
+#endif
+	}
+
+	return hr;
+}
+#if 0
+int getMainsFrequency()
+{
+	long retValue;
+	long lCap;
+	HRESULT hr;
+
+	if (ksNodeTree.isOKpProcAmp)
+	{
+#ifdef DEBUG
+		sprintf(logMessage, "\nbmRequestType:GET \t bRequest:GET_CUR \t wValue:Mains frequency \t wIndex:0x02");
+		printLogMessage(logMessage);
+#endif
+		hr = ksNodeTree.pProcAmp->Get(KSPROPERTY_VIDEOPROCAMP_POWERLINE_FREQUENCY, &retValue, &lCap);
+#ifdef DEBUG
+		sprintf(logMessage, "\nFunction : OnMainsFrequencyChange Msg : Return Value:%ld", hr);
+		printLogMessage(logMessage);
+#endif
+	}
+
+	if (!SUCCEEDED(hr))
+		retValue = 0;
+
+	return (int)retValue;
+
+}
+#endif
+HRESULT OnMainsFrequencyChange(HWND hwnd)
+{
+	HRESULT hr = S_OK;
+	HWND hListMainFeq = GetDlgItem(hwnd, IDC_COMBO_MAIN_FEQ);
+
+	int sel = ComboBox_GetCurSel(hListMainFeq);
+	if (sel != LB_ERR && ksNodeTree.isOKpProcAmp)
+	{
+#ifdef DEBUG
+		sprintf(logMessage, "\nbmRequestType:SET \t bRequest:SET_CUR \t wValue:Mains frequency \t wIndex:0x02\t PutValue:%d", sel);
+		printLogMessage(logMessage);
+#endif
+		hr = ksNodeTree.pProcAmp->Set(KSPROPERTY_VIDEOPROCAMP_POWERLINE_FREQUENCY, (long)sel, VideoProcAmp_Flags_Manual);
+#ifdef DEBUG
+		sprintf(logMessage, "\nFunction : OnMainsFrequencyChange Msg : Return Value:%ld", hr);
+		printLogMessage(logMessage);
+#endif
+	}
+
+	return hr;
+}
+
+HRESULT	onBacklightCompensationChange(HWND hwnd)
+{
+	HRESULT hr = S_OK;
+	HWND hListBackLight = GetDlgItem(hwnd, IDC_COMBO_BACK_LIGHT);
+	int setV = 0;
+
+	int sel = ComboBox_GetCurSel(hListBackLight);
+
+	/* check the res */
+	AM_MEDIA_TYPE *pmt;
+	gcap.pVSC->GetFormat(&pmt);
+
+	if (sel != LB_ERR && ksNodeTree.isOKpProcAmp)
+	{
+#ifdef DEBUG
+		sprintf(logMessage, "\nbmRequestType:SET \t bRequest:SET_CUR \t wValue:BacklightCompensation \t wIndex:0x02\t PutValue:%d", sel);
+		printLogMessage(logMessage);
+#endif
+		if ((pmt->lSampleSize == 4147200) || (pmt->lSampleSize == 1036800)) //1080p
+		{
+			switch (sel)
+			{
+			case 0:
+				setV = 3;
+				break;
+			case 1:
+				setV = 0;
+				break;
+			case 2:
+				setV = 2;
+				break;
+			case 3:
+				setV = 1;
+				break;
+			}
+		}
+		else{ //720p
+			switch (sel)
+			{
+			case 0:
+				setV = 0;
+				break;
+			case 1:
+				setV = 1;
+				break;
+			}
+
+		}
+
+		hr = ksNodeTree.pProcAmp->Set(KSPROPERTY_VIDEOPROCAMP_BACKLIGHT_COMPENSATION, (long)setV, VideoProcAmp_Flags_Manual);
+
+		if (SUCCEEDED(hr))
+		{
+			HWND hListCameraMode = GetDlgItem(hwnd, IDC_COMBO_CAM_MODE);
+			int retValue = 0;
+			getExtControlValue(13, &retValue);
+			ComboBox_SetCurSel(hListCameraMode, retValue);
+		}
+
+#ifdef DEBUG
+		sprintf(logMessage, "\nFunction : onBacklightCompensationChange Msg : Return Value:%ld", hr);
+		printLogMessage(logMessage);
+#endif
+	}
+
+	return hr;
+}
+

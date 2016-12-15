@@ -9,7 +9,8 @@
 #define ID_FINDSHUTTER_EN               105
 #define IDD_DAY_NIGHT_SETTINGS          106
 #define IDD_VIDEO_QUALITY_CONTROL       107
-#define IDD_3D_NOISE_REDUCTION          108
+#define IDD_2D_NOISE_REDUCTION          108
+#define IDD_3D_NOISE_REDUCTION          109
 #define IDI_ICON1                       110
 #define IDI_FX3_CAM                     110
 #define IDD_ABOUT                       112
@@ -25,11 +26,14 @@
 #define IDR_MENU_5MPCL                  124
 #define IDR_MENU_2MPCL                  126
 #define IDR_MENUMISU                    127
+#define IDD_DIALOG1                     128
+#define IDD_CAM_CONTROL2MPCL            128
 #define IDC_LIST1                       1001
 #define IDC_DEVICE_LIST                 1001
 #define IDC_COMBO1                      1002
 #define IDC_COMBO_DAY_NIGHT_MODE        1002
 #define IDC_COMBO_WHTBLCMODE            1002
+#define IDC_COMBO_3D_NOISE_REDU_MODE    1002
 #define IDC_COMBO_GAMMA_MODE            1002
 #define IDC_COMBO_DIG_ZOOM              1002
 #define IDC_COMBO_LENSE                 1002
@@ -262,6 +266,12 @@
 #define ID_CAMERA_RESETSETTINGS         40039
 #define VIS_CAMERA_MENU                 40040
 #define ID_SETTING_VIDEOQUALITYSETTINGS_MISU 40041
+#define ID_CAMERASETTINGS_SHUT_20_12MC  40042
+#define ID_FOCUS_ZOOM_SETTINGS_20_12MC  40043
+#define ID_CAMERA_TERMINAL_SETTINGS_20_12MC 40044
+#define ID_DAYNIGHTSETTINGS_20_12MC     40045
+#define ID_3DNR_SETTINGS_20_12MC        40046
+#define ID_SETTING_VIDEOQUALITYSETTINGS_20_12MC 40047
 #define IDC_STR_DAY_NIGHT_MODE          -1
 #define IDC_STR_BCKLGTCOMP              -1
 #define IDC_STATIC_WH_COMP_BLUE         -1
@@ -277,9 +287,9 @@
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
-#define _APS_NEXT_RESOURCE_VALUE        128
-#define _APS_NEXT_COMMAND_VALUE         40042
-#define _APS_NEXT_CONTROL_VALUE         1095
+#define _APS_NEXT_RESOURCE_VALUE        129
+#define _APS_NEXT_COMMAND_VALUE         40048
+#define _APS_NEXT_CONTROL_VALUE         1096
 #define _APS_NEXT_SYMED_VALUE           101
 #endif
 #endif
