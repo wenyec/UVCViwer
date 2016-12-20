@@ -74,7 +74,7 @@ BEGIN
     END
     POPUP "Videology Option"
     BEGIN
-        POPUP "5MP Camera Settings"
+        POPUP "5MP B/W Camera Settings"
         BEGIN
             MENUITEM "Shutter and BLC",             ID_5MPCAMERASETTINGS_SHUT
             MENUITEM "Edge Enhancement, Mirror, and Freq. Selection", ID_5MPCAMERASETTINGS_EDGEENHANCEMENT
@@ -113,7 +113,7 @@ BEGIN
     END
     POPUP "Videology Option"
     BEGIN
-        POPUP "5MP Camera Settings"
+        POPUP "5MP Color Camera Settings"
         BEGIN
             MENUITEM "Shutter and BLC",             ID_5MPCAMERASETTINGS_SHUT
             MENUITEM "Edge Enhancement, Mirror, and Freq. Selection", ID_5MPCAMERASETTINGS_EDGEENHANCEMENT

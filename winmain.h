@@ -234,6 +234,8 @@ static struct InitControlsSetting
 	int WhiteBalance;
 	int WhiteBalanceComponentRed;
 	int WhiteBalanceComponentBlue;
+	int WhiteBalanceComponentRedCur;
+	int WhiteBalanceComponentBlueCur;
 	int DigitalMultiplier;
 
 	//Camera Terminal Controls

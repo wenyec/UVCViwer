@@ -156,17 +156,20 @@ BOOL VISImageProc::OnInitDialog()
 	txt_edtSharpness.ReplaceSel(currValueStr, TRUE);
 	txt_edtSharpness.EnableWindow(FALSE);
 
-	//hr = getStandardControlPropertyCurrentValue(KSPROPERTY_VIDEOPROCAMP_WHITEBALANCE, &currValue, &lCaps);
+	hr = getStandardControlPropertyCurrentValue(KSPROPERTY_VIDEOPROCAMP_WHITEBALANCE, &currValue, &lCaps);
 	currValue = initCtrlSetting.WhiteBalance;
 	//HWND hListWhiteBalanceMode = GetDlgItem(hwnd, IDC_COMBO_WHTBLCMODE);
-	if (1||!SUCCEEDED(hr))
+	if (!SUCCEEDED(hr))
 	{
 		c_WBLMode.EnableWindow(FALSE);
 	}
 	c_WBLMode.AddString(L"AWB MODE");
-	c_WBLMode.AddString(L"AWB with WD");
-	c_WBLMode.AddString(L"MANUAL MODE");
-	c_WBLMode.AddString(L"PUSH TO WHITE");
+	c_WBLMode.AddString(L"ATW MODE");
+	c_WBLMode.AddString(L"AWC-set");
+	c_WBLMode.AddString(L"MANUAL");
+	c_WBLMode.AddString(L"INDOOR");
+	c_WBLMode.AddString(L"OUTDOOR");
+	//c_WBLMode.AddString(L"PUSH TO WHITE");
 	/*
 	ComboBox_AddString(hListWhiteBalanceMode, L"ATW MODE");
 	ComboBox_AddString(hListWhiteBalanceMode, L"AWC SET MODE");
@@ -249,13 +252,47 @@ void VISImageProc::saveImageInitSetting(){
 	initCtrlSetting.WhiteBalance = currValue;
 
 	getWhiteBalanceComponent(&initCtrlSetting.WhiteBalanceComponentRed, &initCtrlSetting.WhiteBalanceComponentBlue);
-
+	initCtrlSetting.WhiteBalanceComponentBlueCur = initCtrlSetting.WhiteBalanceComponentBlue;
+	initCtrlSetting.WhiteBalanceComponentRedCur = initCtrlSetting.WhiteBalanceComponentRed;
 }
 
 
 void VISImageProc::OnCbnSelchangeComboWhtblcmode()
 {
 	// TODO: Add your control notification handler code here
+	HRESULT hr = S_OK;
+	//HWND hListBackLight = GetDlgItem(hwnd, IDC_COMBO_WHTBLCMODE);
+
+	int sel = c_WBLMode.GetCurSel();
+
+	if (sel != LB_ERR && camNodeTree->isOKpProcAmp)
+	{
+#ifdef DEBUG
+		sprintf(logMessage, "\nbmRequestType:SET \t bRequest:SET_CUR \t wValue:WhiteBalance \t wIndex:0x02\t PutValue:%d", sel);
+		printLogMessage(logMessage);
+#endif
+		hr = camNodeTree->pProcAmp->Set(KSPROPERTY_VIDEOPROCAMP_WHITEBALANCE, (long)sel, VideoProcAmp_Flags_Auto);
+
+		//HWND hListSldWhiteBalanceComp = GetDlgItem(hwnd, IDC_SLD_WHTCOM);
+		//HWND hListSldWhiteBalanceCompRed = GetDlgItem(hwnd, IDC_SLD_WHTCOM_RED);
+		if (SUCCEEDED(hr) && sel == 4)	// if it's manual mode enable red & blue comp
+		{
+			c_sldWBLBlue.EnableWindow(TRUE);
+			c_sldWBLRed.EnableWindow(TRUE);
+		}
+		else
+		{
+			c_sldWBLBlue.EnableWindow(FALSE);
+			c_sldWBLRed.EnableWindow(FALSE);
+		}
+
+#ifdef DEBUG
+		sprintf(logMessage, "\nFunction : onWhiteBalanceControlChange Msg : Return Value:%ld", hr);
+		printLogMessage(logMessage);
+#endif
+	}
+
+	//return hr;
 }
 
 
@@ -326,6 +363,31 @@ void VISImageProc::OnNMReleasedcaptureSldContrast(NMHDR *pNMHDR, LRESULT *pResul
 void VISImageProc::OnNMReleasedcaptureSldHue(NMHDR *pNMHDR, LRESULT *pResult)
 {
 	// TODO: Add your control notification handler code here
+	HRESULT hr = S_OK;
+	long SldPos = 0;
+	CString strPos;
+	//HWND hListSldContrast = GetDlgItem(hwnd, IDC_SLD_CONTRAST);
+	SldPos = (long)SendMessageA(c_sldHue, TBM_GETPOS, TRUE, SldPos);
+
+	//HWND hListContrast = GetDlgItem(hwnd, IDC_EDIT_CONTRAST);
+	strPos.Format(L"%ld", SldPos);
+	txt_edtHue.SetSel(0, -1);
+	txt_edtHue.Clear();
+	txt_edtHue.ReplaceSel(strPos, TRUE);
+
+	if (camNodeTree->isOKpProcAmp)
+	{
+#ifdef DEBUG
+		//		sprintf(logMessage, "\nbmRequestType:SET \t bRequest:SET_CUR \t wValue:Contrast \t wIndex:0x02\t PutValue:%ld", SldPos);
+		//		printLogMessage(logMessage);
+#endif
+		hr = camNodeTree->pProcAmp->Set(KSPROPERTY_VIDEOPROCAMP_HUE, SldPos, VideoProcAmp_Flags_Manual);
+#ifdef DEBUG
+		//		sprintf(logMessage, "\nFunction : onContrastChange Msg : Return Value:%ld", hr);
+		//		printLogMessage(logMessage);
+#endif
+	}
+
 	*pResult = 0;
 }
 
@@ -333,6 +395,31 @@ void VISImageProc::OnNMReleasedcaptureSldHue(NMHDR *pNMHDR, LRESULT *pResult)
 void VISImageProc::OnNMReleasedcaptureSldSaturation(NMHDR *pNMHDR, LRESULT *pResult)
 {
 	// TODO: Add your control notification handler code here
+	HRESULT hr = S_OK;
+	long SldPos = 0;
+	CString strPos;
+	//HWND hListSldContrast = GetDlgItem(hwnd, IDC_SLD_CONTRAST);
+	SldPos = (long)SendMessageA(c_sldSaturation, TBM_GETPOS, TRUE, SldPos);
+
+	//HWND hListContrast = GetDlgItem(hwnd, IDC_EDIT_CONTRAST);
+	strPos.Format(L"%ld", SldPos);
+	txt_edtSaturation.SetSel(0, -1);
+	txt_edtSaturation.Clear();
+	txt_edtSaturation.ReplaceSel(strPos, TRUE);
+
+	if (camNodeTree->isOKpProcAmp)
+	{
+#ifdef DEBUG
+		//		sprintf(logMessage, "\nbmRequestType:SET \t bRequest:SET_CUR \t wValue:Contrast \t wIndex:0x02\t PutValue:%ld", SldPos);
+		//		printLogMessage(logMessage);
+#endif
+		hr = camNodeTree->pProcAmp->Set(KSPROPERTY_VIDEOPROCAMP_SATURATION, SldPos, VideoProcAmp_Flags_Manual);
+#ifdef DEBUG
+		//		sprintf(logMessage, "\nFunction : onContrastChange Msg : Return Value:%ld", hr);
+		//		printLogMessage(logMessage);
+#endif
+	}
+
 	*pResult = 0;
 }
 
@@ -372,6 +459,25 @@ void VISImageProc::OnNMReleasedcaptureSldSharpness(NMHDR *pNMHDR, LRESULT *pResu
 void VISImageProc::OnNMReleasedcaptureSldWhtcom(NMHDR *pNMHDR, LRESULT *pResult)
 {
 	// TODO: Add your control notification handler code here
+	HRESULT hr = S_OK;
+	long SldPos = 0;
+	CString strPos;
+	//HWND hListSldWhiteBalanceComp = GetDlgItem(hwnd, IDC_SLD_WHTCOM);
+	SldPos = (long)SendMessageA(c_sldWBLBlue, TBM_GETPOS, TRUE, SldPos);
+	initCtrlSetting.WhiteBalanceComponentBlueCur = SldPos;
+
+	//HWND hListWhiteBalanceComp = GetDlgItem(hwnd, IDC_EDIT_WHTCOM);
+	strPos.Format(L"%ld", SldPos);
+	txt_edtWBLBlue.SetSel(0, -1);
+	txt_edtWBLBlue.Clear();
+	txt_edtWBLBlue.ReplaceSel(strPos, TRUE);
+
+	hr = setWhiteBalanceComponent(initCtrlSetting.WhiteBalanceComponentRedCur, SldPos);
+
+#ifdef DEBUG
+	sprintf(logMessage, "\nFunction : onWhiteBalanceCompBlueChange Msg : Return Value:%ld", hr);
+	printLogMessage(logMessage);
+#endif
 	*pResult = 0;
 }
 
@@ -379,6 +485,26 @@ void VISImageProc::OnNMReleasedcaptureSldWhtcom(NMHDR *pNMHDR, LRESULT *pResult)
 void VISImageProc::OnNMReleasedcaptureSldWhtcomRed(NMHDR *pNMHDR, LRESULT *pResult)
 {
 	// TODO: Add your control notification handler code here
+	HRESULT hr = S_OK;
+	long SldPosRed = 0;
+	CString strPos;
+
+	//HWND hListSldWhiteBalanceCompRed = GetDlgItem(hwnd, IDC_SLD_WHTCOM_RED);
+	SldPosRed = (long)SendMessageA(c_sldWBLRed, TBM_GETPOS, TRUE, SldPosRed);
+	initCtrlSetting.WhiteBalanceComponentRedCur = SldPosRed;
+
+	//HWND hListWhiteBalanceCompRed = GetDlgItem(hwnd, IDC_EDIT_WHTCOM_RED);
+	strPos.Format(L"%ld", SldPosRed);
+	txt_edtWBLRed.SetSel(0, -1);
+	txt_edtWBLRed.Clear();
+	txt_edtWBLRed.ReplaceSel(strPos, TRUE);
+
+	hr = setWhiteBalanceComponent(SldPosRed, initCtrlSetting.WhiteBalanceComponentBlueCur);
+
+#ifdef DEBUG
+	sprintf(logMessage, "\nFunction : onWhiteBalanceCompBlueChange Msg : Return Value:%ld", hr);
+	printLogMessage(logMessage);
+#endif
 	*pResult = 0;
 }
 
