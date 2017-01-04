@@ -179,6 +179,19 @@ static enum CAMIDex{
 	CAM5MPECON
 };
 
+static enum RegAdds{
+	REG_COLSUPGAIN = 0X40,
+	REG_COLSUPAGCSTART = 0X41,
+	REG_COLSUPAGCEND = 0X42,
+	REG_COLLIGHTGAIN = 0X43,
+	REG_COLEDGESUP = 0X46,
+	REG_PIXELCORRECT = 0X48
+};
+
+static enum PixelCorrect{
+	PIXCORRECT_OFF = 0,
+	PIXCORRECT_ON = 1
+};
 //static StillFormats stillFmts[5];
 
 static struct InitControlsSetting
@@ -237,6 +250,14 @@ static struct InitControlsSetting
 	int WhiteBalanceComponentRedCur;
 	int WhiteBalanceComponentBlueCur;
 	int DigitalMultiplier;
+	/* for 5MP color suppression ... */
+	int WBLPreP2W = 0;				//record WBL pre setting P2W. it has to be 0 or 1. default setting is 0.
+	int colsupGain;
+	int colsupAGCStart;
+	int colsupAGCEnd;
+	int collightGain;
+	int coledgSupp;
+	int pixelCorrect;
 
 	//Camera Terminal Controls
 	int AEMode;
@@ -258,7 +279,6 @@ static struct InitControlsSetting
 
 	// some share control should be records the current value
 	int CurspeedCtrl = 0;
-
 }initCtrlSetting;
 
 /* for menu operation */
@@ -273,7 +293,10 @@ extern HRESULT  setExtControls(int PropertyId, int PropertyValue);
 extern HRESULT  setExt2ControlValues(int PropertyId, int ExpValue, int AgcLvlValue);
 extern HRESULT  getExtionControlPropertySize(ULONG PropertyId, ULONG *pulSize);
 extern HRESULT  setExtionControlProperty(ULONG PropertyId, ULONG ulSize, BYTE pValue[]);
-extern HRESULT I2cCommandInt(BYTE *pwritedata);
+extern HRESULT	I2cCommandInt(BYTE *pwritedata);
+extern HRESULT	I2cCommandOutt(BYTE *pwritedata, int *value);
+extern void		setRegVal(BYTE Regadd, int *data);
+extern void		getRegVal(BYTE Regadd, int *data);
 
 extern HRESULT  getWhiteBalanceComponent(int *redValue, int *blueValue);
 extern HRESULT  setWhiteBalanceComponent(int redValue, int blueValue);

@@ -26,8 +26,8 @@
 #define IDR_MENU_5MPCL                  124
 #define IDR_MENU_2MPCL                  126
 #define IDR_MENUMISU                    127
-#define IDD_DIALOG1                     128
 #define IDD_CAM_CONTROL2MPCL            128
+#define IDD_WBL_COLORSUPP               129
 #define IDC_LIST1                       1001
 #define IDC_DEVICE_LIST                 1001
 #define IDC_COMBO1                      1002
@@ -100,8 +100,10 @@
 #define IDC_EDIT_CONTRAST               1028
 #define IDC_EDIT_EXP_TIME_ABS           1028
 #define IDC_EDIT_VPos                   1028
+#define IDC_SLD_HIGHTLOW_COLSUP_GAIN    1028
 #define IDC_SLD_HUE                     1029
 #define IDC_EDIT_HSize                  1029
+#define IDC_SLD_EDGE_COLSUP_GAIN        1029
 #define IDC_EDIT_HUE                    1030
 #define IDC_EDIT_VSize                  1030
 #define IDC_SLD_SATURATION              1031
@@ -148,19 +150,26 @@
 #define IDC_STR_2D_NR_GAINEND_VAL       1050
 #define IDC_EDIT_DEV_MAIN_ADDR          1051
 #define IDC_EDIT_ADDR1                  1051
+#define IDC_STATIC_WH_COMP_BLUE         1051
 #define IDC_EDIT_2D_NR_GAINEND_VAL      1051
 #define IDC_EDIT_DEV_MAIN_ADDR2         1052
 #define IDC_EDIT_DEV_SUB_ADDR           1052
 #define IDC_EDIT_ADDR2                  1052
+#define IDC_STATIC_WH_COMP_RED2         1052
 #define IDC_STR_DEV_SUB_ADDR            1053
 #define IDC_EDIT_ADDR_BYTE              1053
+#define IDC_HIGHTLOW_COLSUP_GAIN        1053
 #define IDC_STR_REG_ADDR                1054
 #define IDC_EDIT_DATA_BYTE              1054
+#define IDC_EDIT_HIGHTLOW_COLSUP_GAIN   1054
 #define IDC_EDIT_REG_ADDR               1055
 #define IDC_EDIT_ADDR3                  1055
+#define IDC_EDGE_COLSUP_GAIN            1055
 #define IDC_STR_DATA                    1056
+#define IDC_EDIT_EDGE_COLSUP_GAIN       1056
 #define IDC_EDIT_DATA                   1057
 #define IDC_EDIT_DATA1                  1057
+#define IDC_STATIC_WH_COMP_BLUE2        1057
 #define IDC_BTN_WRITE                   1058
 #define IDC_BTN_READ                    1059
 #define IDC_STR_DIG_ZOOM_POS            1060
@@ -223,6 +232,17 @@
 #define IDC_2DNR_ENABL                  1094
 #define IDC_COMBO_STIL_RES              1095
 #define IDC_COMBO_STIL_VIDTYPE          1096
+#define IDC_WBL_P2W_ENABL               1096
+#define IDC_COLOR_SUPPRESSION_ENABL     1097
+#define IDC_COLOR_SUPPRE_GAIN_VAL       1098
+#define IDC_COLSUP_AGC_START            1099
+#define IDC_COLSUP_AGC_END              1100
+#define IDC_SLD_COLSUPP_GAIN_VAL        1101
+#define IDC_EDIT_COLSUPP_GAIN_VAL       1102
+#define IDC_SLD_COLSUPP_GAINSTR_VAL     1103
+#define IDC_EDIT_COLSUPP_GAINSTR_VAL    1104
+#define IDC_SLD_COLSUPP_GAINEND_VAL     1105
+#define IDC_EDIT_COLSUPP_GAINEND_VAL    1106
 #define IDC_STR_3D_NOISE_REDU_MODE      1146
 #define IDC_STR_GAMMA_MODE              1146
 #define ID_FILE_CHOOSEDEVICE            40001
@@ -272,9 +292,10 @@
 #define ID_DAYNIGHTSETTINGS_20_12MC     40045
 #define ID_3DNR_SETTINGS_20_12MC        40046
 #define ID_SETTING_VIDEOQUALITYSETTINGS_20_12MC 40047
+#define ID_5MPCOLCAMERASETTINGS_WBLCOLSUPPRESSION 40048
+#define ID_5MPCOLCAMERAMANAGEMENT_PIXELCORRECTION 40049
 #define IDC_STR_DAY_NIGHT_MODE          -1
 #define IDC_STR_BCKLGTCOMP              -1
-#define IDC_STATIC_WH_COMP_BLUE         -1
 #define IDC_STR_DEV_MAIN_ADDR           -1
 #define IDC_STR_DIG_ZOOM                -1
 #define IDC_STR_LENSE                   -1
@@ -287,9 +308,9 @@
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
-#define _APS_NEXT_RESOURCE_VALUE        129
-#define _APS_NEXT_COMMAND_VALUE         40048
-#define _APS_NEXT_CONTROL_VALUE         1096
+#define _APS_NEXT_RESOURCE_VALUE        130
+#define _APS_NEXT_COMMAND_VALUE         40050
+#define _APS_NEXT_CONTROL_VALUE         1107
 #define _APS_NEXT_SYMED_VALUE           101
 #endif
 #endif

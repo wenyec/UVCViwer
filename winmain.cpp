@@ -29,6 +29,7 @@
 #include "VIS5mpBWGam2DN.h"
 #include "VISImageProc.h"
 #include "VIS2mpColFocusZoom.h"
+#include "VIS5MPColSupWBL.h"
 
 //------------------------------------------------------------------------------
 // Macros
@@ -130,6 +131,7 @@ void	OnVideoQualityControlMenu(HWND hwnd);
 void	On2DNoiseReduction(HWND hwnd);    // Gamma and 2DNR 
 void	On3DNoiseReduction2mpCol(HWND hwnd); // 3DNR
 void	OnEdgeEnhanment(HWND hwnd);    // Edge Enhancement ... 
+void    On5MPColSuppWBL(HWND hwnd);    // color suppression and WBL settings (5MP color)
 void	OnAboutMenu(HWND hwnd);
 void	OnI2CControlMenu(HWND hwnd);
 void	OnZoomControlMenu(HWND hwnd);
@@ -1614,6 +1616,7 @@ void OnCommand(HWND hwnd, int id, HWND /*hwndCtl*/, UINT /*codeNotify*/)
 		break;
 
 	case ID_SETTING_VIDEOQUALITYSETTINGS:
+	case ID_SETTING_VIDEOQUALITYSETTINGS_20_12MC:
 		OnVideoQualityControlMenu(hwnd);
 		break;
 	case ID_SETTING_VIDEOQUALITYSETTINGS_MISU:
@@ -1696,6 +1699,28 @@ void OnCommand(HWND hwnd, int id, HWND /*hwndCtl*/, UINT /*codeNotify*/)
 		saveParamClicked(hwnd);
 		//OnEdgeEnhanment(hwnd);
 		break;
+
+		/*new dialogs for 5MP color */
+	case ID_5MPCOLCAMERASETTINGS_WBLCOLSUPPRESSION:
+		On5MPColSuppWBL(hwnd);
+		break;		
+	case ID_5MPCOLCAMERAMANAGEMENT_PIXELCORRECTION:
+		hMenu1 = GetMenu(hwnd);
+		getRegVal(REG_PIXELCORRECT, &initCtrlSetting.pixelCorrect);
+		if (initCtrlSetting.pixelCorrect == PIXCORRECT_OFF) //TODO: should check the device if it is on correction mode.
+		{
+			CheckMenuItem(hMenu1, ID_5MPCOLCAMERAMANAGEMENT_PIXELCORRECTION, MF_CHECKED | MF_BYCOMMAND);
+			initCtrlSetting.pixelCorrect = PIXCORRECT_ON;
+			setRegVal(REG_PIXELCORRECT, &initCtrlSetting.pixelCorrect);
+		}
+		else
+		{
+			CheckMenuItem(hMenu1, ID_5MPCOLCAMERAMANAGEMENT_PIXELCORRECTION, MF_UNCHECKED | MF_BYCOMMAND);
+			initCtrlSetting.pixelCorrect = PIXCORRECT_OFF;
+			setRegVal(REG_PIXELCORRECT, &initCtrlSetting.pixelCorrect);
+		}
+		break;
+		
 
 		/* for 2.0/1.2MP color */
 	case ID_FOCUS_ZOOM_SETTINGS_20_12MC:
@@ -2036,6 +2061,20 @@ void OnEdgeEnhanment(HWND hwnd)
 	c_5mpBWEdge.camNodeTree = &ksNodeTree;
 	c_5mpBWEdge.saveEnhanceInitSetting();
 	c_5mpBWEdge.DoModal();
+}
+
+void    On5MPColSuppWBL(HWND hwnd)
+{
+	if (!AfxWinInit(::GetModuleHandle(NULL), NULL, ::GetCommandLine(), 0))
+	{
+		;
+	}
+	AfxGetInstanceHandle();
+	VIS5MPColSupWBL c_5mpColSup; // add the get device class --wcheng
+	c_5mpColSup.devCap = &gcap;
+	c_5mpColSup.camNodeTree = &ksNodeTree;
+	c_5mpColSup.saveColSupWBLInitSetting();
+	c_5mpColSup.DoModal();
 }
 
 void OnAboutMenu(HWND hwnd)
@@ -4468,6 +4507,106 @@ HRESULT I2cCommandInt(BYTE *pwritedata)
 
 }
 
+HRESULT I2cCommandOutt(BYTE *pwritedata, int *value)
+{
+	HRESULT hr = S_OK;
+	ULONG ulSize;
+	BYTE *pbPropertyValue;
+
+	int PropertyId = 16;
+	int data;
+	hr = getExtionControlPropertySize(PropertyId, &ulSize);
+	if (FAILED(hr))
+	{
+#ifdef DEBUG
+		sprintf(logMessage, " \nERROR \t Function : writeI2cCommandInt \t Msg : Unable to find property[%d] size : %x", PropertyId, hr);
+		printLogMessage(logMessage);
+#endif
+	}
+	else
+	{
+		pbPropertyValue = new BYTE[ulSize];
+		if (!pbPropertyValue)
+		{
+#ifdef DEBUG
+			sprintf(logMessage, " \nERROR \t Function : writeI2cCommandInt \t Msg : Unable to allocate memory for property[%d] value", PropertyId);
+			printLogMessage(logMessage);
+#endif
+		}
+
+		pbPropertyValue[0] = *(pwritedata + 0); // I2C write comman first byte 1
+		pbPropertyValue[1] = *(pwritedata + 1); // 1 byte: for number of addr byte
+		pbPropertyValue[2] = *(pwritedata + 2); // 6 bytes: for addrs
+		pbPropertyValue[3] = *(pwritedata + 3);
+		pbPropertyValue[4] = *(pwritedata + 4);
+		pbPropertyValue[5] = *(pwritedata + 5);
+		pbPropertyValue[6] = *(pwritedata + 6);
+		pbPropertyValue[7] = *(pwritedata + 7);
+		pbPropertyValue[8] = *(pwritedata + 8); // 1 byte: for number of data
+		pbPropertyValue[9] = *(pwritedata + 9); // 2 bytes: for data
+		pbPropertyValue[10] = *(pwritedata + 10);
+
+		hr = setExtionControlProperty(PropertyId, ulSize, pbPropertyValue);
+		memset(pbPropertyValue, 0x00, ulSize);
+		hr = getExtionControlProperty(PropertyId, ulSize, pbPropertyValue);
+		data = pbPropertyValue[9];
+		delete[] pbPropertyValue;
+		*value = data;
+	}
+
+	return hr;
+
+}
+
+void getRegVal(BYTE Regadd, int *data)
+{
+	BYTE *pbPropertyValue;
+	HRESULT hr = S_OK;
+	ULONG ulSize = 11;
+	int value;
+	int PropertyId = 16;
+	pbPropertyValue = new BYTE[ulSize];
+	pbPropertyValue[0] = 0x00; // I2C read comman first byte 1
+	pbPropertyValue[1] = 0x04;
+	pbPropertyValue[2] = 0x70;
+	pbPropertyValue[3] = 0x52;
+	pbPropertyValue[4] = 0x30;
+	pbPropertyValue[5] = Regadd;
+	pbPropertyValue[6] = 0x00;
+	pbPropertyValue[7] = 0x00;
+	pbPropertyValue[8] = 0x01;
+	pbPropertyValue[9] = 0x01;
+	pbPropertyValue[10] = 0x00;
+
+	I2cCommandOutt(pbPropertyValue, &value);
+	delete[] pbPropertyValue;
+	*data = value;
+}
+
+void setRegVal(BYTE Regadd, int* data)
+{
+	BYTE *pbPropertyValue, value;
+	HRESULT hr = S_OK;
+	ULONG ulSize = 11;
+	int PropertyId = 16;
+	value = *data;
+
+	pbPropertyValue = new BYTE[ulSize];
+	pbPropertyValue[0] = 0x01; // I2C write comman first byte 1
+	pbPropertyValue[1] = 0x04;
+	pbPropertyValue[2] = 0x70;
+	pbPropertyValue[3] = 0x52;
+	pbPropertyValue[4] = 0x30;
+	pbPropertyValue[5] = Regadd;
+	pbPropertyValue[6] = 0x00;
+	pbPropertyValue[7] = 0x00;
+	pbPropertyValue[8] = 0x01;
+	pbPropertyValue[9] = value;
+	pbPropertyValue[10] = 0x00;
+
+	I2cCommandInt(pbPropertyValue);
+	delete[] pbPropertyValue;
+}
 /////////////////////////////////////////////////////////////////////
 
 // Dialog functions

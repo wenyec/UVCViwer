@@ -42,6 +42,9 @@
     <ClCompile Include="VIS2mpColFocusZoom.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="VIS5MPColSupWBL.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="BufferLock.h">
@@ -90,6 +93,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="VIS2mpColFocusZoom.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="VIS5MPColSupWBL.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

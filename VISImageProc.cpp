@@ -163,27 +163,50 @@ BOOL VISImageProc::OnInitDialog()
 	{
 		c_WBLMode.EnableWindow(FALSE);
 	}
-	c_WBLMode.AddString(L"AWB MODE");
-	c_WBLMode.AddString(L"ATW MODE");
-	c_WBLMode.AddString(L"AWC-set");
-	c_WBLMode.AddString(L"MANUAL");
-	c_WBLMode.AddString(L"INDOOR");
-	c_WBLMode.AddString(L"OUTDOOR");
+	if (devCap->CamIndex == CAM2MP_COLOR)
+	{
+		c_WBLMode.AddString(L"ATW MODE");
+		c_WBLMode.AddString(L"AWC SET MODE");
+		c_WBLMode.AddString(L"INDOOR MODE");
+		c_WBLMode.AddString(L"OUTDOOR MODE");
+		c_WBLMode.AddString(L"MANUAL MODE");
+		c_WBLMode.AddString(L"PUSH TO WHITE");
+
+	}
+	else if (devCap->CamIndex == CAM1D2MP_COLOR)
+	{
+		c_WBLMode.AddString(L"ATW MODE");
+		c_WBLMode.AddString(L"AWC SET MODE");
+		c_WBLMode.AddString(L"INDOOR MODE");
+		c_WBLMode.AddString(L"OUTDOOR MODE");
+		c_WBLMode.AddString(L"MANUAL MODE");
+		c_WBLMode.AddString(L"PUSH TO WHITE");
+
+	}
+	else if (devCap->CamIndex == CAM5MP_COLOR)
+	{
+		c_WBLMode.AddString(L"AWB MODE");
+		c_WBLMode.AddString(L"ATW MODE");
+		c_WBLMode.AddString(L"AWC-set");
+		c_WBLMode.AddString(L"MANUAL");
+		c_WBLMode.AddString(L"INDOOR");
+		c_WBLMode.AddString(L"OUTDOOR");
+		//c_WBLMode.AddString(L"PUSH TO WHITE");
+	}
 	//c_WBLMode.AddString(L"PUSH TO WHITE");
 	/*
-	ComboBox_AddString(hListWhiteBalanceMode, L"ATW MODE");
-	ComboBox_AddString(hListWhiteBalanceMode, L"AWC SET MODE");
-	ComboBox_AddString(hListWhiteBalanceMode, L"INDOOR MODE");
-	ComboBox_AddString(hListWhiteBalanceMode, L"OUTDOOR MODE");
-	ComboBox_AddString(hListWhiteBalanceMode, L"MANUAL MODE");
-	ComboBox_AddString(hListWhiteBalanceMode, L"PUSH TO WHITE");
 	*/
 	c_WBLMode.SetCurSel(currValue);
 
 	//HWND hListSldWhiteBalanceComp = GetDlgItem(hwnd, IDC_SLD_WHTCOM);
 	//HWND hListSldWhiteBalanceCompRed = GetDlgItem(hwnd, IDC_SLD_WHTCOM_RED);
-	if (currValue != 2) // if WhiteBalanceMode is not manual then disable WhiteBalanceComp
+	if ((SUCCEEDED(hr) && (devCap->CamIndex == CAM2MP_COLOR) && currValue == 4)	// if it's manual mode enable red & blue comp
+		|| (SUCCEEDED(hr) && (devCap->CamIndex == CAM1D2MP_COLOR) && currValue == 4)
+		|| (SUCCEEDED(hr) && (devCap->CamIndex == CAM5MP_COLOR) && currValue == 3))
 	{
+		c_sldWBLBlue.EnableWindow(TRUE);
+		c_sldWBLRed.EnableWindow(TRUE);
+	}else{
 		c_sldWBLBlue.EnableWindow(FALSE);
 		c_sldWBLRed.EnableWindow(FALSE);
 	}
@@ -268,14 +291,16 @@ void VISImageProc::OnCbnSelchangeComboWhtblcmode()
 	if (sel != LB_ERR && camNodeTree->isOKpProcAmp)
 	{
 #ifdef DEBUG
-		sprintf(logMessage, "\nbmRequestType:SET \t bRequest:SET_CUR \t wValue:WhiteBalance \t wIndex:0x02\t PutValue:%d", sel);
-		printLogMessage(logMessage);
+//		sprintf(logMessage, "\nbmRequestType:SET \t bRequest:SET_CUR \t wValue:WhiteBalance \t wIndex:0x02\t PutValue:%d", sel);
+//		printLogMessage(logMessage);
 #endif
 		hr = camNodeTree->pProcAmp->Set(KSPROPERTY_VIDEOPROCAMP_WHITEBALANCE, (long)sel, VideoProcAmp_Flags_Auto);
 
 		//HWND hListSldWhiteBalanceComp = GetDlgItem(hwnd, IDC_SLD_WHTCOM);
 		//HWND hListSldWhiteBalanceCompRed = GetDlgItem(hwnd, IDC_SLD_WHTCOM_RED);
-		if (SUCCEEDED(hr) && sel == 4)	// if it's manual mode enable red & blue comp
+		if ((SUCCEEDED(hr) && (devCap->CamIndex == CAM2MP_COLOR) && sel == 4)	// if it's manual mode enable red & blue comp
+			|| (SUCCEEDED(hr) && (devCap->CamIndex == CAM1D2MP_COLOR) && sel == 4)
+			|| (SUCCEEDED(hr) && (devCap->CamIndex == CAM5MP_COLOR) && sel == 3))
 		{
 			c_sldWBLBlue.EnableWindow(TRUE);
 			c_sldWBLRed.EnableWindow(TRUE);
@@ -287,8 +312,8 @@ void VISImageProc::OnCbnSelchangeComboWhtblcmode()
 		}
 
 #ifdef DEBUG
-		sprintf(logMessage, "\nFunction : onWhiteBalanceControlChange Msg : Return Value:%ld", hr);
-		printLogMessage(logMessage);
+//		sprintf(logMessage, "\nFunction : onWhiteBalanceControlChange Msg : Return Value:%ld", hr);
+//		printLogMessage(logMessage);
 #endif
 	}
 
@@ -475,8 +500,8 @@ void VISImageProc::OnNMReleasedcaptureSldWhtcom(NMHDR *pNMHDR, LRESULT *pResult)
 	hr = setWhiteBalanceComponent(initCtrlSetting.WhiteBalanceComponentRedCur, SldPos);
 
 #ifdef DEBUG
-	sprintf(logMessage, "\nFunction : onWhiteBalanceCompBlueChange Msg : Return Value:%ld", hr);
-	printLogMessage(logMessage);
+//	sprintf(logMessage, "\nFunction : onWhiteBalanceCompBlueChange Msg : Return Value:%ld", hr);
+//	printLogMessage(logMessage);
 #endif
 	*pResult = 0;
 }
@@ -502,8 +527,8 @@ void VISImageProc::OnNMReleasedcaptureSldWhtcomRed(NMHDR *pNMHDR, LRESULT *pResu
 	hr = setWhiteBalanceComponent(SldPosRed, initCtrlSetting.WhiteBalanceComponentBlueCur);
 
 #ifdef DEBUG
-	sprintf(logMessage, "\nFunction : onWhiteBalanceCompBlueChange Msg : Return Value:%ld", hr);
-	printLogMessage(logMessage);
+//	sprintf(logMessage, "\nFunction : onWhiteBalanceCompBlueChange Msg : Return Value:%ld", hr);
+//	printLogMessage(logMessage);
 #endif
 	*pResult = 0;
 }
