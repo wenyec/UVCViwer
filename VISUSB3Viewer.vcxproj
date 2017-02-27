@@ -214,6 +214,7 @@
     <ClCompile Include="VIS5mpBWGam2DN.cpp" />
     <ClCompile Include="VIS5MPColSupWBL.cpp" />
     <ClCompile Include="VISImageProc.cpp" />
+    <ClCompile Include="VISImpageProc5mpCol.cpp" />
     <ClCompile Include="winmain.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -235,6 +236,7 @@
     <ClInclude Include="VIS5mpBWGam2DN.h" />
     <ClInclude Include="VIS5MPColSupWBL.h" />
     <ClInclude Include="VISImageProc.h" />
+    <ClInclude Include="VISImpageProc5mpCol.h" />
     <ClInclude Include="winmain.h" />
   </ItemGroup>
   <ItemGroup>

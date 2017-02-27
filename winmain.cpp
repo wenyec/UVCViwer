@@ -30,6 +30,7 @@
 #include "VISImageProc.h"
 #include "VIS2mpColFocusZoom.h"
 #include "VIS5MPColSupWBL.h"
+#include "VISImpageProc5mpCol.h"
 
 //------------------------------------------------------------------------------
 // Macros
@@ -128,6 +129,7 @@ void	OnCameraControlMenu(HWND hwnd);   // Shutter and BLC
 void    OnCameraControlMenu2Mcl(HWND hwnd);
 void	OnDayNightMenu(HWND hwnd);
 void	OnVideoQualityControlMenu(HWND hwnd);
+void	OnVideoQualityControlMenu_5mpcol(HWND hwnd);
 void	On2DNoiseReduction(HWND hwnd);    // Gamma and 2DNR 
 void	On3DNoiseReduction2mpCol(HWND hwnd); // 3DNR
 void	OnEdgeEnhanment(HWND hwnd);    // Edge Enhancement ... 
@@ -1619,6 +1621,9 @@ void OnCommand(HWND hwnd, int id, HWND /*hwndCtl*/, UINT /*codeNotify*/)
 	case ID_SETTING_VIDEOQUALITYSETTINGS_20_12MC:
 		OnVideoQualityControlMenu(hwnd);
 		break;
+	case ID_SETTING_VIDEOQUALITYSETTINGS_5MPCOL:
+		OnVideoQualityControlMenu_5mpcol(hwnd);
+		break;
 	case ID_SETTING_VIDEOQUALITYSETTINGS_MISU:
 		ShowCapFilterPropPage(hwnd);
 		break;
@@ -2003,6 +2008,21 @@ void OnVideoQualityControlMenu(HWND hwnd)
 	c_5mpBWImageCtrl.saveImageInitSetting();
 	c_5mpBWImageCtrl.DoModal();
 }
+
+void OnVideoQualityControlMenu_5mpcol(HWND hwnd)
+{
+	if (!AfxWinInit(::GetModuleHandle(NULL), NULL, ::GetCommandLine(), 0))
+	{
+		;
+	}
+	AfxGetInstanceHandle();
+	VISImpageProc5mpCol c_5mpColImageCtrl; // add the get device class. it's for all cameras --wcheng
+	c_5mpColImageCtrl.devCap = &gcap;
+	c_5mpColImageCtrl.camNodeTree = &ksNodeTree;
+	c_5mpColImageCtrl.saveImageInitSetting();
+	c_5mpColImageCtrl.DoModal();
+}
+
 #if 1 //keep for the 3D ND in futrue
 void On3DNoiseReduction2mpCol(HWND hwnd)
 {
