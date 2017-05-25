@@ -5902,15 +5902,20 @@ void OnInitImageSetResDialog(HWND hwnd)
 				StringCbPrintf(txt_display, 20, L"MJPG");
 				ComboBox_AddString(hListStilType, txt_display);
 			}
-
+			BOOL setFlag = FALSE;  //set for the miss setting the still attibute. more need TODO 
 			for (int i = 0; i < iCount; i++){
 				if (((pstillFmts + i)->width == gcap.stillWidth) && ((pstillFmts + i)->height == gcap.stillHeight)){
+					setFlag = TRUE;
 					ComboBox_SetCurSel(hListStilSet, i);
 					if (wcscmp((pstillFmts + i)->Comp, _T("YUY2")) == 0 && gcap.stillsubType == MEDIA_YUY2)
 						ComboBox_SetCurSel(hListStilType, 0);
 					else if (wcscmp((pstillFmts + i)->Comp, _T("MJPG")) == 0 && gcap.stillsubType == MEDIA_MJPEG)
 						ComboBox_SetCurSel(hListStilType, 1);
 				}
+			}
+			if (!setFlag){
+				ComboBox_SetCurSel(hListStilType, 0);
+				ComboBox_SetCurSel(hListStilSet, 0);
 			}
 		}
 
@@ -7035,25 +7040,27 @@ BOOL InitCapFilters()
 		gcap.isStillSup = TRUE;
 		gcap.stillWidth = 1280;
 		gcap.stillHeight = 720;
+		//getStillRes();
 		/* set still pin paramter */
 		AM_MEDIA_TYPE  *pmt = NULL;
 		int iCount = 0, iSize = 0;
-
+		VIDEOINFOHEADER *pvi;
+		BOOL setFlag = FALSE;
 		hr = gcap.pSSC->GetNumberOfCapabilities(&iCount, &iSize);
 		if (iSize == sizeof(VIDEO_STREAM_CONFIG_CAPS)){
 			for (int iFormat = 0; iFormat < iCount; iFormat++){
 				VIDEO_STREAM_CONFIG_CAPS scc;
-				VIDEOINFOHEADER *pvi;
 				hr = gcap.pSSC->GetStreamCaps(iFormat, &pmt, (BYTE*)&scc);
 				if (SUCCEEDED(hr)){
 					if (pmt->formattype == FORMAT_VideoInfo){
 						pvi = (VIDEOINFOHEADER *)pmt->pbFormat;
 						if ((pvi->bmiHeader.biWidth == gcap.stillWidth)
 							&& (pvi->bmiHeader.biHeight == gcap.stillHeight)){
+							setFlag = TRUE;
 							if (gcap.stillsubType == MEDIA_YUY2){
 								pmt->subtype = MEDIASUBTYPE_YUY2;
 							}
-							else if (gcap.stillsubType == MEDIA_MJPEG){
+							else if (gcap.stillsubType == MEDIA_MJPEG){//TODO: it's bug to pars still image with bot YUY2 & MJPEG
 								pmt->subtype = MEDIASUBTYPE_MJPG;;
 							}
 							if (pmt != NULL){
@@ -7063,11 +7070,19 @@ BOOL InitCapFilters()
 							}
 							break;
 						}
-						else{
+						else{ 
 							hr = FALSE;
 						}
 					}
 				}
+			}
+			if (!setFlag && (pmt != NULL))//if the initial still resolution is not in the stream, set one in the stream
+			{
+				gcap.stillWidth = pvi->bmiHeader.biWidth;
+				gcap.stillHeight = pvi->bmiHeader.biHeight;
+				gcap.stillsubType = MEDIA_YUY2;
+				pmt->subtype = MEDIASUBTYPE_YUY2;
+				hr = gcap.pSSC->SetFormat(pmt);
 			}
 			if (pmt != NULL){
 				DeleteMediaType(pmt);
