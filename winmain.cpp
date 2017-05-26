@@ -816,7 +816,7 @@ HRESULT getExtionControlPropertySize(ULONG PropertyId, ULONG *pulSize)
 			ExtensionProp.NodeId = ksNodeTree.nodeID;
 
 			hr = ksNodeTree.pKsControl->KsProperty((PKSPROPERTY)&ExtensionProp, sizeof(ExtensionProp), NULL, 0, &ulBytesReturned);
-
+			Sleep(20);
 			if (hr == HRESULT_FROM_WIN32(ERROR_MORE_DATA))
 			{
 				*pulSize = ulBytesReturned;
@@ -858,7 +858,7 @@ HRESULT getExtionControlProperty(ULONG PropertyId, ULONG ulSize, BYTE pValue[])
 			ExtensionProp.NodeId = ksNodeTree.nodeID;
 
 			hr = ksNodeTree.pKsControl->KsProperty((PKSPROPERTY)&ExtensionProp, sizeof(ExtensionProp), (PVOID)pValue, ulSize, &ulBytesReturned);
-
+			Sleep(50);
 #ifdef DEBUG
 			sprintf(logMessage, "\nbmRequestType:GET \t bRequest:GET_CUR \t wValue:%ld \t wIndex:0x03\t retValue:", PropertyId);
 			printLogMessage(logMessage);
@@ -968,6 +968,7 @@ HRESULT	getStandardControlPropertyCurrentValue(long PropertyID, long *currValue,
 	{
 		// Get the current value.
 		hr = ksNodeTree.pProcAmp->Get(PropertyID, currValue, lCaps);
+		Sleep(100);
 #ifdef DEBUG
 		sprintf(logMessage, " \nFunction : getStandardControlPropertyCurrentValue \t Msg : PropertyID %d currValue %ld lCaps %ld", PropertyID, *currValue, *lCaps);
 		printLogMessage(logMessage);

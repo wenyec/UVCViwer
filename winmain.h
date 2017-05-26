@@ -145,7 +145,7 @@ static struct _capstuff
 	BOOL isStillSup;  // the flag for still capture support --wenye
 	DWORD stillWidth;
 	DWORD stillHeight;
-	eMediaType   stillsubType;
+	eMediaType   stillsubType = MEDIA_YUY2; //make it's default
 	StillFormats stillFmts[16];
 	int CamIndex = 0xff; //keep the activity camera index.
 
