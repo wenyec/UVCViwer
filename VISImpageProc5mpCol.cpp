@@ -1,62 +1,61 @@
-// VISImageProc.cpp : implementation file
+// VISImpageProc5mpCol.cpp : implementation file
 //
 
 #include "stdafx.h"
-#include "VISImageProc.h"
+#include "VISImpageProc5mpCol.h"
 #include "afxdialogex.h"
 
 
-// VISImageProc dialog
+// VISImpageProc5mpCol dialog
 
-IMPLEMENT_DYNAMIC(VISImageProc, CDialog)
+IMPLEMENT_DYNAMIC(VISImpageProc5mpCol, CDialog)
 
-VISImageProc::VISImageProc(CWnd* pParent /*=NULL*/)
-	: CDialog(VISImageProc::IDD, pParent)
+VISImpageProc5mpCol::VISImpageProc5mpCol(CWnd* pParent /*=NULL*/)
+	: CDialog(VISImpageProc5mpCol::IDD, pParent)
 {
 
 }
 
-VISImageProc::~VISImageProc()
+VISImpageProc5mpCol::~VISImpageProc5mpCol()
 {
 }
 
-void VISImageProc::DoDataExchange(CDataExchange* pDX)
+void VISImpageProc5mpCol::DoDataExchange(CDataExchange* pDX)
 {
 	CDialog::DoDataExchange(pDX);
 	DDX_Control(pDX, IDC_SLD_BRIGHTNESS, c_sldBrightness);
 	DDX_Control(pDX, IDC_SLD_CONTRAST, c_sldContrast);
-	DDX_Control(pDX, IDC_SLD_HUE, c_sldHue);
-	DDX_Control(pDX, IDC_SLD_SATURATION, c_sldSaturation);
+	//DDX_Control(pDX, IDC_SLD_HUE, c_sldHue);
+	//DDX_Control(pDX, IDC_SLD_SATURATION, c_sldSaturation);
 	DDX_Control(pDX, IDC_SLD_SHARPNESS, c_sldSharpness);
 	DDX_Control(pDX, IDC_SLD_WHTCOM, c_sldWBLBlue);
 	DDX_Control(pDX, IDC_SLD_WHTCOM_RED, c_sldWBLRed);
 	DDX_Control(pDX, IDC_COMBO_WHTBLCMODE, c_WBLMode);
 	DDX_Control(pDX, IDC_EDIT_BRIGHTNESS, txt_edtBrightness);
 	DDX_Control(pDX, IDC_EDIT_CONTRAST, txt_edtContrast);
-	DDX_Control(pDX, IDC_EDIT_HUE, txt_edtHue);
-	DDX_Control(pDX, IDC_EDIT_SATURATION, txt_edtSaturation);
+	//DDX_Control(pDX, IDC_EDIT_HUE, txt_edtHue);
+	//DDX_Control(pDX, IDC_EDIT_SATURATION, txt_edtSaturation);
 	DDX_Control(pDX, IDC_EDIT_SHARPNESS, txt_edtSharpness);
 	DDX_Control(pDX, IDC_EDIT_WHTCOM, txt_edtWBLBlue);
 	DDX_Control(pDX, IDC_EDIT_WHTCOM_RED, txt_edtWBLRed);
 }
 
 
-BEGIN_MESSAGE_MAP(VISImageProc, CDialog)
-	ON_CBN_SELCHANGE(IDC_COMBO_WHTBLCMODE, &VISImageProc::OnCbnSelchangeComboWhtblcmode)
-	ON_NOTIFY(NM_RELEASEDCAPTURE, IDC_SLD_BRIGHTNESS, &VISImageProc::OnNMReleasedcaptureSldBrightness)
-	ON_NOTIFY(NM_RELEASEDCAPTURE, IDC_SLD_CONTRAST, &VISImageProc::OnNMReleasedcaptureSldContrast)
-	ON_NOTIFY(NM_RELEASEDCAPTURE, IDC_SLD_HUE, &VISImageProc::OnNMReleasedcaptureSldHue)
-	ON_NOTIFY(NM_RELEASEDCAPTURE, IDC_SLD_SATURATION, &VISImageProc::OnNMReleasedcaptureSldSaturation)
-	ON_NOTIFY(NM_RELEASEDCAPTURE, IDC_SLD_SHARPNESS, &VISImageProc::OnNMReleasedcaptureSldSharpness)
-	ON_NOTIFY(NM_RELEASEDCAPTURE, IDC_SLD_WHTCOM, &VISImageProc::OnNMReleasedcaptureSldWhtcom)
-	ON_NOTIFY(NM_RELEASEDCAPTURE, IDC_SLD_WHTCOM_RED, &VISImageProc::OnNMReleasedcaptureSldWhtcomRed)
+BEGIN_MESSAGE_MAP(VISImpageProc5mpCol, CDialog)
+	ON_CBN_SELCHANGE(IDC_COMBO_WHTBLCMODE, &VISImpageProc5mpCol::OnCbnSelchangeComboWhtblcmode)
+	ON_NOTIFY(NM_RELEASEDCAPTURE, IDC_SLD_BRIGHTNESS, &VISImpageProc5mpCol::OnNMReleasedcaptureSldBrightness)
+	ON_NOTIFY(NM_RELEASEDCAPTURE, IDC_SLD_CONTRAST, &VISImpageProc5mpCol::OnNMReleasedcaptureSldContrast)
+	ON_NOTIFY(NM_RELEASEDCAPTURE, IDC_SLD_HUE, &VISImpageProc5mpCol::OnNMReleasedcaptureSldHue)
+	ON_NOTIFY(NM_RELEASEDCAPTURE, IDC_SLD_SATURATION, &VISImpageProc5mpCol::OnNMReleasedcaptureSldSaturation)
+	ON_NOTIFY(NM_RELEASEDCAPTURE, IDC_SLD_SHARPNESS, &VISImpageProc5mpCol::OnNMReleasedcaptureSldSharpness)
+	ON_NOTIFY(NM_RELEASEDCAPTURE, IDC_SLD_WHTCOM, &VISImpageProc5mpCol::OnNMReleasedcaptureSldWhtcom)
+	ON_NOTIFY(NM_RELEASEDCAPTURE, IDC_SLD_WHTCOM_RED, &VISImpageProc5mpCol::OnNMReleasedcaptureSldWhtcomRed)
 END_MESSAGE_MAP()
 
 
-// VISImageProc message handlers
+// VISImpageProc5mpCol message handlers
 
-
-BOOL VISImageProc::OnInitDialog()
+BOOL VISImpageProc5mpCol::OnInitDialog()
 {
 	CDialog::OnInitDialog();
 
@@ -104,7 +103,7 @@ BOOL VISImageProc::OnInitDialog()
 	currValueStr.Format(L"%ld", currValue);
 	txt_edtContrast.ReplaceSel(currValueStr, TRUE);
 	txt_edtContrast.EnableWindow(FALSE);
-
+#if 0 //remove the hue control
 	hr = getStandardControlPropertyRange(KSPROPERTY_VIDEOPROCAMP_HUE, &lMin, &lMax, &lStep, &lDefault, &lCaps);
 	//getStandardControlPropertyCurrentValue(KSPROPERTY_VIDEOPROCAMP_HUE, &currValue, &lCaps);
 	currValue = initCtrlSetting.Hue;
@@ -121,7 +120,8 @@ BOOL VISImageProc::OnInitDialog()
 	currValueStr.Format(L"%ld", currValue);
 	txt_edtHue.ReplaceSel(currValueStr, TRUE);
 	txt_edtHue.EnableWindow(FALSE);
-
+#endif
+#if 0 //remove the saturation control
 	hr = getStandardControlPropertyRange(KSPROPERTY_VIDEOPROCAMP_SATURATION, &lMin, &lMax, &lStep, &lDefault, &lCaps);
 	//getStandardControlPropertyCurrentValue(KSPROPERTY_VIDEOPROCAMP_SATURATION, &currValue, &lCaps);
 	currValue = initCtrlSetting.Saturation;
@@ -138,7 +138,7 @@ BOOL VISImageProc::OnInitDialog()
 	currValueStr.Format(L"%ld", currValue);
 	txt_edtSaturation.ReplaceSel(currValueStr, TRUE);
 	txt_edtSaturation.EnableWindow(FALSE);
-
+#endif
 	hr = getStandardControlPropertyRange(KSPROPERTY_VIDEOPROCAMP_SHARPNESS, &lMin, &lMax, &lStep, &lDefault, &lCaps);
 	//getStandardControlPropertyCurrentValue(KSPROPERTY_VIDEOPROCAMP_SHARPNESS, &currValue, &lCaps);
 	currValue = initCtrlSetting.Sharpness;
@@ -206,7 +206,8 @@ BOOL VISImageProc::OnInitDialog()
 	{
 		c_sldWBLBlue.EnableWindow(TRUE);
 		c_sldWBLRed.EnableWindow(TRUE);
-	}else{
+	}
+	else{
 		c_sldWBLBlue.EnableWindow(FALSE);
 		c_sldWBLRed.EnableWindow(FALSE);
 	}
@@ -241,7 +242,7 @@ BOOL VISImageProc::OnInitDialog()
 	// EXCEPTION: OCX Property Pages should return FALSE
 }
 
-void VISImageProc::saveImageInitSetting(){
+void VISImpageProc5mpCol::saveImageInitSetting(){
 	long currValue, lCaps;
 
 	// reset global struct
@@ -280,7 +281,7 @@ void VISImageProc::saveImageInitSetting(){
 }
 
 
-void VISImageProc::OnCbnSelchangeComboWhtblcmode()
+void VISImpageProc5mpCol::OnCbnSelchangeComboWhtblcmode()
 {
 	// TODO: Add your control notification handler code here
 	HRESULT hr = S_OK;
@@ -291,8 +292,8 @@ void VISImageProc::OnCbnSelchangeComboWhtblcmode()
 	if (sel != LB_ERR && camNodeTree->isOKpProcAmp)
 	{
 #ifdef DEBUG
-//		sprintf(logMessage, "\nbmRequestType:SET \t bRequest:SET_CUR \t wValue:WhiteBalance \t wIndex:0x02\t PutValue:%d", sel);
-//		printLogMessage(logMessage);
+		//		sprintf(logMessage, "\nbmRequestType:SET \t bRequest:SET_CUR \t wValue:WhiteBalance \t wIndex:0x02\t PutValue:%d", sel);
+		//		printLogMessage(logMessage);
 #endif
 		hr = camNodeTree->pProcAmp->Set(KSPROPERTY_VIDEOPROCAMP_WHITEBALANCE, (long)sel, VideoProcAmp_Flags_Auto);
 
@@ -312,8 +313,8 @@ void VISImageProc::OnCbnSelchangeComboWhtblcmode()
 		}
 
 #ifdef DEBUG
-//		sprintf(logMessage, "\nFunction : onWhiteBalanceControlChange Msg : Return Value:%ld", hr);
-//		printLogMessage(logMessage);
+		//		sprintf(logMessage, "\nFunction : onWhiteBalanceControlChange Msg : Return Value:%ld", hr);
+		//		printLogMessage(logMessage);
 #endif
 	}
 
@@ -321,7 +322,7 @@ void VISImageProc::OnCbnSelchangeComboWhtblcmode()
 }
 
 
-void VISImageProc::OnNMReleasedcaptureSldBrightness(NMHDR *pNMHDR, LRESULT *pResult)
+void VISImpageProc5mpCol::OnNMReleasedcaptureSldBrightness(NMHDR *pNMHDR, LRESULT *pResult)
 {
 	// TODO: Add your control notification handler code here
 	HRESULT hr = S_OK;
@@ -339,13 +340,13 @@ void VISImageProc::OnNMReleasedcaptureSldBrightness(NMHDR *pNMHDR, LRESULT *pRes
 	if (camNodeTree->isOKpProcAmp)
 	{
 #ifdef DEBUG
-//		sprintf(logMessage, "\nbmRequestType:SET \t bRequest:SET_CUR \t wValue:Brightness \t wIndex:0x02\t PutValue:%ld", SldPos);
-//		printLogMessage(logMessage);
+		//		sprintf(logMessage, "\nbmRequestType:SET \t bRequest:SET_CUR \t wValue:Brightness \t wIndex:0x02\t PutValue:%ld", SldPos);
+		//		printLogMessage(logMessage);
 #endif
 		hr = camNodeTree->pProcAmp->Set(KSPROPERTY_VIDEOPROCAMP_BRIGHTNESS, SldPos, VideoProcAmp_Flags_Manual);
 #ifdef DEBUG
-//		sprintf(logMessage, "\nFunction : onBrightnessChange Msg : Return Value:%ld", hr);
-//		printLogMessage(logMessage);
+		//		sprintf(logMessage, "\nFunction : onBrightnessChange Msg : Return Value:%ld", hr);
+		//		printLogMessage(logMessage);
 #endif
 	}
 
@@ -353,7 +354,7 @@ void VISImageProc::OnNMReleasedcaptureSldBrightness(NMHDR *pNMHDR, LRESULT *pRes
 }
 
 
-void VISImageProc::OnNMReleasedcaptureSldContrast(NMHDR *pNMHDR, LRESULT *pResult)
+void VISImpageProc5mpCol::OnNMReleasedcaptureSldContrast(NMHDR *pNMHDR, LRESULT *pResult)
 {
 	// TODO: Add your control notification handler code here
 	HRESULT hr = S_OK;
@@ -371,13 +372,13 @@ void VISImageProc::OnNMReleasedcaptureSldContrast(NMHDR *pNMHDR, LRESULT *pResul
 	if (camNodeTree->isOKpProcAmp)
 	{
 #ifdef DEBUG
-//		sprintf(logMessage, "\nbmRequestType:SET \t bRequest:SET_CUR \t wValue:Contrast \t wIndex:0x02\t PutValue:%ld", SldPos);
-//		printLogMessage(logMessage);
+		//		sprintf(logMessage, "\nbmRequestType:SET \t bRequest:SET_CUR \t wValue:Contrast \t wIndex:0x02\t PutValue:%ld", SldPos);
+		//		printLogMessage(logMessage);
 #endif
 		hr = camNodeTree->pProcAmp->Set(KSPROPERTY_VIDEOPROCAMP_CONTRAST, SldPos, VideoProcAmp_Flags_Manual);
 #ifdef DEBUG
-//		sprintf(logMessage, "\nFunction : onContrastChange Msg : Return Value:%ld", hr);
-//		printLogMessage(logMessage);
+		//		sprintf(logMessage, "\nFunction : onContrastChange Msg : Return Value:%ld", hr);
+		//		printLogMessage(logMessage);
 #endif
 	}
 
@@ -385,7 +386,7 @@ void VISImageProc::OnNMReleasedcaptureSldContrast(NMHDR *pNMHDR, LRESULT *pResul
 }
 
 
-void VISImageProc::OnNMReleasedcaptureSldHue(NMHDR *pNMHDR, LRESULT *pResult)
+void VISImpageProc5mpCol::OnNMReleasedcaptureSldHue(NMHDR *pNMHDR, LRESULT *pResult)
 {
 	// TODO: Add your control notification handler code here
 	HRESULT hr = S_OK;
@@ -417,7 +418,7 @@ void VISImageProc::OnNMReleasedcaptureSldHue(NMHDR *pNMHDR, LRESULT *pResult)
 }
 
 
-void VISImageProc::OnNMReleasedcaptureSldSaturation(NMHDR *pNMHDR, LRESULT *pResult)
+void VISImpageProc5mpCol::OnNMReleasedcaptureSldSaturation(NMHDR *pNMHDR, LRESULT *pResult)
 {
 	// TODO: Add your control notification handler code here
 	HRESULT hr = S_OK;
@@ -449,7 +450,7 @@ void VISImageProc::OnNMReleasedcaptureSldSaturation(NMHDR *pNMHDR, LRESULT *pRes
 }
 
 
-void VISImageProc::OnNMReleasedcaptureSldSharpness(NMHDR *pNMHDR, LRESULT *pResult)
+void VISImpageProc5mpCol::OnNMReleasedcaptureSldSharpness(NMHDR *pNMHDR, LRESULT *pResult)
 {
 	// TODO: Add your control notification handler code here
 	HRESULT hr = S_OK;
@@ -467,13 +468,13 @@ void VISImageProc::OnNMReleasedcaptureSldSharpness(NMHDR *pNMHDR, LRESULT *pResu
 	if (camNodeTree->isOKpProcAmp)
 	{
 #ifdef DEBUG
-//		sprintf(logMessage, "\nbmRequestType:SET \t bRequest:SET_CUR \t wValue:Sharpness \t wIndex:0x02\t PutValue:%ld", SldPos);
-//		printLogMessage(logMessage);
+		//		sprintf(logMessage, "\nbmRequestType:SET \t bRequest:SET_CUR \t wValue:Sharpness \t wIndex:0x02\t PutValue:%ld", SldPos);
+		//		printLogMessage(logMessage);
 #endif
 		hr = camNodeTree->pProcAmp->Set(KSPROPERTY_VIDEOPROCAMP_SHARPNESS, SldPos, VideoProcAmp_Flags_Manual);
 #ifdef DEBUG
-//		sprintf(logMessage, "\nFunction : onSharpnessChange Msg : Return Value:%ld", hr);
-//		printLogMessage(logMessage);
+		//		sprintf(logMessage, "\nFunction : onSharpnessChange Msg : Return Value:%ld", hr);
+		//		printLogMessage(logMessage);
 #endif
 	}
 
@@ -481,7 +482,7 @@ void VISImageProc::OnNMReleasedcaptureSldSharpness(NMHDR *pNMHDR, LRESULT *pResu
 }
 
 
-void VISImageProc::OnNMReleasedcaptureSldWhtcom(NMHDR *pNMHDR, LRESULT *pResult)
+void VISImpageProc5mpCol::OnNMReleasedcaptureSldWhtcom(NMHDR *pNMHDR, LRESULT *pResult)
 {
 	// TODO: Add your control notification handler code here
 	HRESULT hr = S_OK;
@@ -500,14 +501,14 @@ void VISImageProc::OnNMReleasedcaptureSldWhtcom(NMHDR *pNMHDR, LRESULT *pResult)
 	hr = setWhiteBalanceComponent(initCtrlSetting.WhiteBalanceComponentRedCur, SldPos);
 
 #ifdef DEBUG
-//	sprintf(logMessage, "\nFunction : onWhiteBalanceCompBlueChange Msg : Return Value:%ld", hr);
-//	printLogMessage(logMessage);
+	//	sprintf(logMessage, "\nFunction : onWhiteBalanceCompBlueChange Msg : Return Value:%ld", hr);
+	//	printLogMessage(logMessage);
 #endif
 	*pResult = 0;
 }
 
 
-void VISImageProc::OnNMReleasedcaptureSldWhtcomRed(NMHDR *pNMHDR, LRESULT *pResult)
+void VISImpageProc5mpCol::OnNMReleasedcaptureSldWhtcomRed(NMHDR *pNMHDR, LRESULT *pResult)
 {
 	// TODO: Add your control notification handler code here
 	HRESULT hr = S_OK;
@@ -527,14 +528,14 @@ void VISImageProc::OnNMReleasedcaptureSldWhtcomRed(NMHDR *pNMHDR, LRESULT *pResu
 	hr = setWhiteBalanceComponent(SldPosRed, initCtrlSetting.WhiteBalanceComponentBlueCur);
 
 #ifdef DEBUG
-//	sprintf(logMessage, "\nFunction : onWhiteBalanceCompBlueChange Msg : Return Value:%ld", hr);
-//	printLogMessage(logMessage);
+	//	sprintf(logMessage, "\nFunction : onWhiteBalanceCompBlueChange Msg : Return Value:%ld", hr);
+	//	printLogMessage(logMessage);
 #endif
 	*pResult = 0;
 }
 
 
-void VISImageProc::OnCancel()
+void VISImpageProc5mpCol::OnCancel()
 {
 	// TODO: Add your specialized code here and/or call the base class
 	if (camNodeTree->isOKpProcAmp)

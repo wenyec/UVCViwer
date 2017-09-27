@@ -15,7 +15,7 @@ public:
 	virtual ~VIS5mpBWGam2DN();
 
 // Dialog Data
-	enum { IDD = IDD_3D_NOISE_REDUCTION };
+	enum { IDD = IDD_2D_NOISE_REDUCTION };
 
 protected:
 	virtual void DoDataExchange(CDataExchange* pDX);    // DDX/DDV support

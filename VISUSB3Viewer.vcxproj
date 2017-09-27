@@ -27,10 +27,10 @@
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
-    <PlatformToolset>v120_xp</PlatformToolset>
+    <PlatformToolset>v120</PlatformToolset>
     <CharacterSet>Unicode</CharacterSet>
     <WholeProgramOptimization>true</WholeProgramOptimization>
-    <UseOfMfc>false</UseOfMfc>
+    <UseOfMfc>Static</UseOfMfc>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
@@ -208,10 +208,13 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
     </ClCompile>
+    <ClCompile Include="VIS2mpColFocusZoom.cpp" />
     <ClCompile Include="VIS5mpBWEdgeEn.cpp" />
     <ClCompile Include="VIS5mpBWExp.cpp" />
     <ClCompile Include="VIS5mpBWGam2DN.cpp" />
+    <ClCompile Include="VIS5MPColSupWBL.cpp" />
     <ClCompile Include="VISImageProc.cpp" />
+    <ClCompile Include="VISImpageProc5mpCol.cpp" />
     <ClCompile Include="winmain.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -227,10 +230,13 @@
     <ClInclude Include="smartptr.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="targetver.h" />
+    <ClInclude Include="VIS2mpColFocusZoom.h" />
     <ClInclude Include="VIS5mpBWEdgeEn.h" />
     <ClInclude Include="VIS5mpBWExp.h" />
     <ClInclude Include="VIS5mpBWGam2DN.h" />
+    <ClInclude Include="VIS5MPColSupWBL.h" />
     <ClInclude Include="VISImageProc.h" />
+    <ClInclude Include="VISImpageProc5mpCol.h" />
     <ClInclude Include="winmain.h" />
   </ItemGroup>
   <ItemGroup>
@@ -240,11 +246,13 @@
     <Text Include="readme.txt" />
   </ItemGroup>
   <ItemGroup>
+    <Image Include="bitmap1.bmp" />
     <Image Include="FX3.ico" />
   </ItemGroup>
   <ItemGroup>
     <None Include="ClassDiagram.cd" />
     <None Include="ClassDiagram1.cd" />
+    <None Include="ClassDiagram2.cd" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

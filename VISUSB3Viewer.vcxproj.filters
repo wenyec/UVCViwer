@@ -39,6 +39,15 @@
     <ClCompile Include="VISImageProc.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="VIS2mpColFocusZoom.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="VIS5MPColSupWBL.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="VISImpageProc5mpCol.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="BufferLock.h">
@@ -86,6 +95,15 @@
     <ClInclude Include="VISImageProc.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="VIS2mpColFocusZoom.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="VIS5MPColSupWBL.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="VISImpageProc5mpCol.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="MFCaptureD3D.rc">
@@ -99,9 +117,13 @@
     <Image Include="FX3.ico">
       <Filter>Resource Files</Filter>
     </Image>
+    <Image Include="bitmap1.bmp">
+      <Filter>Resource Files</Filter>
+    </Image>
   </ItemGroup>
   <ItemGroup>
     <None Include="ClassDiagram.cd" />
     <None Include="ClassDiagram1.cd" />
+    <None Include="ClassDiagram2.cd" />
   </ItemGroup>
 </Project>

@@ -58,6 +58,12 @@ typedef struct CameraInfo{
 	ULONG VidPid;
 };
 
+// for stream type
+typedef enum{
+	MEDIA_MJPEG = 0,
+	MEDIA_YUY2 = 1
+}eMediaType;
+
 static struct _capstuff
 {
 	WCHAR wszCaptureFile[_MAX_PATH];
@@ -139,7 +145,8 @@ static struct _capstuff
 	BOOL isStillSup;  // the flag for still capture support --wenye
 	DWORD stillWidth;
 	DWORD stillHeight;
-	StillFormats stillFmts[5];
+	eMediaType   stillsubType = MEDIA_YUY2; //make it's default
+	StillFormats stillFmts[16];
 	int CamIndex = 0xff; //keep the activity camera index.
 
 } gcap;
@@ -151,14 +158,40 @@ static struct VIS_CameraID
 };
 
 static VIS_CameraID visID[16] = {	//available VIS camera ID
-	{ 0x1bbdff50 },				// 5MP B/W
-	{ 0x1bbdff51 },				// 5MP Color
-	{ 0x1bbd3061 },				// 2MP Color
-	{ 0x1bbd3062 },				// 1.2MP Color
-	{ 0x1bbdff62 },				// Invendo
-	{ 0x1bbdfff0 }				// Unknow
+	{ 0x1bbdff50 },				// 5MP B/W		,0
+	{ 0x1bbdff51 },				// 5MP Color	,1
+	{ 0x1bbd3061 },				// 2MP Color	,2
+	{ 0x1bbd3062 },				// 1.2MP Color	,3
+	{ 0x1bbdff62 },				// Invendo		,4
+	{ 0x1bbd2410 }, 			// misumi 5mp	,5
+	{ 0x1bbd0bf6 }, 			// e-con 5mp	,6
+	{ 0 } 			// unknow		,7
+
 };
 
+static enum CAMIDex{
+	CAM5MP_BW = 0,
+	CAM5MP_COLOR,
+	CAM2MP_COLOR,
+	CAM1D2MP_COLOR,
+	CAMINVENDO,
+	CAM5MPMISUMI,
+	CAM5MPECON
+};
+
+static enum RegAdds{
+	REG_COLSUPGAIN = 0X40,
+	REG_COLSUPAGCSTART = 0X41,
+	REG_COLSUPAGCEND = 0X42,
+	REG_COLLIGHTGAIN = 0X43,
+	REG_COLEDGESUP = 0X46,
+	REG_PIXELCORRECT = 0X48
+};
+
+static enum PixelCorrect{
+	PIXCORRECT_OFF = 0,
+	PIXCORRECT_ON = 1
+};
 //static StillFormats stillFmts[5];
 
 static struct InitControlsSetting
@@ -214,7 +247,17 @@ static struct InitControlsSetting
 	int WhiteBalance;
 	int WhiteBalanceComponentRed;
 	int WhiteBalanceComponentBlue;
+	int WhiteBalanceComponentRedCur;
+	int WhiteBalanceComponentBlueCur;
 	int DigitalMultiplier;
+	/* for 5MP color suppression ... */
+	int WBLPreP2W = 0;				//record WBL pre setting P2W. it has to be 0 or 1. default setting is 0.
+	int colsupGain;
+	int colsupAGCStart;
+	int colsupAGCEnd;
+	int collightGain;
+	int coledgSupp;
+	int pixelCorrect;
 
 	//Camera Terminal Controls
 	int AEMode;
@@ -236,14 +279,7 @@ static struct InitControlsSetting
 
 	// some share control should be records the current value
 	int CurspeedCtrl = 0;
-
 }initCtrlSetting;
-
-// for stream type
-typedef enum{
-	MEDIA_MJPEG = 0,
-	MEDIA_YUY2 = 1
-}eMediaType;
 
 /* for menu operation */
 static CWnd *pMain;
@@ -257,6 +293,10 @@ extern HRESULT  setExtControls(int PropertyId, int PropertyValue);
 extern HRESULT  setExt2ControlValues(int PropertyId, int ExpValue, int AgcLvlValue);
 extern HRESULT  getExtionControlPropertySize(ULONG PropertyId, ULONG *pulSize);
 extern HRESULT  setExtionControlProperty(ULONG PropertyId, ULONG ulSize, BYTE pValue[]);
+extern HRESULT	I2cCommandInt(BYTE *pwritedata);
+extern HRESULT	I2cCommandOutt(BYTE *pwritedata, int *value);
+extern void		setRegVal(BYTE Regadd, int *data);
+extern void		getRegVal(BYTE Regadd, int *data);
 
 extern HRESULT  getWhiteBalanceComponent(int *redValue, int *blueValue);
 extern HRESULT  setWhiteBalanceComponent(int redValue, int blueValue);
